@@ -23,7 +23,7 @@ const HeroSection = () => {
       
       <div className="container mx-auto text-center relative z-10">
         {/* Logo with animation */}
-        <div className="mb-6 md:mb-8 transform hover:scale-105 transition-transform duration-500">
+        <div className="mb-6 md:mb-8 transform hover:scale-105 transition-transform duration-500 animate-fade-in opacity-0" style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}>
           <img 
             src="/lovable-uploads/2c5dda64-7e25-4ca1-93ab-0de9e1d5fb16.png" 
             alt="VIP Employers Candidate Search" 
@@ -32,34 +32,34 @@ const HeroSection = () => {
         </div>
         
         {/* Main heading with enhanced typography */}
-        <h1 className="text-3xl md:text-6xl font-display font-bold mb-4 md:mb-6 tracking-tight animate-fade-in">
+        <h1 className="text-3xl md:text-6xl font-display font-bold mb-4 md:mb-6 tracking-tight animate-fade-in opacity-0" style={{ animationDelay: "0.4s", animationFillMode: "forwards" }}>
           For <span className="text-gold bg-gradient-to-r from-gold-dark via-gold to-gold-light text-transparent bg-clip-text">CEOs</span> who move before the market does.
         </h1>
         
         {/* Subheading with better spacing and font weight */}
-        <p className="text-grey-300 text-lg md:text-2xl max-w-3xl mx-auto mb-8 md:mb-10 leading-relaxed px-4 animate-fade-in">
+        <p className="text-grey-300 text-lg md:text-2xl max-w-3xl mx-auto mb-8 md:mb-10 leading-relaxed px-4 animate-fade-in opacity-0" style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}>
           This is your private channel to high-level leaders in quiet motion—off-market, off-radar, and quietly open to the right opportunity.
         </p>
         
         {/* Highlight message with enhanced styling */}
-        <p className="text-gold italic text-lg md:text-xl max-w-2xl mx-auto mb-8 md:mb-10 animate-fade-in border-l-4 border-r-4 border-gold/30 py-4 px-6 md:px-8">
+        <p className="text-gold italic text-lg md:text-xl max-w-2xl mx-auto mb-8 md:mb-10 animate-fade-in opacity-0 border-l-4 border-r-4 border-gold/30 py-4 px-6 md:px-8" style={{ animationDelay: "0.8s", animationFillMode: "forwards" }}>
           They're in stealth mode. And this exists for one reason: so you get there first.
         </p>
         
         {/* CTA buttons with improved visual appeal */}
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center px-4 animate-fade-in">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center px-4 animate-fade-in opacity-0" style={{ animationDelay: "1s", animationFillMode: "forwards" }}>
           <Button 
-            className="bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-medium text-base md:text-lg px-6 md:px-8 py-5 md:py-6 h-auto hover:shadow-lg hover:shadow-gold/20 transition-all" 
+            className="bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-medium text-base md:text-lg px-6 md:px-8 py-5 md:py-6 h-auto hover:shadow-lg hover:shadow-gold/20 transition-all transform hover:translate-y-[-3px] hover:scale-105" 
             asChild
           >
             <Link to="/agreement">
-              Access Candidates <ArrowRight className="ml-2" size={isMobile ? 16 : 20} />
+              Access Candidates <ArrowRight className="ml-2 transition-transform group-hover:translate-x-1" size={isMobile ? 16 : 20} />
             </Link>
           </Button>
           
           <Button 
             variant="outline" 
-            className="border-gold/50 text-gold hover:bg-gold/10 text-base md:text-lg px-6 md:px-8 py-5 md:py-6 h-auto hover:shadow-lg hover:shadow-gold/20 transition-all" 
+            className="border-gold/50 text-gold hover:bg-gold/10 text-base md:text-lg px-6 md:px-8 py-5 md:py-6 h-auto hover:shadow-lg hover:shadow-gold/20 transition-all transform hover:translate-y-[-3px] hover:scale-105" 
             asChild
           >
             <Link to="/agreement">
@@ -70,7 +70,8 @@ const HeroSection = () => {
       </div>
       
       {/* Animated scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce hidden md:block">
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce hidden md:flex flex-col items-center opacity-0 animate-fade-in" style={{ animationDelay: "1.5s", animationFillMode: "forwards" }}>
+        <p className="text-gold/70 text-sm mb-2">Scroll to explore</p>
         <ArrowRight className="rotate-90 text-gold/70" size={30} />
       </div>
     </section>
