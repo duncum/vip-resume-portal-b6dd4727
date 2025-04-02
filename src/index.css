@@ -55,6 +55,16 @@
     @apply bg-black text-white;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+  
+  /* Improved smooth scrolling */
+  html {
+    @apply scroll-smooth;
+  }
+  
+  /* Landing page specific styling */
+  .landing-page {
+    @apply overflow-x-hidden;
+  }
 }
 
 @layer components {
@@ -106,6 +116,19 @@
   .animate-pulse-slow {
     animation: pulse 3s ease-in-out infinite;
   }
+  
+  /* New premium animations */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 1s ease-out forwards;
+  }
+  
+  .perspective-1000 {
+    perspective: 1000px;
+  }
 
   @keyframes fadeIn {
     from { opacity: 0; }
@@ -142,6 +165,17 @@
     50% { opacity: 0.8; }
     100% { opacity: 0.5; }
   }
+  
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+  
+  @keyframes slideUp {
+    0% { transform: translateY(100%); opacity: 0; }
+    100% { transform: translateY(0%); opacity: 1; }
+  }
 
   /* Watermark patterns - updated for consistency */
   .watermark-grid {
@@ -159,4 +193,18 @@
   .watermark-image {
     @apply w-52;
   }
+}
+
+/* Executive theme enhancements */
+.font-display {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Enhanced text gradient effects */
+.text-gradient-gold {
+  background: linear-gradient(to right, #ab8755, #e2cba8, #ab8755);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
