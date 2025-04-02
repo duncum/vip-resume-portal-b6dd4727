@@ -41,7 +41,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
                 <img 
                   src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" 
                   alt="CRE Confidential" 
-                  className="w-[400px]"
+                  className="w-[60%] max-w-[500px] min-w-[300px]"
                 />
               </div>
             </div>
