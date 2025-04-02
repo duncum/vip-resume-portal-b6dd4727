@@ -65,6 +65,21 @@
   .landing-page {
     @apply overflow-x-hidden;
   }
+
+  /* Enable perspective for 3D effects */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  /* For 3D rotation effects */
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* Backface visibility for card flips */
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
 }
 
 @layer components {
@@ -90,44 +105,55 @@
 
   /* Animation classes for fade in and other effects */
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
+    animation: fadeIn 0.8s ease-out forwards;
   }
 
   .animate-fade-up {
-    animation: fadeUp 0.6s ease-out forwards;
+    animation: fadeUp 0.8s ease-out forwards;
   }
 
   .animate-fade-down {
-    animation: fadeDown 0.6s ease-out forwards;
+    animation: fadeDown 0.8s ease-out forwards;
   }
 
   .animate-fade-left {
-    animation: fadeLeft 0.6s ease-out forwards;
+    animation: fadeLeft 0.8s ease-out forwards;
   }
 
   .animate-fade-right {
-    animation: fadeRight 0.6s ease-out forwards;
+    animation: fadeRight 0.8s ease-out forwards;
   }
 
   .animate-scale {
-    animation: scale 0.5s ease-out forwards;
+    animation: scale 0.7s ease-out forwards;
   }
 
   .animate-pulse-slow {
     animation: pulse 3s ease-in-out infinite;
   }
   
-  /* New premium animations */
+  /* Enhanced premium animations */
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
   
   .animate-slide-up {
-    animation: slideUp 1s ease-out forwards;
+    animation: slideUp 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
   
-  .perspective-1000 {
-    perspective: 1000px;
+  /* New luxury animations */
+  .animate-glow-pulse {
+    animation: glowPulse 4s ease-in-out infinite;
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 8s linear infinite;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+    background-size: 200% 100%;
+  }
+  
+  .animate-rotate-slow {
+    animation: rotateSlow 20s linear infinite;
   }
 
   @keyframes fadeIn {
@@ -136,27 +162,27 @@
   }
 
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-20px); }
+    from { opacity: 0; transform: translateY(-30px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes fadeLeft {
-    from { opacity: 0; transform: translateX(-20px); }
+    from { opacity: 0; transform: translateX(-30px); }
     to { opacity: 1; transform: translateX(0); }
   }
 
   @keyframes fadeRight {
-    from { opacity: 0; transform: translateX(20px); }
+    from { opacity: 0; transform: translateX(30px); }
     to { opacity: 1; transform: translateX(0); }
   }
 
   @keyframes scale {
-    from { opacity: 0; transform: scale(0.95); }
+    from { opacity: 0; transform: scale(0.9); }
     to { opacity: 1; transform: scale(1); }
   }
 
@@ -168,7 +194,7 @@
   
   @keyframes float {
     0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+    50% { transform: translateY(-15px); }
     100% { transform: translateY(0px); }
   }
   
@@ -176,8 +202,25 @@
     0% { transform: translateY(100%); opacity: 0; }
     100% { transform: translateY(0%); opacity: 1; }
   }
+  
+  /* New luxury keyframe animations */
+  @keyframes glowPulse {
+    0% { box-shadow: 0 0 5px rgba(171,135,85,0.3); }
+    50% { box-shadow: 0 0 20px rgba(171,135,85,0.6); }
+    100% { box-shadow: 0 0 5px rgba(171,135,85,0.3); }
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  
+  @keyframes rotateSlow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 
-  /* Watermark patterns - updated for consistency */
+  /* Watermark patterns - updated for luxury */
   .watermark-grid {
     @apply grid grid-cols-3 gap-24 opacity-20;
   }
@@ -192,6 +235,21 @@
   
   .watermark-image {
     @apply w-52;
+  }
+  
+  /* Premium glass effect */
+  .glass-effect {
+    @apply backdrop-blur-md bg-black/30 border border-white/10;
+  }
+  
+  /* Luxury card effect */
+  .luxury-card {
+    @apply border border-gold/30 bg-black/70 backdrop-blur-md shadow-xl;
+  }
+  
+  /* Gold accent */
+  .gold-accent {
+    @apply border-b-2 border-gold/50;
   }
 }
 

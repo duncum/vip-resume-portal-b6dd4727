@@ -28,7 +28,9 @@ const Landing = () => {
       <HeroSection />
       
       {/* Value Proposition */}
-      <ValueProposition />
+      <div className="relative z-10 -mt-20">
+        <ValueProposition />
+      </div>
       
       {/* Trust Signals */}
       <TrustSignals />
