@@ -1,10 +1,11 @@
+
 // Position categories
 const positionCategories = [
-  "Internship",
-  "Emerging Executives",
-  "Mid-Senior level",
+  "Executive",
   "Director",
-  "Executive"
+  "Mid-Senior level",
+  "Emerging Executives",
+  "One Man Army"
 ];
 
 // Mocked data until Google Sheets API integration is set up
@@ -51,11 +52,11 @@ const mockCandidates = [
   },
   {
     id: "6",
-    headline: "Marketing Intern with Digital Campaign Experience",
-    sectors: ["Marketing", "Digital Media"],
-    tags: ["Social Media", "Content Creation", "Analytics"],
+    headline: "Full Stack Developer with Multiple Technology Expertise",
+    sectors: ["Technology", "Software Development"],
+    tags: ["Frontend", "Backend", "DevOps", "Database Design", "Cloud Architecture"],
     resumeUrl: "https://example.com/resume6.pdf",
-    category: "Internship"
+    category: "One Man Army"
   },
   {
     id: "7",

@@ -24,11 +24,11 @@ const Index = () => {
   // Define position categories
   const positionCategories = [
     "All",
-    "Internship",
-    "Emerging Executives",
-    "Mid-Senior level",
+    "Executive",
     "Director",
-    "Executive"
+    "Mid-Senior level",
+    "Emerging Executives",
+    "One Man Army"
   ];
 
   useEffect(() => {
