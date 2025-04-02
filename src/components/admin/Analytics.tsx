@@ -1,7 +1,8 @@
 
-import { BarChart, ChartConfig, FileText, Users } from "lucide-react";
+import { BarChart, FileText, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { ChartConfig } from "@/components/ui/chart";
 
 const Analytics = () => {
   return (
