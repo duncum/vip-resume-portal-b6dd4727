@@ -5,11 +5,11 @@ import CategoryFilter from "@/components/candidates/CategoryFilter";
 // Category descriptions
 const categoryDescriptions: Record<string, string> = {
   "All": "View all candidates across all position levels",
-  "Executive": "C-Suite, Partners, or those functioning at an enterprise level. Titles: VP, SVP, EVP, COO, CEO, CIO, President, Founder, Principal, Partner",
-  "Director": "Strategic leaders, possibly overseeing regions, portfolios, or departments. Titles: Director, Regional Director, Head of [X], Senior Director",
-  "Mid-Senior level": "Proven operators, hands-on leaders, often managing functions or teams. Titles: Manager, Senior Manager, Asset Manager, Development Manager, Acquisitions Manager, etc.",
-  "Emerging Executives": "Folks on the rise. Smart bets, maybe not yet at the table but getting close. Titles might include: Analyst, Associate, Senior Analyst, Senior Associate, Manager (early stage)",
-  "One Man Army": "One hire with a deep knowledge base to do the work of three or unique backgrounds that don't fit a mold but could replace multiple hires."
+  "Executive": "C-Suite, VPs, Partners and enterprise-level leaders",
+  "Director": "Strategic leaders managing regions, portfolios or departments",
+  "Mid-Senior level": "Experienced operators managing functions or teams",
+  "Emerging Executives": "Rising talent with high potential for leadership roles",
+  "One Man Army": "Versatile professionals with deep expertise across multiple domains"
 };
 
 interface CandidateSearchProps {

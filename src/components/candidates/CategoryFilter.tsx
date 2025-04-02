@@ -39,7 +39,7 @@ const CategoryFilter = ({
                   {category}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className="max-w-xs bg-grey-900 text-white border border-gold/20 px-4 py-2 shadow-lg">
+              <TooltipContent className="max-w-xs bg-grey-900 text-white border border-gold/20 px-4 py-2 shadow-lg text-xs">
                 <p>{categoryDescriptions[category]}</p>
               </TooltipContent>
             </Tooltip>
