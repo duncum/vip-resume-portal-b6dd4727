@@ -24,9 +24,9 @@ const CandidateList = ({
 }: CandidateListProps) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-        {[...Array(6)].map((_, i) => (
-          <Skeleton key={i} className="h-[280px] bg-grey-800/50 rounded-md" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-[320px] bg-grey-800/30 rounded-lg border border-grey-700/30" />
         ))}
       </div>
     );
@@ -34,8 +34,8 @@ const CandidateList = ({
 
   if (candidates.length === 0) {
     return (
-      <div className="text-center py-10">
-        <p className="text-grey-400">No candidates found matching your criteria.</p>
+      <div className="text-center py-16 bg-grey-900/50 backdrop-blur-sm rounded-lg border border-grey-800/50">
+        <p className="text-grey-400 text-lg">No candidates found matching your criteria.</p>
       </div>
     );
   }
@@ -45,7 +45,7 @@ const CandidateList = ({
       items={candidates}
       itemsPerPage={itemsPerPage}
       renderItems={(currentItems) => (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {currentItems.map((candidate) => (
             <CandidateCard
               key={candidate.id}
