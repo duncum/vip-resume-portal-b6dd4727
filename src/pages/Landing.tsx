@@ -1,6 +1,6 @@
 
 import { useEffect } from "react";
-import ExecutiveHero from "@/components/landing/ExecutiveHero";
+import HeroSection from "@/components/landing/HeroSection";
 import ValueProposition from "@/components/landing/ValueProposition"; 
 import TrustSignals from "@/components/landing/TrustSignals";
 import ExclusiveAccess from "@/components/landing/ExclusiveAccess";
@@ -24,8 +24,8 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white overflow-x-hidden">
-      {/* Executive Hero Section */}
-      <ExecutiveHero />
+      {/* Hero Section */}
+      <HeroSection />
       
       {/* Value Proposition */}
       <ValueProposition />

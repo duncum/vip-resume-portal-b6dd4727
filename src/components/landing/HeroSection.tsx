@@ -1,124 +1,241 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const HeroSection = () => {
   const isMobile = useIsMobile();
   const [isVisible, setIsVisible] = useState(false);
+  const [scrollOpacity, setScrollOpacity] = useState(1);
+  const heroRef = useRef<HTMLDivElement>(null);
   
+  // Track mouse position for parallax effect
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  
+  // Handle mouse movement for parallax effect
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!heroRef.current) return;
+    
+    const { left, top, width, height } = heroRef.current.getBoundingClientRect();
+    const x = (e.clientX - left) / width - 0.5;
+    const y = (e.clientY - top) / height - 0.5;
+    
+    setMousePosition({ x, y });
+  };
+  
+  // Initialize animations with a staggered effect
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 300);
     
-    return () => clearTimeout(timer);
+    // Add scroll listener to fade out scroll indicator
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const opacity = Math.max(0, 1 - scrollPosition / 500);
+      setScrollOpacity(opacity);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
   
   return (
-    <section className="relative flex flex-col items-center justify-center min-h-screen px-4 py-16 md:py-20 overflow-hidden">
-      {/* Enhanced Background with subtle gradient and particles */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-black/90 z-0"></div>
-      
-      {/* Animated gold accent lines */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold/40 to-transparent"></div>
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold/40 to-transparent"></div>
-      
-      {/* Subtle geometric pattern overlay */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMxLjIgMCAyLjMuNSAzLjEgMS4zLjguOCAxLjMgMS45IDEuMyAzLjEgMCAxLjItLjUgMi4zLTEuMyAzLjEtLjguOC0xLjkgMS4zLTMuMSAxLjMtMS4yIDAtMi4zLS41LTMuMS0xLjMtLjgtLjgtMS4zLTEuOS0xLjMtMy4xIDAtMS4yLjUtMi4zIDEuMy0zLjEuOC0uOCAxLjktMS4zIDMuMS0xLjN6TTI0IDMwYzEuMiAwIDIuMy41IDMuMSAxLjMuOC44IDEuMyAxLjkgMS4zIDMuMSAwIDEuMi0uNSAyLjMtMS4zIDMuMS0uOC44LTEuOSAxLjMtMy4xIDEuMy0xLjIgMC0yLjMtLjUtMy4xLTEuMy0uOC0uOC0xLjMtMS45LTEuMy0zLjEgMC0xLjIuNS0yLjMgMS4zLTMuMS44LS44IDEuOS0xLjMgMy4xLTEuM3oiIHN0cm9rZT0iI2FiODc1NSIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9nPjwvc3ZnPg==')] animate-pulse"></div>
+    <section 
+      ref={heroRef}
+      onMouseMove={handleMouseMove}
+      className="relative flex flex-col items-center justify-center min-h-[100vh] px-4 py-16 md:py-20 overflow-hidden"
+    >
+      {/* Dynamic background with depth */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black/90 z-0"></div>
+        
+        {/* Animated particle field */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          {Array.from({ length: 40 }).map((_, i) => (
+            <div 
+              key={i}
+              className="absolute rounded-full bg-gold/30"
+              style={{
+                width: `${Math.random() * 4 + 1}px`,
+                height: `${Math.random() * 4 + 1}px`,
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                opacity: Math.random() * 0.5 + 0.3,
+                transform: `translateX(${mousePosition.x * -15}px) translateY(${mousePosition.y * -15}px)`,
+                transition: 'transform 0.2s ease-out',
+                animation: `float ${Math.random() * 10 + 10}s linear infinite`,
+                animationDelay: `${Math.random() * 5}s`,
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* Radial gradient overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(171,135,85,0.08)_0%,transparent_70%)] animate-pulse-slow"></div>
       </div>
       
-      <div className="container mx-auto text-center relative z-10">
-        {/* Logo with animation */}
-        <div className="mb-6 md:mb-8 transform hover:scale-105 transition-transform duration-500 animate-fade-in opacity-0" style={{ animationDelay: "0.2s", animationFillMode: "forwards" }}>
+      {/* Premium geometric accents */}
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-gold/40 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-gold/40 to-transparent"></div>
+      <div className="absolute top-[30%] bottom-[30%] left-0 w-[1px] bg-gradient-to-b from-transparent via-gold/20 to-transparent"></div>
+      <div className="absolute top-[30%] bottom-[30%] right-0 w-[1px] bg-gradient-to-b from-transparent via-gold/20 to-transparent"></div>
+      
+      {/* Corner decorative elements */}
+      <div className="absolute top-6 left-6 w-20 h-20 border-t border-l border-gold/20 opacity-30 hidden md:block"></div>
+      <div className="absolute bottom-6 right-6 w-20 h-20 border-b border-r border-gold/20 opacity-30 hidden md:block"></div>
+      
+      <div className="container mx-auto text-center relative z-10 perspective-1000">
+        {/* Logo with enhanced reveal animation */}
+        <div 
+          className="mb-6 md:mb-10 animate-fade-in opacity-0" 
+          style={{ 
+            animationDelay: "0.3s", 
+            animationFillMode: "forwards",
+            transform: `translateY(${mousePosition.y * -10}px)`,
+            transition: 'transform 0.4s ease-out'
+          }}
+        >
           <img 
             src="/lovable-uploads/2c5dda64-7e25-4ca1-93ab-0de9e1d5fb16.png" 
-            alt="VIP Employers Candidate Search" 
-            className="h-auto max-w-full mx-auto w-64 md:w-96"
+            alt="VIP Executive Network" 
+            className="h-auto max-w-full mx-auto w-56 md:w-64 lg:w-72"
           />
-        </div>
-        
-        {/* Dramatically enhanced headline with typography and effects */}
-        <div className="relative my-8 md:my-12 max-w-4xl mx-auto">
-          {/* Background decorative element */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-gold/10 via-gold/5 to-gold/10 rounded-lg blur opacity-30"></div>
           
-          <h1 className="relative text-3xl md:text-6xl lg:text-7xl font-display font-bold mb-2 tracking-tight">
-            <div className="overflow-hidden mb-2">
-              <span className="inline-block animate-fade-down opacity-0" style={{ animationDelay: "0.4s", animationFillMode: "forwards" }}>For</span>
-            </div>
-            <div className="overflow-hidden relative">
-              <span className="inline-block font-bold bg-gradient-to-r from-gold-dark via-gold to-gold-light bg-clip-text text-transparent animate-fade-down opacity-0" style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}>
-                CEOs
-              </span>
-              {/* Animated underline effect */}
-              <span className={`absolute bottom-1 left-0 w-0 h-[3px] bg-gradient-to-r from-gold-dark to-gold transition-all duration-1000 ease-out ${isVisible ? 'w-full' : 'w-0'}`} style={{ transitionDelay: "1.2s" }}></span>
-            </div>
-            <div className="overflow-hidden mt-2">
-              <span className="inline-block animate-fade-down opacity-0" style={{ animationDelay: "0.8s", animationFillMode: "forwards" }}>who move</span>
-            </div>
-            <div className="overflow-hidden relative">
-              <div className="relative inline-block">
-                <span className="relative z-10 inline-block animate-fade-down opacity-0" style={{ animationDelay: "1s", animationFillMode: "forwards" }}>before the market</span>
-                {/* Decorative element behind "before the market" */}
-                <span className={`absolute inset-y-0 left-0 w-0 h-full bg-gold/10 -skew-x-12 transition-all duration-1000 ease-out ${isVisible ? 'w-full' : 'w-0'}`} style={{ transitionDelay: "1.4s" }}></span>
-              </div>
-            </div>
-            <div className="overflow-hidden mt-2">
-              <span className="inline-block animate-fade-down opacity-0" style={{ animationDelay: "1.2s", animationFillMode: "forwards" }}>does.</span>
-            </div>
-          </h1>
+          {/* Subtle glow effect behind logo */}
+          <div className="absolute inset-0 -mt-10 rounded-full bg-gold/5 blur-3xl transform scale-100 opacity-50"></div>
         </div>
-
-        {/* Subheading with better spacing and font weight */}
-        <p className="text-grey-300 text-lg md:text-2xl max-w-3xl mx-auto mb-8 md:mb-10 leading-relaxed px-4 animate-fade-in opacity-0" style={{ animationDelay: "1.4s", animationFillMode: "forwards" }}>
-          This is your private channel to high-level leaders in quiet motion—off-market, off-radar, and quietly open to the right opportunity.
-        </p>
         
-        {/* Enhanced highlight message with floating effect */}
-        <div className="relative max-w-2xl mx-auto mb-10 md:mb-12 animate-fade-in opacity-0" style={{ animationDelay: "1.6s", animationFillMode: "forwards" }}>
-          {/* Subtle floating animation */}
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-gold/30 to-gold/10 rounded-lg blur opacity-50 animate-pulse-slow"></div>
-          <p className="relative text-gold italic text-lg md:text-xl py-5 px-8 border-l-2 border-r-2 border-gold/40 bg-black/50">
-            They're in <span className="font-semibold">stealth mode</span>. And this exists for one reason: 
-            <span className="block mt-1 font-semibold">so you get there first.</span>
+        {/* Premium category indicator with staggered reveal */}
+        <div 
+          className="overflow-hidden mb-4 animate-fade-in opacity-0" 
+          style={{ animationDelay: "0.6s", animationFillMode: "forwards" }}
+        >
+          <p className="text-gold/80 text-sm md:text-base tracking-widest uppercase font-light">
+            Executive Private Network
           </p>
         </div>
         
-        {/* CTA buttons with improved visual appeal */}
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center px-4 animate-fade-in opacity-0" style={{ animationDelay: "1.8s", animationFillMode: "forwards" }}>
+        {/* Dynamic headline with sequential animation */}
+        <div className="relative mb-8 md:mb-12">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight leading-tight">
+            <div className="overflow-hidden">
+              <span 
+                className="block transform translate-y-full animate-slide-up opacity-0"
+                style={{ animationDelay: "0.8s", animationFillMode: "forwards", animationDuration: "1.2s" }}
+              >
+                The discreet channel
+              </span>
+            </div>
+            <div className="overflow-hidden mt-2">
+              <span 
+                className="block transform translate-y-full animate-slide-up opacity-0"
+                style={{ animationDelay: "1.0s", animationFillMode: "forwards", animationDuration: "1.2s" }}
+              >
+                <span className="bg-gradient-to-r from-gold-dark via-gold to-gold-light bg-clip-text text-transparent relative">
+                  for strategic talent
+                  <span className="absolute bottom-1 left-0 w-full h-[2px] bg-gradient-to-r from-gold-dark/30 to-gold/50"></span>
+                </span>
+              </span>
+            </div>
+            <div className="overflow-hidden mt-2">
+              <span 
+                className="block transform translate-y-full animate-slide-up opacity-0"
+                style={{ animationDelay: "1.2s", animationFillMode: "forwards", animationDuration: "1.2s" }}
+              >
+                acquisition
+              </span>
+            </div>
+          </h1>
+          
+          {/* Animated accent line */}
+          <div 
+            className="absolute left-1/2 -bottom-4 transform -translate-x-1/2 h-[2px] w-0 bg-gradient-to-r from-transparent via-gold/30 to-transparent"
+            style={{
+              transition: "width 1.5s ease-out 1.4s", 
+              width: isVisible ? "200px" : "0px"
+            }}
+          ></div>
+        </div>
+        
+        {/* Value proposition with clearer executive focus */}
+        <p 
+          className="text-grey-300 text-lg md:text-xl lg:text-2xl max-w-4xl mx-auto mb-8 md:mb-12 leading-relaxed animate-fade-in opacity-0 px-4" 
+          style={{ animationDelay: "1.6s", animationFillMode: "forwards" }}
+        >
+          Where forward-thinking CEOs connect with <span className="text-white font-medium">exceptional talent</span> before they enter the public market. This is your <span className="text-gold font-medium">competitive advantage</span>.
+        </p>
+        
+        {/* Exclusive highlight message with premium effect */}
+        <div 
+          className="relative max-w-2xl mx-auto mb-12 animate-fade-in opacity-0" 
+          style={{ 
+            animationDelay: "2.0s", 
+            animationFillMode: "forwards",
+            transform: `translateX(${mousePosition.x * -8}px) translateY(${mousePosition.y * -5}px)`,
+            transition: 'transform 0.6s ease-out'
+          }}
+        >
+          <div className="absolute -inset-1 bg-gradient-to-r from-gold/20 to-gold/5 rounded-lg blur opacity-60"></div>
+          <p className="relative text-gold/90 italic text-lg md:text-xl py-6 px-10 border-l-2 border-r-2 border-gold/30 bg-black/80 backdrop-blur-sm">
+            <span className="absolute -top-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent"></span>
+            Strategic advantage isn't about <span className="font-semibold not-italic">who's available</span>—
+            <span className="block mt-2 font-semibold not-italic">it's about <span className="text-white">who's accessible</span>.</span>
+            <span className="absolute -bottom-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent"></span>
+          </p>
+        </div>
+        
+        {/* Enhanced CTA buttons with sophisticated interactions */}
+        <div 
+          className="flex flex-col md:flex-row gap-5 md:gap-6 justify-center px-4 animate-fade-in opacity-0" 
+          style={{ animationDelay: "2.4s", animationFillMode: "forwards" }}
+        >
           <Button 
-            className="bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-medium text-base md:text-lg px-6 md:px-8 py-5 md:py-6 h-auto hover:shadow-lg hover:shadow-gold/20 transition-all transform hover:translate-y-[-3px] hover:scale-105 group" 
+            className="bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-medium text-base md:text-lg px-7 md:px-8 py-6 h-auto hover:shadow-xl hover:shadow-gold/20 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 group relative overflow-hidden" 
             asChild
           >
             <Link to="/agreement">
-              Access Candidates <ArrowRight className="ml-2 transition-transform group-hover:translate-x-1" size={isMobile ? 16 : 20} />
+              <span className="relative z-10">Access Candidates</span>
+              <ArrowRight className="ml-2 relative z-10 transition-transform group-hover:translate-x-1" size={isMobile ? 16 : 18} />
+              <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
             </Link>
           </Button>
           
           <Button 
             variant="outline" 
-            className="border-gold/50 text-gold hover:bg-gold/10 text-base md:text-lg px-6 md:px-8 py-5 md:py-6 h-auto hover:shadow-lg hover:shadow-gold/20 transition-all transform hover:translate-y-[-3px] hover:scale-105" 
+            className="border-gold/40 text-gold hover:bg-gold/5 text-base md:text-lg px-7 md:px-8 py-6 h-auto hover:shadow-xl hover:shadow-gold/20 transition-all duration-300 transform hover:-translate-y-1 group relative overflow-hidden" 
             asChild
           >
             <Link to="/agreement">
-              Partner With Us
+              <span className="relative z-10">Partner With Us</span>
+              <span className="absolute inset-0 bg-gold opacity-0 group-hover:opacity-5 transition-opacity duration-300"></span>
             </Link>
           </Button>
         </div>
       </div>
       
-      {/* Animated scroll indicator with improved visibility */}
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 hidden md:flex flex-col items-center animate-fade-in opacity-0" style={{ animationDelay: "2.2s", animationFillMode: "forwards" }}>
+      {/* Sophisticated scroll indicator with premium animation */}
+      <div 
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 hidden md:flex flex-col items-center animate-fade-in opacity-0"
+        style={{ 
+          animationDelay: "2.8s", 
+          animationFillMode: "forwards",
+          opacity: scrollOpacity,
+          transition: "opacity 0.3s ease-out"
+        }}
+      >
         <div className="animate-bounce flex flex-col items-center">
-          <p className="text-gold/70 text-sm mb-2 tracking-wider">Scroll to explore</p>
-          <ArrowRight className="rotate-90 text-gold/70" size={30} />
+          <p className="text-gold/60 text-xs tracking-widest uppercase font-light mb-2">Discover More</p>
+          <ChevronDown className="text-gold/60" size={24} />
         </div>
-        {/* Animated pulse circle behind scroll indicator */}
-        <div className="absolute -inset-8 bg-gold/5 rounded-full blur-md animate-pulse-slow"></div>
+        {/* Premium pulse circle behind scroll indicator */}
+        <div className="absolute -inset-8 bg-gold/5 rounded-full blur-xl animate-pulse-slow opacity-60"></div>
       </div>
     </section>
   );
