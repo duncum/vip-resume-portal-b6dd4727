@@ -65,7 +65,7 @@ const Landing = () => {
       <section className="py-20 px-4 bg-grey-900/50 border-t border-b border-gold/10">
         <div className="container mx-auto">
           <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-16">
-            Why Choose <span className="text-gold">VIP</span> Employer Portal
+            <span className="text-gold">Exclusive Access</span> — The First of Its Kind
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
