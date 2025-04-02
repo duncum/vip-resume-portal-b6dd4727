@@ -35,24 +35,24 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
           </div>
         ) : (
           <div className="relative">
-            {/* Enhanced Step and Repeat Watermark Pattern with consistent alignment */}
+            {/* Watermark pattern overlay - consistent grid with alternating rows */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-              <div className="watermark-pattern">
-                {/* Generate 5 rows of watermarks with alternating offsets */}
-                {[...Array(5)].map((_, rowIndex) => (
+              <div className="absolute inset-0 flex flex-col">
+                {/* Generate multiple rows to ensure coverage for any document length */}
+                {[...Array(20)].map((_, rowIndex) => (
                   <div 
                     key={`row-${rowIndex}`} 
-                    className={`flex justify-around ${rowIndex % 2 === 1 ? '-ml-32' : ''}`}
+                    className={`flex justify-between px-12 py-24 ${rowIndex % 2 === 0 ? '' : 'ml-32'}`}
                   >
                     {[...Array(3)].map((_, colIndex) => (
                       <div 
                         key={`watermark-${rowIndex}-${colIndex}`} 
-                        className="transform -rotate-45 opacity-[0.18]"
+                        className="transform -rotate-45 opacity-20"
                       >
                         <img 
                           src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" 
                           alt="CRE Confidential" 
-                          className="w-full max-w-[220px]"
+                          className="w-52"
                         />
                       </div>
                     ))}

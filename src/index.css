@@ -1,5 +1,4 @@
 
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -88,18 +87,21 @@
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  
-  /* Enhanced watermark pattern */
+
+  /* Watermark patterns - updated for consistency */
   .watermark-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-    opacity: 0.15;
+    @apply grid grid-cols-3 gap-24 opacity-20;
   }
   
-  /* New consistent watermark pattern */
-  .watermark-pattern {
-    @apply absolute inset-0 flex flex-col gap-16 py-10;
+  .watermark-row {
+    @apply flex justify-between py-24;
+  }
+  
+  .watermark-item {
+    @apply transform -rotate-45;
+  }
+  
+  .watermark-image {
+    @apply w-52;
   }
 }
-
