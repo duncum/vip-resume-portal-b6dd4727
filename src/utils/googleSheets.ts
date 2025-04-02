@@ -1,3 +1,11 @@
+// Position categories
+const positionCategories = [
+  "Internship",
+  "Emerging Executives",
+  "Mid-Senior level",
+  "Director",
+  "Executive"
+];
 
 // Mocked data until Google Sheets API integration is set up
 const mockCandidates = [
@@ -6,36 +14,57 @@ const mockCandidates = [
     headline: "Senior Marketing Executive with Global Brand Experience",
     sectors: ["Marketing", "Advertising"],
     tags: ["Leadership", "Digital Marketing", "Brand Strategy"],
-    resumeUrl: "https://example.com/resume1.pdf"
+    resumeUrl: "https://example.com/resume1.pdf",
+    category: "Executive"
   },
   {
     id: "2",
     headline: "Financial Analyst with Investment Banking Background",
     sectors: ["Finance", "Banking"],
     tags: ["Financial Modeling", "Valuation", "M&A"],
-    resumeUrl: "https://example.com/resume2.pdf"
+    resumeUrl: "https://example.com/resume2.pdf",
+    category: "Mid-Senior level"
   },
   {
     id: "3",
     headline: "Software Engineering Manager with Startup Experience",
     sectors: ["Technology", "Software"],
     tags: ["Team Leadership", "Agile", "Full Stack"],
-    resumeUrl: "https://example.com/resume3.pdf"
+    resumeUrl: "https://example.com/resume3.pdf",
+    category: "Director"
   },
   {
     id: "4",
     headline: "HR Director specializing in Talent Acquisition",
     sectors: ["Human Resources", "Recruiting"],
     tags: ["Talent Management", "Employee Relations", "HR Strategy"],
-    resumeUrl: "https://example.com/resume4.pdf"
+    resumeUrl: "https://example.com/resume4.pdf",
+    category: "Director"
   },
   {
     id: "5",
     headline: "Supply Chain Manager with Manufacturing Experience",
     sectors: ["Operations", "Supply Chain"],
     tags: ["Process Optimization", "Logistics", "Inventory Management"],
-    resumeUrl: "https://example.com/resume5.pdf"
+    resumeUrl: "https://example.com/resume5.pdf",
+    category: "Mid-Senior level"
   },
+  {
+    id: "6",
+    headline: "Marketing Intern with Digital Campaign Experience",
+    sectors: ["Marketing", "Digital Media"],
+    tags: ["Social Media", "Content Creation", "Analytics"],
+    resumeUrl: "https://example.com/resume6.pdf",
+    category: "Internship"
+  },
+  {
+    id: "7",
+    headline: "Business Development Associate with Tech Background",
+    sectors: ["Sales", "Technology"],
+    tags: ["Client Relationship", "Prospecting", "SaaS"],
+    resumeUrl: "https://example.com/resume7.pdf",
+    category: "Emerging Executives"
+  }
 ];
 
 /**

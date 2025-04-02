@@ -6,9 +6,17 @@ import { Search, X } from "lucide-react";
 
 interface CandidateSearchProps {
   onSearch: (query: string) => void;
+  categories: string[];
+  activeCategory: string;
+  onCategoryChange: (category: string) => void;
 }
 
-const CandidateSearch = ({ onSearch }: CandidateSearchProps) => {
+const CandidateSearch = ({ 
+  onSearch, 
+  categories, 
+  activeCategory, 
+  onCategoryChange 
+}: CandidateSearchProps) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {
@@ -23,15 +31,15 @@ const CandidateSearch = ({ onSearch }: CandidateSearchProps) => {
 
   return (
     <div className="w-full max-w-3xl mx-auto mb-8">
-      <form onSubmit={handleSearch} className="flex gap-2 items-center">
+      <form onSubmit={handleSearch} className="flex gap-2 items-center mb-6">
         <div className="relative flex-grow">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-grey-400" size={18} />
           <Input
             type="text"
-            placeholder="Search by skills, sectors, or keywords..."
+            placeholder="Search by skills, position, or keywords..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white border-2 border-grey-200 focus:border-gold"
+            className="pl-10 bg-white/5 border-2 border-grey-800 focus:border-gold"
           />
           {searchQuery && (
             <button
@@ -47,6 +55,23 @@ const CandidateSearch = ({ onSearch }: CandidateSearchProps) => {
           Search
         </Button>
       </form>
+
+      <div className="flex flex-wrap gap-2 mb-6">
+        {categories.map((category) => (
+          <Button
+            key={category}
+            variant={activeCategory === category ? "default" : "outline"}
+            className={
+              activeCategory === category 
+                ? "bg-gold hover:bg-gold-dark text-black border border-gold" 
+                : "bg-transparent text-white border border-grey-700 hover:border-gold"
+            }
+            onClick={() => onCategoryChange(category)}
+          >
+            {category}
+          </Button>
+        ))}
+      </div>
     </div>
   );
 };
