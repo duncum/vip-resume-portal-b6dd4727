@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
@@ -29,20 +28,20 @@ const CandidateView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
 
-  // Category to color mapping
+  // Category to color mapping - updated to be cohesive with site theme
   const categoryColors = {
-    "Executive": "bg-blue-600 border-blue-400",
-    "Director": "bg-purple-600 border-purple-400",
-    "Mid-Senior level": "bg-green-600 border-green-400",
-    "Emerging Executives": "bg-amber-600 border-amber-400",
-    "One Man Army": "bg-red-600 border-red-400"
+    "Executive": "bg-gold/80 border-gold/60",
+    "Director": "bg-gold/60 border-gold/40",
+    "Mid-Senior level": "bg-gold/40 border-gold/30",
+    "Emerging Executives": "bg-gold/30 border-gold/20",
+    "One Man Army": "bg-gold border-gold/80"
   };
 
-  // Relocation badge color and text
+  // Relocation badge color and text - updated for site cohesion
   const relocationBadge = {
-    "willing": { color: "bg-green-100 text-green-800 border-green-200", text: "Open to Relocation" },
-    "remote-only": { color: "bg-blue-100 text-blue-800 border-blue-200", text: "Remote Only" },
-    "flexible": { color: "bg-purple-100 text-purple-800 border-purple-200", text: "Flexible" }
+    "willing": { color: "bg-grey-800 text-gold border-gold/30", text: "Open to Relocation" },
+    "remote-only": { color: "bg-grey-800 text-white/80 border-grey-700", text: "Remote Only" },
+    "flexible": { color: "bg-grey-800 text-gold/70 border-gold/20", text: "Flexible" }
   };
 
   useEffect(() => {
@@ -110,7 +109,7 @@ const CandidateView = () => {
           {candidate.category && (
             <div className="mb-4">
               <Badge 
-                className={`${categoryColors[candidate.category as keyof typeof categoryColors] || "bg-gray-600 border-gray-400"} text-white mr-2`}
+                className={`${categoryColors[candidate.category as keyof typeof categoryColors] || "bg-grey-800 border-grey-700"} text-black mr-2`}
               >
                 {candidate.category}
               </Badge>
@@ -127,13 +126,13 @@ const CandidateView = () => {
           </h1>
           
           {candidate.summary && (
-            <p className="text-grey-700 mb-4 md:mb-6">
+            <p className="text-grey-300 mb-4 md:mb-6">
               {candidate.summary}
             </p>
           )}
           
           {candidate.location && (
-            <div className="flex items-center text-grey-600 mb-4 md:mb-6">
+            <div className="flex items-center text-grey-400 mb-4 md:mb-6">
               <MapPin size={16} className="mr-2" />
               <span>{candidate.location}</span>
               
@@ -149,7 +148,7 @@ const CandidateView = () => {
           
           <div className="flex flex-wrap gap-1.5 md:gap-2 mb-4 md:mb-6">
             {candidate.sectors.map((sector, index) => (
-              <Badge key={index} variant="outline" className="bg-grey-100 text-grey-700 text-xs md:text-sm">
+              <Badge key={index} variant="outline" className="bg-grey-800/70 text-grey-200 border-grey-700 backdrop-blur-sm shadow-sm text-xs md:text-sm">
                 {sector}
               </Badge>
             ))}
@@ -157,20 +156,20 @@ const CandidateView = () => {
           
           <div className="flex flex-wrap gap-1 mb-6 md:mb-8">
             {candidate.tags.map((tag, index) => (
-              <Badge key={index} className="bg-gold/10 text-gold border-gold/20 text-xs md:text-sm">
+              <Badge key={index} className="bg-gold/10 hover:bg-gold/20 text-gold border-gold/20 text-xs md:text-sm">
                 {tag}
               </Badge>
             ))}
           </div>
           
           <div className="mb-6 md:mb-8">
-            <Button className="bg-gold hover:bg-gold-dark text-white flex items-center gap-2 text-sm md:text-base">
+            <Button className="bg-gold hover:bg-gold-dark text-black flex items-center gap-2 text-sm md:text-base">
               <Download size={isMobile ? 14 : 16} />
               Download Resume
             </Button>
           </div>
           
-          <div className="border-t border-grey-200 pt-4 md:pt-6">
+          <div className="border-t border-grey-700 pt-4 md:pt-6">
             <h2 className="text-lg md:text-xl font-semibold mb-4">Resume Preview</h2>
             <ResumeViewer fileUrl={candidate.resumeUrl} candidateId={candidate.id} />
           </div>

@@ -31,20 +31,20 @@ const CandidateCard = ({
   const isOneManArmy = category === "One Man Army";
   const isMobile = useIsMobile();
 
-  // Category to color mapping
+  // Category to color mapping - updated to be more cohesive with site theme
   const categoryColors = {
-    "Executive": "bg-blue-600 border-blue-400",
-    "Director": "bg-purple-600 border-purple-400",
-    "Mid-Senior level": "bg-green-600 border-green-400",
-    "Emerging Executives": "bg-amber-600 border-amber-400",
-    "One Man Army": "bg-red-600 border-red-400"
+    "Executive": "bg-gold/80 border-gold/60",
+    "Director": "bg-gold/60 border-gold/40",
+    "Mid-Senior level": "bg-gold/40 border-gold/30",
+    "Emerging Executives": "bg-gold/30 border-gold/20",
+    "One Man Army": "bg-gold border-gold/80"
   };
 
-  // Relocation badge color and text
+  // Relocation badge color and text - updated for cohesive theme
   const relocationBadge = {
-    "willing": { color: "bg-green-100 text-green-800 border-green-200", text: "Open to Relocation" },
-    "remote-only": { color: "bg-blue-100 text-blue-800 border-blue-200", text: "Remote Only" },
-    "flexible": { color: "bg-purple-100 text-purple-800 border-purple-200", text: "Flexible" }
+    "willing": { color: "bg-grey-800 text-gold border-gold/30", text: "Open to Relocation" },
+    "remote-only": { color: "bg-grey-800 text-white/80 border-grey-700", text: "Remote Only" },
+    "flexible": { color: "bg-grey-800 text-gold/70 border-gold/20", text: "Flexible" }
   };
 
   return (
@@ -70,7 +70,7 @@ const CandidateCard = ({
           {category && (
             <div className="mb-2">
               <Badge 
-                className={`${categoryColors[category as keyof typeof categoryColors] || "bg-gray-600 border-gray-400"} text-white text-xs`}
+                className={`${categoryColors[category as keyof typeof categoryColors] || "bg-grey-800 border-grey-700"} text-black text-xs`}
               >
                 {category}
               </Badge>
