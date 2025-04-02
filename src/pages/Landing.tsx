@@ -29,11 +29,15 @@ const Landing = () => {
           </div>
           
           <h1 className="text-3xl md:text-6xl font-display font-bold mb-4 md:mb-6 tracking-tight">
-            <span className="text-gold">Premium</span> Candidate Access
+            For <span className="text-gold">CEOs</span> who move before the market does.
           </h1>
           
           <p className="text-grey-300 text-lg md:text-2xl max-w-3xl mx-auto mb-8 md:mb-10 leading-relaxed px-4">
-            Exclusive talent solutions for discerning employers seeking exceptional candidates.
+            This is your private channel to high-level leaders in quiet motion—off-market, off-radar, and quietly open to the right opportunity.
+          </p>
+          
+          <p className="text-gold italic text-lg md:text-xl max-w-2xl mx-auto mb-8 md:mb-10">
+            They're in stealth mode. And this exists for one reason: so you get there first.
           </p>
           
           <div className="flex flex-col md:flex-row gap-4 md:gap-6 justify-center px-4">
