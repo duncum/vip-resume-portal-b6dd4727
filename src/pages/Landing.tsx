@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, UserCheck, Shield, Search } from "lucide-react";
+import { ArrowRight, UserCheck, Shield, Search, Star, Trophy, BadgeCheck } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Landing = () => {
@@ -108,27 +108,83 @@ const Landing = () => {
         </div>
       </section>
       
-      {/* CTA Section */}
+      {/* Testimonials Section - New Section */}
       <section className="py-16 md:py-20 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black to-grey-900/30 z-0"></div>
         
         <div className="container mx-auto relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl md:text-5xl font-display font-bold mb-4 md:mb-6">
-              Ready to Find Your Next <span className="text-gold">Top Performer</span>?
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl md:text-5xl font-display font-bold mb-4 md:mb-6 text-center">
+              Trusted by <span className="text-gold">Industry Leaders</span>
             </h2>
-            <p className="text-lg md:text-xl text-grey-300 mb-8 md:mb-10 px-2">
-              Access our exclusive candidate portal and discover exceptional talent today.
+            <p className="text-base md:text-lg text-grey-300 mb-12 text-center max-w-2xl mx-auto">
+              Our exclusive candidate portal has helped top companies find their most valuable team members.
             </p>
-            <Button 
-              className="bg-gold hover:bg-gold-dark text-black font-medium text-base md:text-lg px-8 md:px-10 py-5 md:py-6 h-auto" 
-              size="lg"
-              asChild
-            >
-              <Link to="/agreement">
-                View Confidential Candidates
-              </Link>
-            </Button>
+            
+            {/* Testimonial Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12">
+              {/* Testimonial 1 */}
+              <div className="bg-black/40 backdrop-blur-sm border border-gold/10 p-6 rounded-lg hover:border-gold/30 transition-duration-300">
+                <div className="flex items-center mb-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 flex items-center justify-center">
+                      <Trophy className="w-6 h-6 text-gold" />
+                    </div>
+                  </div>
+                  <div className="ml-4">
+                    <h4 className="text-lg font-bold">Sarah Johnson</h4>
+                    <p className="text-sm text-grey-400">Chief People Officer, TechGrowth Inc.</p>
+                  </div>
+                </div>
+                <p className="text-grey-300 italic">
+                  "The quality of candidates we've accessed through this portal is outstanding. We filled three executive positions in record time with perfect matches for our culture."
+                </p>
+                <div className="mt-4 flex text-gold">
+                  <Star className="w-5 h-5 fill-gold" />
+                  <Star className="w-5 h-5 fill-gold" />
+                  <Star className="w-5 h-5 fill-gold" />
+                  <Star className="w-5 h-5 fill-gold" />
+                  <Star className="w-5 h-5 fill-gold" />
+                </div>
+              </div>
+              
+              {/* Testimonial 2 */}
+              <div className="bg-black/40 backdrop-blur-sm border border-gold/10 p-6 rounded-lg hover:border-gold/30 transition-duration-300">
+                <div className="flex items-center mb-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 flex items-center justify-center">
+                      <BadgeCheck className="w-6 h-6 text-gold" />
+                    </div>
+                  </div>
+                  <div className="ml-4">
+                    <h4 className="text-lg font-bold">Michael Chen</h4>
+                    <p className="text-sm text-grey-400">Founder, Innovate Partners</p>
+                  </div>
+                </div>
+                <p className="text-grey-300 italic">
+                  "The confidential nature of this service allowed us to discreetly build our executive team without alerting competitors. Worth every penny."
+                </p>
+                <div className="mt-4 flex text-gold">
+                  <Star className="w-5 h-5 fill-gold" />
+                  <Star className="w-5 h-5 fill-gold" />
+                  <Star className="w-5 h-5 fill-gold" />
+                  <Star className="w-5 h-5 fill-gold" />
+                  <Star className="w-5 h-5 fill-gold" />
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <Button 
+                className="bg-gold hover:bg-gold-dark text-black font-medium text-base md:text-lg px-8 md:px-10 py-5 md:py-6 h-auto" 
+                size="lg"
+                asChild
+              >
+                <Link to="/agreement">
+                  Join Leading Employers
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
