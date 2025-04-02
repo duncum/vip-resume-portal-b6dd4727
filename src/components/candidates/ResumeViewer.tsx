@@ -35,8 +35,16 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
           </div>
         ) : (
           <div className="relative">
-            {/* Watermark */}
-            <div className="watermark font-display">CRE Confidential</div>
+            {/* Logo Watermark */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden">
+              <div className="absolute w-[200%] h-[200%] transform -rotate-45 flex items-center justify-center opacity-[0.07]">
+                <img 
+                  src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" 
+                  alt="CRE Confidential" 
+                  className="w-full max-w-none"
+                />
+              </div>
+            </div>
             
             {/* PDF viewer */}
             <iframe
