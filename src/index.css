@@ -88,11 +88,11 @@
     to { opacity: 1; transform: translateY(0); }
   }
   
-  /* New watermark pattern animation */
+  /* Enhanced watermark pattern */
   .watermark-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    opacity: 0.12;
+    opacity: 0.15;
   }
 }

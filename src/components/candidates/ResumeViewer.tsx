@@ -35,18 +35,86 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
           </div>
         ) : (
           <div className="relative">
-            {/* Step and Repeat Watermark Pattern */}
+            {/* Enhanced Step and Repeat Watermark Pattern */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-              <div className="absolute inset-0 grid grid-cols-2 md:grid-cols-3 gap-16 p-8">
-                {[...Array(6)].map((_, index) => (
-                  <div key={index} className="transform -rotate-45 opacity-[0.12]">
-                    <img 
-                      src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" 
-                      alt="CRE Confidential" 
-                      className="w-full max-w-[250px]"
-                    />
-                  </div>
-                ))}
+              <div className="absolute inset-0 flex flex-col gap-12 py-8">
+                {/* Top row */}
+                <div className="flex justify-around">
+                  {[...Array(3)].map((_, index) => (
+                    <div key={`top-${index}`} className="transform -rotate-45 opacity-[0.15]">
+                      <img 
+                        src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" 
+                        alt="CRE Confidential" 
+                        className="w-full max-w-[220px]"
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Middle row - offset */}
+                <div className="flex justify-around -ml-32">
+                  {[...Array(3)].map((_, index) => (
+                    <div key={`middle-${index}`} className="transform -rotate-45 opacity-[0.15]">
+                      <img 
+                        src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" 
+                        alt="CRE Confidential" 
+                        className="w-full max-w-[220px]"
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Bottom row */}
+                <div className="flex justify-around">
+                  {[...Array(3)].map((_, index) => (
+                    <div key={`bottom-${index}`} className="transform -rotate-45 opacity-[0.15]">
+                      <img 
+                        src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" 
+                        alt="CRE Confidential" 
+                        className="w-full max-w-[220px]"
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Repeated patterns for long documents */}
+                <div className="flex justify-around">
+                  {[...Array(3)].map((_, index) => (
+                    <div key={`repeat1-${index}`} className="transform -rotate-45 opacity-[0.15]">
+                      <img 
+                        src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" 
+                        alt="CRE Confidential" 
+                        className="w-full max-w-[220px]"
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Repeated middle offset row */}
+                <div className="flex justify-around -ml-32">
+                  {[...Array(3)].map((_, index) => (
+                    <div key={`repeat2-${index}`} className="transform -rotate-45 opacity-[0.15]">
+                      <img 
+                        src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" 
+                        alt="CRE Confidential" 
+                        className="w-full max-w-[220px]"
+                      />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Additional repeating row */}
+                <div className="flex justify-around">
+                  {[...Array(3)].map((_, index) => (
+                    <div key={`repeat3-${index}`} className="transform -rotate-45 opacity-[0.15]">
+                      <img 
+                        src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" 
+                        alt="CRE Confidential" 
+                        className="w-full max-w-[220px]"
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
             
