@@ -124,9 +124,7 @@ const HeroSection = () => {
             animationDelay: "0.3s", 
             animationFillMode: "forwards",
             transform: `translateY(${mousePosition.y * -10}px) rotateX(${mousePosition.y * 3}deg) rotateY(${mousePosition.x * -3}deg)`,
-            transition: 'transform 0.6s ease-out',
-            animation: hasLoaded ? 'fadeIn 0.8s ease-out forwards' : 'none',
-            animationDelay: '0.3s'
+            transition: 'transform 0.6s ease-out'
           }}
         >
           <img 
@@ -144,9 +142,7 @@ const HeroSection = () => {
           className={`overflow-hidden mb-6 opacity-0 ${hasLoaded ? 'animate-fade-in' : ''}`}
           style={{ 
             animationDelay: "0.6s", 
-            animationFillMode: "forwards",
-            animation: hasLoaded ? 'fadeIn 0.5s ease-out forwards' : 'none',
-            animationDelay: '0.6s'
+            animationFillMode: "forwards"
           }}
         >
           <p className="text-gold/80 text-sm md:text-base tracking-widest uppercase font-light">
@@ -213,9 +209,7 @@ const HeroSection = () => {
           className={`text-grey-300 text-lg md:text-xl lg:text-2xl max-w-4xl mx-auto mb-10 md:mb-14 leading-relaxed opacity-0 px-4 ${hasLoaded ? 'animate-fade-in' : ''}`}
           style={{ 
             animationDelay: "1.6s", 
-            animationFillMode: "forwards",
-            animation: hasLoaded ? 'fadeIn 0.8s ease-out forwards' : 'none',
-            animationDelay: '1.6s'
+            animationFillMode: "forwards"
           }}
         >
           Where discerning executives connect with <span className="text-white font-medium">remarkable talent</span> before they become visible to the market. Establishing your <span className="text-gold font-medium">strategic precedence</span>.
@@ -228,9 +222,7 @@ const HeroSection = () => {
             animationDelay: "2.0s", 
             animationFillMode: "forwards",
             transform: `translateX(${mousePosition.x * -10}px) translateY(${mousePosition.y * -8}px) rotateX(${mousePosition.y * 2}deg) rotateY(${mousePosition.x * -2}deg)`,
-            transition: 'transform 0.8s ease-out',
-            animation: hasLoaded ? 'fadeIn 0.8s ease-out forwards' : 'none',
-            animationDelay: '2.0s'
+            transition: 'transform 0.8s ease-out'
           }}
         >
           <div className="absolute -inset-1 bg-gradient-to-r from-gold/30 to-gold/10 rounded-lg blur opacity-80"></div>
@@ -247,9 +239,7 @@ const HeroSection = () => {
           className={`flex flex-col md:flex-row gap-6 md:gap-8 justify-center px-4 opacity-0 ${hasLoaded ? 'animate-fade-in' : ''}`}
           style={{ 
             animationDelay: "2.4s", 
-            animationFillMode: "forwards",
-            animation: hasLoaded ? 'fadeIn 0.8s ease-out forwards' : 'none',
-            animationDelay: '2.4s'
+            animationFillMode: "forwards"
           }}
         >
           <Button 
@@ -283,9 +273,7 @@ const HeroSection = () => {
           animationDelay: "2.8s", 
           animationFillMode: "forwards",
           opacity: scrollOpacity,
-          transition: "opacity 0.3s ease-out",
-          animation: hasLoaded ? 'fadeIn 0.8s ease-out forwards' : 'none',
-          animationDelay: '2.8s'
+          transition: "opacity 0.3s ease-out"
         }}
       >
         <div className="animate-bounce flex flex-col items-center">
