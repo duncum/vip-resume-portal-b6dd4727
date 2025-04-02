@@ -2,19 +2,10 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import CandidateCard from "@/components/candidates/CandidateCard";
 import CandidateSearch from "@/components/candidates/CandidateSearch";
+import CandidateList from "@/components/candidates/CandidateList";
 import { fetchCandidates } from "@/utils/googleSheets";
 import { toast } from "sonner";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
 interface Candidate {
   id: string;
@@ -30,10 +21,6 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
-
   // Define position categories
   const positionCategories = [
     "All",
@@ -68,7 +55,6 @@ const Index = () => {
   const handleSearch = (query: string) => {
     if (!query && activeCategory === "All") {
       setFilteredCandidates(candidates);
-      setCurrentPage(1);
       return;
     }
 
@@ -91,7 +77,6 @@ const Index = () => {
     }
     
     setFilteredCandidates(filtered);
-    setCurrentPage(1); // Reset to first page when filtering
   };
 
   const handleCategoryChange = (category: string) => {
@@ -99,26 +84,12 @@ const Index = () => {
     
     if (category === "All") {
       setFilteredCandidates(candidates);
-      setCurrentPage(1);
       return;
     }
     
     const filtered = candidates.filter((candidate) => candidate.category === category);
     setFilteredCandidates(filtered);
-    setCurrentPage(1); // Reset to first page when changing category
   };
-
-  // Calculate pagination values
-  const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredCandidates.slice(indexOfFirstItem, indexOfLastItem);
-
-  // Generate page numbers for pagination
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
@@ -141,65 +112,11 @@ const Index = () => {
           onCategoryChange={handleCategoryChange}
         />
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-64 bg-grey-800/50 rounded-md animate-pulse"></div>
-            ))}
-          </div>
-        ) : currentItems.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {currentItems.map((candidate) => (
-                <CandidateCard
-                  key={candidate.id}
-                  id={candidate.id}
-                  headline={candidate.headline}
-                  sectors={candidate.sectors}
-                  tags={candidate.tags}
-                  category={candidate.category}
-                />
-              ))}
-            </div>
-            
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <Pagination className="mt-8">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
-                  </PaginationItem>
-                  
-                  {pageNumbers.map((number) => (
-                    <PaginationItem key={number}>
-                      <PaginationLink
-                        isActive={number === currentPage}
-                        onClick={() => setCurrentPage(number)}
-                        className="cursor-pointer"
-                      >
-                        {number}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                  
-                  <PaginationItem>
-                    <PaginationNext 
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-10">
-            <p className="text-grey-400">No candidates found matching your criteria.</p>
-          </div>
-        )}
+        <CandidateList 
+          candidates={filteredCandidates}
+          isLoading={isLoading}
+          itemsPerPage={6}
+        />
       </main>
       
       <Footer />
