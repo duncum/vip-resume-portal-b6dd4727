@@ -22,8 +22,8 @@ const HeroScrollIndicator: React.FC<HeroScrollIndicatorProps> = ({ scrollOpacity
         <p className="text-gold/70 text-xs tracking-widest uppercase font-light mb-2">Discover The Network</p>
         <ChevronDown className="text-gold/70" size={24} />
       </div>
-      {/* Luxury pulse circle behind scroll indicator */}
-      <div className="absolute -inset-8 bg-gold/10 rounded-full blur-xl animate-pulse-slow opacity-70"></div>
+      {/* Subtle glow effect */}
+      <div className="absolute -inset-8 bg-gold/5 rounded-full blur-xl animate-pulse-slow opacity-50"></div>
     </div>
   );
 };

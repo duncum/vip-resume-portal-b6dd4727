@@ -9,7 +9,7 @@ interface HeroHeadlineProps {
 const HeroHeadline: React.FC<HeroHeadlineProps> = ({ hasLoaded, isVisible }) => {
   return (
     <>
-      {/* Premium category indicator with staggered reveal */}
+      {/* Exclusive category indicator */}
       <div 
         className={`overflow-hidden mb-6 opacity-0 ${hasLoaded ? 'animate-fade-in' : ''}`}
         style={{ 
@@ -18,7 +18,7 @@ const HeroHeadline: React.FC<HeroHeadlineProps> = ({ hasLoaded, isVisible }) => 
         }}
       >
         <p className="text-gold/80 text-sm md:text-base tracking-widest uppercase font-light">
-          Business Matchmaker
+          Top 1% Matchmaking
         </p>
       </div>
       
@@ -34,7 +34,7 @@ const HeroHeadline: React.FC<HeroHeadlineProps> = ({ hasLoaded, isVisible }) => 
                 animationDuration: "1.2s" 
               }}
             >
-              Discreet access to
+              Elite access to
             </span>
           </div>
           <div className="overflow-hidden mt-3">
@@ -47,7 +47,7 @@ const HeroHeadline: React.FC<HeroHeadlineProps> = ({ hasLoaded, isVisible }) => 
               }}
             >
               <span className="bg-gradient-to-r from-gold-dark via-gold to-gold-light bg-clip-text text-transparent relative">
-                stealth mode talent
+                off-market executives
                 <span className="absolute bottom-1 left-0 w-full h-[2px] bg-gradient-to-r from-gold-dark/30 to-gold/70"></span>
               </span>
             </span>
@@ -61,7 +61,7 @@ const HeroHeadline: React.FC<HeroHeadlineProps> = ({ hasLoaded, isVisible }) => 
                 animationDuration: "1.2s" 
               }}
             >
-              without the fees
+              by exclusive invitation
             </span>
           </div>
         </h1>

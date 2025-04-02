@@ -25,7 +25,7 @@ const HeroCTA: React.FC<HeroCTAProps> = ({ hasLoaded }) => {
         asChild
       >
         <Link to="/agreement">
-          <span className="relative z-10">View Stealth Candidates</span>
+          <span className="relative z-10">Access Executive Network</span>
           <ArrowRight className="ml-2 relative z-10 transition-transform group-hover:translate-x-2" size={isMobile ? 16 : 18} />
           <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
         </Link>
@@ -37,7 +37,7 @@ const HeroCTA: React.FC<HeroCTAProps> = ({ hasLoaded }) => {
         asChild
       >
         <Link to="/agreement">
-          <span className="relative z-10">Partner With Us</span>
+          <span className="relative z-10">Executive Partnership</span>
           <span className="absolute inset-0 bg-gold opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
         </Link>
       </Button>
