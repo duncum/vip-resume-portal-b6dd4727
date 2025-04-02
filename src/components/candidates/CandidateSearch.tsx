@@ -74,27 +74,31 @@ const CandidateSearch = ({
 
       <div className="flex flex-wrap gap-2 mb-6">
         {categories.map((category) => (
-          <Tooltip key={category}>
-            <TooltipTrigger asChild>
-              <Button
-                variant={activeCategory === category ? "default" : "outline"}
-                className={
-                  activeCategory === category 
-                    ? "bg-gold hover:bg-gold-dark text-black border border-gold flex items-center" 
-                    : "bg-transparent text-white border border-grey-700 hover:border-gold flex items-center"
-                }
-                onClick={() => onCategoryChange(category)}
-              >
-                {category}
-                {category !== "All" && (
-                  <Info size={14} className="ml-1 opacity-70" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs bg-grey-900 text-white border border-gold/20">
-              <p>{categoryDescriptions[category]}</p>
-            </TooltipContent>
-          </Tooltip>
+          <div key={category} className="flex items-center">
+            <Button
+              variant={activeCategory === category ? "default" : "outline"}
+              className={
+                activeCategory === category 
+                  ? "bg-gold hover:bg-gold-dark text-black border border-gold" 
+                  : "bg-transparent text-white border border-grey-700 hover:border-gold"
+              }
+              onClick={() => onCategoryChange(category)}
+            >
+              {category}
+            </Button>
+            {category !== "All" && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="cursor-help ml-1">
+                    <Info size={14} className="text-grey-400 hover:text-gold transition-colors" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs bg-grey-900 text-white border border-gold/20">
+                  <p>{categoryDescriptions[category]}</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
         ))}
       </div>
     </div>

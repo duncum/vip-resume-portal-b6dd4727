@@ -2,18 +2,27 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Sword } from "lucide-react";
 
 interface CandidateCardProps {
   id: string;
   headline: string;
   sectors: string[];
   tags: string[];
+  category?: string;
 }
 
-const CandidateCard = ({ id, headline, sectors, tags }: CandidateCardProps) => {
+const CandidateCard = ({ id, headline, sectors, tags, category }: CandidateCardProps) => {
+  const isOneManArmy = category === "One Man Army";
+
   return (
     <Link to={`/candidate/${id}`}>
-      <Card className="h-full card-hover border border-gold/20 bg-grey-900/80 backdrop-blur-sm">
+      <Card className="h-full card-hover border border-gold/20 bg-grey-900/80 backdrop-blur-sm relative">
+        {isOneManArmy && (
+          <div className="absolute top-3 right-3 text-gold">
+            <Sword size={20} />
+          </div>
+        )}
         <CardHeader className="pb-2">
           <CardTitle className="text-2xl font-display text-white">{headline}</CardTitle>
         </CardHeader>

@@ -157,6 +157,7 @@ const Index = () => {
                   headline={candidate.headline}
                   sectors={candidate.sectors}
                   tags={candidate.tags}
+                  category={candidate.category}
                 />
               ))}
             </div>
