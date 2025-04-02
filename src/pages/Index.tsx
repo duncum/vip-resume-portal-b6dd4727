@@ -6,6 +6,7 @@ import CandidateSearch from "@/components/candidates/CandidateSearch";
 import CandidateList from "@/components/candidates/CandidateList";
 import { fetchCandidates } from "@/utils/googleSheets";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Candidate {
   id: string;
@@ -20,6 +21,7 @@ const Index = () => {
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
+  const isMobile = useIsMobile();
   
   // Define position categories
   const positionCategories = [
@@ -95,12 +97,12 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-black text-white">
       <Header />
       
-      <main className="flex-grow container mx-auto py-8 px-4">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold font-display mb-2">
+      <main className="flex-grow container mx-auto py-6 md:py-8 px-4">
+        <div className="text-center mb-6 md:mb-10">
+          <h1 className="text-3xl md:text-4xl font-bold font-display mb-2">
             VIP <span className="text-gold">Candidate Profiles</span>
           </h1>
-          <p className="text-grey-400 max-w-2xl mx-auto">
+          <p className="text-grey-400 text-sm md:text-base max-w-2xl mx-auto px-2">
             Browse our exclusive selection of qualified candidates for your confidential review.
           </p>
         </div>
@@ -115,7 +117,7 @@ const Index = () => {
         <CandidateList 
           candidates={filteredCandidates}
           isLoading={isLoading}
-          itemsPerPage={4}
+          itemsPerPage={isMobile ? 3 : 4}
         />
       </main>
       
