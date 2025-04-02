@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, UserPlus, FileText, Tag, MapPin } from "lucide-react";
+import { Upload, UserPlus, FileText, Tag, MapPin, Plus, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -96,38 +96,158 @@ const Admin = () => {
   const [tags, setTags] = useState("");
   const [summary, setSummary] = useState("");
   const [location, setLocation] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedTitle, setSelectedTitle] = useState<string>("");
-  const [customTitle, setCustomTitle] = useState("");
+  
+  // Multiple categories and titles support
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedTitles, setSelectedTitles] = useState<Record<string, string[]>>({});
+  const [customTitles, setCustomTitles] = useState<Record<string, string[]>>({});
+  
   const [relocationPreference, setRelocationPreference] = useState("flexible");
   
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-    setSelectedTitle(""); // Reset title when category changes
-    setCustomTitle(""); // Reset custom title
+  // Handle category selection/deselection
+  const handleCategoryChange = (category: string, checked: boolean) => {
+    if (checked) {
+      setSelectedCategories(prev => [...prev, category]);
+      // Initialize titles array for this category if it doesn't exist
+      if (!selectedTitles[category]) {
+        setSelectedTitles(prev => ({ ...prev, [category]: [] }));
+        setCustomTitles(prev => ({ ...prev, [category]: [] }));
+      }
+    } else {
+      setSelectedCategories(prev => prev.filter(c => c !== category));
+      // Remove titles for this category
+      const newSelectedTitles = { ...selectedTitles };
+      delete newSelectedTitles[category];
+      setSelectedTitles(newSelectedTitles);
+      
+      const newCustomTitles = { ...customTitles };
+      delete newCustomTitles[category];
+      setCustomTitles(newCustomTitles);
+    }
   };
   
-  const handleTitleChange = (title: string) => {
-    setSelectedTitle(title);
-    if (title !== "Other") {
-      setCustomTitle(""); // Clear custom title if not "Other"
+  // Handle title selection/deselection
+  const handleTitleChange = (category: string, title: string, checked: boolean) => {
+    if (checked) {
+      setSelectedTitles(prev => ({
+        ...prev,
+        [category]: [...(prev[category] || []), title]
+      }));
+      
+      // If it's not "Other", we don't need to add a custom title
+      if (title !== "Other") return;
+      
+      // Add an empty string for the custom title
+      setCustomTitles(prev => ({
+        ...prev,
+        [category]: [...(prev[category] || []), ""]
+      }));
+    } else {
+      // Remove the title
+      setSelectedTitles(prev => ({
+        ...prev,
+        [category]: (prev[category] || []).filter(t => t !== title)
+      }));
+      
+      // If it's not "Other", we don't need to remove a custom title
+      if (title !== "Other") return;
+      
+      // Remove the last custom title for this category
+      setCustomTitles(prev => {
+        const updatedCustomTitles = [...(prev[category] || [])];
+        updatedCustomTitles.pop();
+        return {
+          ...prev,
+          [category]: updatedCustomTitles
+        };
+      });
     }
+  };
+  
+  // Update custom title
+  const handleCustomTitleChange = (category: string, index: number, value: string) => {
+    setCustomTitles(prev => {
+      const updatedCustomTitles = [...(prev[category] || [])];
+      updatedCustomTitles[index] = value;
+      return {
+        ...prev,
+        [category]: updatedCustomTitles
+      };
+    });
+  };
+  
+  // Add another "Other" option
+  const addAnotherCustomTitle = (category: string) => {
+    // First make sure "Other" is selected for this category
+    if (!selectedTitles[category]?.includes("Other")) {
+      setSelectedTitles(prev => ({
+        ...prev,
+        [category]: [...(prev[category] || []), "Other"]
+      }));
+    }
+    
+    // Add another empty custom title field
+    setCustomTitles(prev => ({
+      ...prev,
+      [category]: [...(prev[category] || []), ""]
+    }));
+  };
+  
+  // Remove a specific custom title
+  const removeCustomTitle = (category: string, index: number) => {
+    setCustomTitles(prev => {
+      const updatedCustomTitles = [...(prev[category] || [])];
+      updatedCustomTitles.splice(index, 1);
+      
+      // If no more custom titles, unselect "Other"
+      if (updatedCustomTitles.length === 0) {
+        setSelectedTitles(prev => ({
+          ...prev,
+          [category]: (prev[category] || []).filter(t => t !== "Other")
+        }));
+      }
+      
+      return {
+        ...prev,
+        [category]: updatedCustomTitles
+      };
+    });
   };
   
   const handleUpload = (e: React.FormEvent) => {
     e.preventDefault();
     setIsUploading(true);
     
-    // Prepare the final title (either selected or custom)
-    const finalTitle = selectedTitle === "Other" ? customTitle : selectedTitle;
+    // Process all titles including custom "Other" titles
+    const processedTitles: Record<string, string[]> = {};
+    
+    selectedCategories.forEach(category => {
+      processedTitles[category] = [];
+      
+      // Add all non-"Other" titles
+      selectedTitles[category]?.forEach(title => {
+        if (title !== "Other") {
+          processedTitles[category].push(title);
+        }
+      });
+      
+      // Add all custom titles
+      if (customTitles[category]) {
+        customTitles[category].forEach(customTitle => {
+          if (customTitle.trim()) {
+            processedTitles[category].push(customTitle);
+          }
+        });
+      }
+    });
     
     // Prepare candidate data
     const candidateData = {
       headline,
       sectors: sectors.split(",").map(s => s.trim()),
       tags: tags.split(",").map(t => t.trim()),
-      category: selectedCategory,
-      title: finalTitle,
+      categories: selectedCategories,
+      titles: processedTitles,
       summary,
       location,
       relocationPreference
@@ -145,9 +265,9 @@ const Admin = () => {
       // setTags("");
       // setSummary("");
       // setLocation("");
-      // setSelectedCategory("");
-      // setSelectedTitle("");
-      // setCustomTitle("");
+      // setSelectedCategories([]);
+      // setSelectedTitles({});
+      // setCustomTitles({});
       // setRelocationPreference("flexible");
     }, 2000);
   };
@@ -199,63 +319,86 @@ const Admin = () => {
                   </div>
                   
                   <div className="space-y-3">
-                    <h3 className="text-sm font-medium">Position Category & Title</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-3">
-                        <p className="text-xs text-grey-600">Select a category:</p>
-                        <div className="space-y-3">
-                          {Object.keys(roleTitles).map((category) => (
-                            <div key={category} className="flex items-start space-x-2">
-                              <Checkbox 
-                                id={`category-${category}`} 
-                                checked={selectedCategory === category}
-                                onCheckedChange={() => handleCategoryChange(category)}
-                              />
-                              <div>
-                                <label 
-                                  htmlFor={`category-${category}`} 
-                                  className="text-sm font-medium cursor-pointer"
-                                >
-                                  {category}
-                                </label>
-                                <p className="text-xs text-grey-600">{categoryDescriptions[category as keyof typeof categoryDescriptions]}</p>
-                              </div>
+                    <h3 className="text-sm font-medium">Position Categories & Titles</h3>
+                    <p className="text-xs text-grey-600">Select all categories that apply:</p>
+                    
+                    <div className="space-y-6">
+                      {Object.keys(roleTitles).map((category) => (
+                        <div key={category} className="border rounded-md p-4">
+                          <div className="flex items-start space-x-2 mb-4">
+                            <Checkbox 
+                              id={`category-${category}`} 
+                              checked={selectedCategories.includes(category)}
+                              onCheckedChange={(checked) => handleCategoryChange(category, checked === true)}
+                            />
+                            <div>
+                              <label 
+                                htmlFor={`category-${category}`} 
+                                className="text-sm font-medium cursor-pointer"
+                              >
+                                {category}
+                              </label>
+                              <p className="text-xs text-grey-600">{categoryDescriptions[category as keyof typeof categoryDescriptions]}</p>
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      {selectedCategory && (
-                        <div className="space-y-3">
-                          <p className="text-xs text-grey-600">Select a title:</p>
-                          <div className="space-y-2 max-h-[240px] overflow-y-auto pr-2">
-                            {roleTitles[selectedCategory as keyof typeof roleTitles].map((title) => (
-                              <div key={title} className="flex items-center space-x-2">
-                                <Checkbox 
-                                  id={`title-${title}`}
-                                  checked={selectedTitle === title}
-                                  onCheckedChange={() => handleTitleChange(title)}
-                                />
-                                <label 
-                                  htmlFor={`title-${title}`}
-                                  className="text-sm cursor-pointer"
-                                >
-                                  {title}
-                                </label>
-                              </div>
-                            ))}
                           </div>
                           
-                          {selectedTitle === "Other" && (
-                            <Input 
-                              placeholder="Enter custom title" 
-                              value={customTitle}
-                              onChange={(e) => setCustomTitle(e.target.value)}
-                              className="mt-2"
-                            />
+                          {selectedCategories.includes(category) && (
+                            <div className="pl-6">
+                              <p className="text-xs text-grey-600 mb-2">Select all titles that apply:</p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+                                {roleTitles[category as keyof typeof roleTitles].map((title) => (
+                                  <div key={title} className="flex items-center space-x-2">
+                                    <Checkbox 
+                                      id={`${category}-title-${title}`}
+                                      checked={(selectedTitles[category] || []).includes(title)}
+                                      onCheckedChange={(checked) => handleTitleChange(category, title, checked === true)}
+                                    />
+                                    <label 
+                                      htmlFor={`${category}-title-${title}`}
+                                      className="text-sm cursor-pointer"
+                                    >
+                                      {title}
+                                    </label>
+                                  </div>
+                                ))}
+                              </div>
+                              
+                              {(selectedTitles[category] || []).includes("Other") && (
+                                <div className="space-y-2">
+                                  {(customTitles[category] || []).map((customTitle, index) => (
+                                    <div key={index} className="flex items-center space-x-2">
+                                      <Input 
+                                        placeholder="Enter custom title" 
+                                        value={customTitle}
+                                        onChange={(e) => handleCustomTitleChange(category, index, e.target.value)}
+                                        className="flex-1"
+                                      />
+                                      <Button 
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => removeCustomTitle(category, index)}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  ))}
+                                  
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => addAnotherCustomTitle(category)}
+                                    className="flex items-center mt-1 border-dashed border-gray-300 text-gray-500"
+                                  >
+                                    <Plus className="h-3 w-3 mr-1" /> Add Another Custom Title
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
+                      ))}
                     </div>
                   </div>
                   
@@ -338,7 +481,7 @@ const Admin = () => {
                   <Button 
                     type="submit" 
                     className="w-full bg-gold hover:bg-gold-dark text-white"
-                    disabled={isUploading || !selectedCategory || (selectedTitle === "Other" && !customTitle)}
+                    disabled={isUploading || selectedCategories.length === 0}
                   >
                     {isUploading ? (
                       <>
