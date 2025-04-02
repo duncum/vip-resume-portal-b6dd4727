@@ -73,16 +73,16 @@ const Index = () => {
   const sectors = [...new Set(candidates.flatMap((c) => c.sectors))];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-black text-white">
       <Header />
       
       <main className="flex-grow container mx-auto py-8 px-4">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold font-display mb-2">
-            Candidate <span className="text-gold">Portal</span>
+            Candidate <span className="text-gold">Profiles</span>
           </h1>
-          <p className="text-grey-600 max-w-2xl mx-auto">
-            Browse our curated selection of qualified candidates for your confidential review.
+          <p className="text-grey-400 max-w-2xl mx-auto">
+            Browse our exclusive selection of qualified candidates for your confidential review.
           </p>
         </div>
 
@@ -90,15 +90,15 @@ const Index = () => {
 
         <Tabs defaultValue="all" value={activeTab} onValueChange={handleTabChange} className="w-full mb-8">
           <div className="flex justify-center mb-6">
-            <TabsList className="bg-grey-100">
-              <TabsTrigger value="all" className="data-[state=active]:bg-gold data-[state=active]:text-white">
+            <TabsList className="bg-grey-800">
+              <TabsTrigger value="all" className="data-[state=active]:bg-gold data-[state=active]:text-black">
                 All Sectors
               </TabsTrigger>
               {sectors.map((sector) => (
                 <TabsTrigger 
                   key={sector} 
                   value={sector}
-                  className="data-[state=active]:bg-gold data-[state=active]:text-white"
+                  className="data-[state=active]:bg-gold data-[state=active]:text-black"
                 >
                   {sector}
                 </TabsTrigger>
@@ -108,13 +108,13 @@ const Index = () => {
           
           <TabsContent value={activeTab}>
             {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-48 bg-grey-100 rounded-md animate-pulse"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-64 bg-grey-800/50 rounded-md animate-pulse"></div>
                 ))}
               </div>
             ) : filteredCandidates.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {filteredCandidates.map((candidate) => (
                   <CandidateCard
                     key={candidate.id}
@@ -127,7 +127,7 @@ const Index = () => {
               </div>
             ) : (
               <div className="text-center py-10">
-                <p className="text-grey-500">No candidates found matching your criteria.</p>
+                <p className="text-grey-400">No candidates found matching your criteria.</p>
               </div>
             )}
           </TabsContent>

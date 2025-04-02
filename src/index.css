@@ -7,23 +7,23 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    --card: 0 0% 3%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
+    --popover: 0 0% 3%;
+    --popover-foreground: 0 0% 100%;
 
     --primary: 39 34% 50%; /* Gold color */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 0%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 70%;
 
     --accent: 39 34% 50%; /* Gold color */
     --accent-foreground: 0 0% 100%;
@@ -31,19 +31,19 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 0 0% 15%;
+    --input: 0 0% 20%;
     --ring: 39 34% 50%; /* Gold color */
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 20%;
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 90%;
     --sidebar-primary: 39 34% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 20%;
-    --sidebar-border: 0 0% 90%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 15%;
     --sidebar-ring: 39 34% 50%;
   }
 
@@ -52,14 +52,14 @@
   }
 
   body {
-    @apply bg-white text-black;
+    @apply bg-black text-white;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 @layer components {
   .gold-gradient {
-    @apply bg-gradient-to-r from-gold-dark via-gold to-gold-light text-white;
+    @apply bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black;
   }
   
   .gold-border {
@@ -67,10 +67,14 @@
   }
   
   .card-hover {
-    @apply transition-all duration-300 hover:shadow-lg hover:border-gold;
+    @apply transition-all duration-300 hover:shadow-xl hover:shadow-gold/10 hover:border-gold/40;
   }
   
   .watermark {
     @apply absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none transform -rotate-45 text-gold text-6xl font-bold;
+  }
+  
+  .elegant-card {
+    @apply border-gold/20 bg-grey-900/80 backdrop-blur-sm;
   }
 }

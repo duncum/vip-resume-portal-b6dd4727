@@ -1,13 +1,13 @@
 
 const Footer = () => {
   return (
-    <footer className="w-full bg-grey-100 py-4 mt-auto">
+    <footer className="w-full bg-black/80 border-t border-gold/10 py-4 mt-auto">
       <div className="container mx-auto text-center px-2">
-        <p className="text-grey-500 text-sm">
-          &copy; {new Date().getFullYear()} Candidate Resume Portal. All rights reserved.
+        <p className="text-grey-400 text-sm">
+          &copy; {new Date().getFullYear()} VIP Employer Portal. All rights reserved.
         </p>
-        <p className="text-grey-400 text-xs mt-1">
-          All resumes and candidate information are confidential.
+        <p className="text-grey-500 text-xs mt-1">
+          All candidate information is confidential.
         </p>
       </div>
     </footer>
