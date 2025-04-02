@@ -98,7 +98,7 @@ const Index = () => {
       <main className="flex-grow container mx-auto py-8 px-4">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold font-display mb-2">
-            Candidate <span className="text-gold">Profiles</span>
+            VIP <span className="text-gold">Candidate Profiles</span>
           </h1>
           <p className="text-grey-400 max-w-2xl mx-auto">
             Browse our exclusive selection of qualified candidates for your confidential review.
