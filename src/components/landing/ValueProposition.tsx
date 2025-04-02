@@ -1,7 +1,7 @@
 
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
-import { RocketLaunch, Shield, Hourglass } from "lucide-react";
+import { Rocket, ShieldCheck, Timer } from "lucide-react";
 
 const ValueProposition = () => {
   const [animatedItems, setAnimatedItems] = useState<number[]>([]);
@@ -62,7 +62,7 @@ const ValueProposition = () => {
               
               <div className="mb-6 relative">
                 <div className="absolute -inset-2 rounded-full bg-gold/5 blur-md opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                <RocketLaunch className="text-gold relative z-10" size={38} />
+                <Rocket className="text-gold relative z-10" size={38} />
               </div>
               
               <h3 className="text-xl md:text-2xl font-display font-bold mb-4">First-Mover Access</h3>
@@ -79,7 +79,7 @@ const ValueProposition = () => {
               
               <div className="mb-6 relative">
                 <div className="absolute -inset-2 rounded-full bg-gold/5 blur-md opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                <Shield className="text-gold relative z-10" size={38} />
+                <ShieldCheck className="text-gold relative z-10" size={38} />
               </div>
               
               <h3 className="text-xl md:text-2xl font-display font-bold mb-4">Absolute Discretion</h3>
@@ -96,7 +96,7 @@ const ValueProposition = () => {
               
               <div className="mb-6 relative">
                 <div className="absolute -inset-2 rounded-full bg-gold/5 blur-md opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                <Hourglass className="text-gold relative z-10" size={38} />
+                <Timer className="text-gold relative z-10" size={38} />
               </div>
               
               <h3 className="text-xl md:text-2xl font-display font-bold mb-4">Time Advantage</h3>
