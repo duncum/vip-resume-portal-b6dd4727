@@ -1,14 +1,6 @@
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Search, X, Info } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import SearchInput from "@/components/candidates/SearchInput";
+import CategoryFilter from "@/components/candidates/CategoryFilter";
 
 // Category descriptions
 const categoryDescriptions: Record<string, string> = {
@@ -33,74 +25,15 @@ const CandidateSearch = ({
   activeCategory, 
   onCategoryChange 
 }: CandidateSearchProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch(searchQuery);
-  };
-
-  const clearSearch = () => {
-    setSearchQuery("");
-    onSearch("");
-  };
-
   return (
     <div className="w-full max-w-3xl mx-auto mb-8">
-      <form onSubmit={handleSearch} className="flex gap-2 items-center mb-6">
-        <div className="relative flex-grow">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-grey-400" size={18} />
-          <Input
-            type="text"
-            placeholder="Search by skills, position, or keywords..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-white/5 border-2 border-grey-800 focus:border-gold"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={clearSearch}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-grey-400 hover:text-grey-700"
-            >
-              <X size={16} />
-            </button>
-          )}
-        </div>
-        <Button type="submit" className="bg-gold hover:bg-gold-dark text-white">
-          Search
-        </Button>
-      </form>
-
-      <div className="flex flex-wrap gap-2 mb-6">
-        {categories.map((category) => (
-          <div key={category} className="flex items-center">
-            <Button
-              variant={activeCategory === category ? "default" : "outline"}
-              className={
-                activeCategory === category 
-                  ? "bg-gold hover:bg-gold-dark text-black border border-gold" 
-                  : "bg-transparent text-white border border-grey-700 hover:border-gold"
-              }
-              onClick={() => onCategoryChange(category)}
-            >
-              {category}
-            </Button>
-            {category !== "All" && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="cursor-help ml-1">
-                    <Info size={14} className="text-grey-400 hover:text-gold transition-colors" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs bg-grey-900 text-white border border-gold/20">
-                  <p>{categoryDescriptions[category]}</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-        ))}
-      </div>
+      <SearchInput onSearch={onSearch} />
+      <CategoryFilter
+        categories={categories}
+        activeCategory={activeCategory}
+        onCategoryChange={onCategoryChange}
+        categoryDescriptions={categoryDescriptions}
+      />
     </div>
   );
 };
