@@ -24,9 +24,9 @@ const CandidateList = ({
 }: CandidateListProps) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
         {[...Array(6)].map((_, i) => (
-          <Skeleton key={i} className="h-64 bg-grey-800/50 rounded-md" />
+          <Skeleton key={i} className="h-[280px] bg-grey-800/50 rounded-md" />
         ))}
       </div>
     );
@@ -45,7 +45,7 @@ const CandidateList = ({
       items={candidates}
       itemsPerPage={itemsPerPage}
       renderItems={(currentItems) => (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {currentItems.map((candidate) => (
             <CandidateCard
               key={candidate.id}

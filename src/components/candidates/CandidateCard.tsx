@@ -17,17 +17,22 @@ const CandidateCard = ({ id, headline, sectors, tags, category }: CandidateCardP
 
   return (
     <Link to={`/candidate/${id}`}>
-      <Card className="h-full card-hover border border-gold/20 bg-grey-900/80 backdrop-blur-sm relative">
+      <Card className="h-full card-hover border border-gold/20 bg-grey-900/80 backdrop-blur-sm relative min-h-[280px]">
         {isOneManArmy && (
-          <div className="absolute top-3 right-3 text-gold">
-            <Sword size={20} />
+          <div className="absolute top-3 right-3">
+            <Badge variant="outline" className="bg-gold/20 text-gold border-0 flex items-center gap-1">
+              <Sword size={14} />
+              <span className="text-xs">One Man Army</span>
+            </Badge>
           </div>
         )}
         <CardHeader className="pb-2">
-          <CardTitle className="text-2xl font-display text-white">{headline}</CardTitle>
+          <CardTitle className="text-2xl font-display text-white leading-tight">
+            {headline}
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2 mb-4">
+        <CardContent className="pb-0">
+          <div className="flex flex-wrap gap-2 mb-6">
             {sectors.map((sector, index) => (
               <Badge key={index} variant="outline" className="bg-grey-800 text-grey-200 border-grey-700">
                 {sector}

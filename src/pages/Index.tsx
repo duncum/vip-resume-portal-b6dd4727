@@ -115,7 +115,7 @@ const Index = () => {
         <CandidateList 
           candidates={filteredCandidates}
           isLoading={isLoading}
-          itemsPerPage={6}
+          itemsPerPage={4}
         />
       </main>
       
