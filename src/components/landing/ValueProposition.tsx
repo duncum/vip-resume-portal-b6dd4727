@@ -1,109 +1,235 @@
 
 import { useInView } from "react-intersection-observer";
-import { useEffect, useState } from "react";
-import { Rocket, ShieldCheck, Timer } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Rocket, ShieldCheck, Timer, Award, Star } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const ValueProposition = () => {
-  const [animatedItems, setAnimatedItems] = useState<number[]>([]);
+  const [activeCard, setActiveCard] = useState<number | null>(null);
+  const [hoverState, setHoverState] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const { ref, inView } = useInView({
-    threshold: 0.2,
-    triggerOnce: true,
+    threshold: 0.1,
+    triggerOnce: false,
   });
   
   useEffect(() => {
     if (inView) {
       const timer = setTimeout(() => {
-        setAnimatedItems([0]);
+        // Auto-rotate through cards
+        const interval = setInterval(() => {
+          setActiveCard((prev) => {
+            const next = prev === null ? 0 : (prev + 1) % 3;
+            return hoverState === null ? next : hoverState;
+          });
+        }, 4000);
         
-        const timer2 = setTimeout(() => {
-          setAnimatedItems([0, 1]);
-          
-          const timer3 = setTimeout(() => {
-            setAnimatedItems([0, 1, 2]);
-          }, 300);
-          
-          return () => clearTimeout(timer3);
-        }, 300);
-        
-        return () => clearTimeout(timer2);
-      }, 100);
+        return () => clearInterval(interval);
+      }, 1000);
       
       return () => clearTimeout(timer);
+    } else {
+      setActiveCard(null);
     }
-  }, [inView]);
+  }, [inView, hoverState]);
+
+  // Parallax effect on mouse move
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      
+      const { clientX, clientY } = e;
+      const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+      
+      const x = (clientX - left) / width - 0.5;
+      const y = (clientY - top) / height - 0.5;
+      
+      const cards = containerRef.current.querySelectorAll('.value-card');
+      const icons = containerRef.current.querySelectorAll('.value-icon');
+      
+      cards.forEach((card, i) => {
+        const cardEl = card as HTMLElement;
+        
+        // Only apply stronger effects to the active card
+        const intensity = activeCard === i ? 2 : 1;
+        
+        cardEl.style.transform = `
+          perspective(1500px)
+          rotateY(${x * 5 * intensity}deg)
+          rotateX(${-y * 5 * intensity}deg)
+          translateZ(10px)
+        `;
+      });
+      
+      icons.forEach((icon) => {
+        const iconEl = icon as HTMLElement;
+        iconEl.style.transform = `
+          translateX(${x * 15}px)
+          translateY(${y * 15}px)
+        `;
+      });
+    };
+    
+    if (inView) {
+      window.addEventListener('mousemove', handleMouseMove);
+    }
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [inView, activeCard]);
+
+  const valueProps = [
+    {
+      title: "Elite Executive Access",
+      icon: <Rocket className="text-gold value-icon transition-all duration-500" size={46} />,
+      description: "Engage with leadership talent before market awareness. The true strategic advantage lies in being first—particularly in securing transformative executives.",
+      color: "from-gold/30 to-gold/5",
+      borderColor: activeCard === 0 ? "border-gold" : "border-gold/20",
+      glow: activeCard === 0 ? "opacity-70" : "opacity-0"
+    },
+    {
+      title: "Absolute Confidentiality",
+      icon: <ShieldCheck className="text-gold value-icon transition-all duration-500" size={46} />,
+      description: "Conduct high-stakes leadership acquisitions with complete discretion. The most impactful executive movements happen entirely outside of market visibility.",
+      color: "from-gold/30 to-gold/5",
+      borderColor: activeCard === 1 ? "border-gold" : "border-gold/20",
+      glow: activeCard === 1 ? "opacity-70" : "opacity-0"
+    },
+    {
+      title: "Strategic Time Advantage",
+      icon: <Timer className="text-gold value-icon transition-all duration-500" size={46} />,
+      description: "Accelerate executive acquisition by bypassing conventional channels. In competitive industries, time compression delivers insurmountable market advantage.",
+      color: "from-gold/30 to-gold/5",
+      borderColor: activeCard === 2 ? "border-gold" : "border-gold/20",
+      glow: activeCard === 2 ? "opacity-70" : "opacity-0"
+    }
+  ];
 
   return (
-    <section ref={ref} className="py-24 md:py-32 px-4 relative bg-black overflow-hidden">
-      {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black z-0"></div>
+    <section ref={ref} className="py-32 md:py-44 px-4 relative bg-black overflow-hidden">
+      {/* Constellation background effect */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(171,135,85,0.08)_0%,transparent_60%)]"></div>
       
-      {/* Radial gradient for depth */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(171,135,85,0.07)_0%,transparent_70%)]"></div>
+      {/* Animated subtle floating particles */}
+      <div className="absolute inset-0 overflow-hidden opacity-30">
+        {Array.from({ length: 20 }).map((_, i) => (
+          <div 
+            key={i}
+            className="absolute rounded-full bg-gold/20"
+            style={{
+              width: `${Math.random() * 5 + 2}px`,
+              height: `${Math.random() * 5 + 2}px`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `float ${Math.random() * 15 + 10}s linear infinite`,
+              animationDelay: `${Math.random() * 10}s`,
+            }}
+          />
+        ))}
+      </div>
       
-      {/* Decorative lines */}
-      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-gold/20 to-transparent"></div>
+      {/* Grid lines */}
+      <div className="absolute inset-0 grid grid-cols-6 opacity-10">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-full w-px bg-gold/20 justify-self-end"></div>
+        ))}
+      </div>
+      <div className="absolute inset-0 grid grid-rows-6 opacity-10">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="w-full h-px bg-gold/20 self-end"></div>
+        ))}
+      </div>
       
-      <div className="container mx-auto relative z-10 max-w-6xl">
-        <div className="mb-20">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-center mb-6 tracking-tight">
-            <span className="bg-gradient-to-r from-gold-dark via-gold to-gold-light bg-clip-text text-transparent">Strategic Advantage</span> Through Exclusive Intelligence
+      {/* Content */}
+      <div className="container mx-auto relative z-10 max-w-7xl">
+        <div className="mb-24">
+          <div className="flex items-center justify-center mb-6">
+            <div className="h-px w-12 bg-gradient-to-r from-transparent to-gold/60"></div>
+            <Star className="text-gold mx-4" size={20} />
+            <div className="h-px w-12 bg-gradient-to-l from-transparent to-gold/60"></div>
+          </div>
+          
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-center mb-8 tracking-tight leading-tight">
+            <span className="bg-gradient-to-r from-gold-dark via-gold to-gold-light bg-clip-text text-transparent">Strategic Advantages</span>
+            <br />
+            <span className="text-white">For Market Dominance</span>
           </h2>
-          <p className="text-grey-300 text-lg md:text-xl text-center max-w-3xl mx-auto">
-            Beyond the public talent market lies a hidden executive ecosystem. We provide the private intelligence that shapes market-leading teams.
+          
+          <p className="text-grey-300 text-lg md:text-xl text-center max-w-3xl mx-auto leading-relaxed">
+            Beyond traditional talent acquisition lies an exclusive executive ecosystem. Our intelligence network provides privileged access to leadership talent that shapes market outcomes.
           </p>
+          
+          <div className="mt-12 flex justify-center">
+            <div className="h-px w-24 bg-gradient-to-r from-gold/30 via-gold/50 to-gold/30"></div>
+          </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-          {/* Strategic Value 1 */}
-          <div className={`transform transition-all duration-1000 ${animatedItems.includes(0) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="rounded-lg p-8 h-full bg-black/50 backdrop-blur-sm border border-gold/10 group hover:border-gold/30 transition-all duration-500 relative overflow-hidden">
-              <div className="absolute -bottom-1 -right-1 w-20 h-20 border-b border-r border-gold/10 opacity-30 transition-opacity group-hover:opacity-60"></div>
+        {/* Interactive Value Proposition Cards */}
+        <div 
+          ref={containerRef}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mb-24 perspective-1000"
+        >
+          {valueProps.map((prop, index) => (
+            <div
+              key={index}
+              className={`value-card rounded-lg p-8 md:p-10 min-h-[340px] backdrop-blur-sm border-2 transition-all duration-500 relative overflow-hidden transform ${prop.borderColor} hover:border-gold`}
+              onMouseEnter={() => {
+                setHoverState(index);
+                setActiveCard(index);
+              }}
+              onMouseLeave={() => {
+                setHoverState(null);
+              }}
+              style={{
+                transformStyle: 'preserve-3d',
+                transform: activeCard === index ? 'translateZ(20px)' : 'translateZ(0)',
+                transition: 'all 0.5s cubic-bezier(0.23, 1, 0.32, 1)'
+              }}
+            >
+              {/* Highlight glow effect */}
+              <div className={`absolute -inset-0.5 bg-gradient-to-br ${prop.color} rounded-lg blur-xl transition-opacity duration-500 ${prop.glow}`}></div>
               
-              <div className="mb-6 relative">
-                <div className="absolute -inset-2 rounded-full bg-gold/5 blur-md opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                <Rocket className="text-gold relative z-10" size={38} />
+              {/* Decorative corner */}
+              <div className="absolute -bottom-2 -right-2 w-24 h-24 border-b-2 border-r-2 border-gold/20 opacity-30 transition-opacity group-hover:opacity-60"></div>
+              
+              <div className="mb-8 relative perspective-1000 flex items-center justify-center">
+                <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${prop.color} blur-xl transition-opacity duration-500 ${activeCard === index ? 'opacity-100' : 'opacity-50'}`}></div>
+                <div className="relative z-10 bg-black/50 p-5 rounded-full">
+                  {prop.icon}
+                </div>
               </div>
               
-              <h3 className="text-xl md:text-2xl font-display font-bold mb-4">First-Mover Access</h3>
-              <p className="text-grey-300 leading-relaxed">
-                Access exceptional leadership talent before they become publicly available. Strategy is about being first—this applies to talent acquisition as well.
+              <h3 className="text-xl md:text-2xl font-display font-bold mb-4 text-center">{prop.title}</h3>
+              <p className="text-grey-300 leading-relaxed text-center">
+                {prop.description}
               </p>
             </div>
+          ))}
+        </div>
+        
+        {/* Exclusive CTA */}
+        <div className="text-center transform transition-all duration-700">
+          <div className="inline-block relative">
+            <div className="absolute -inset-1 bg-gradient-to-r from-gold/30 to-gold/10 rounded-lg blur-md opacity-80"></div>
+            <Button 
+              className="relative z-10 bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-medium text-lg px-10 py-7 h-auto hover:shadow-xl hover:shadow-gold/20 transition-all duration-300 transform hover:-translate-y-1" 
+              asChild
+            >
+              <Link to="/agreement">
+                Access Executive Network
+              </Link>
+            </Button>
           </div>
           
-          {/* Strategic Value 2 */}
-          <div className={`transform transition-all duration-1000 delay-300 ${animatedItems.includes(1) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="rounded-lg p-8 h-full bg-black/50 backdrop-blur-sm border border-gold/10 group hover:border-gold/30 transition-all duration-500 relative overflow-hidden">
-              <div className="absolute -bottom-1 -right-1 w-20 h-20 border-b border-r border-gold/10 opacity-30 transition-opacity group-hover:opacity-60"></div>
-              
-              <div className="mb-6 relative">
-                <div className="absolute -inset-2 rounded-full bg-gold/5 blur-md opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                <ShieldCheck className="text-gold relative z-10" size={38} />
-              </div>
-              
-              <h3 className="text-xl md:text-2xl font-display font-bold mb-4">Absolute Discretion</h3>
-              <p className="text-grey-300 leading-relaxed">
-                Maintain complete confidentiality throughout the process. The most consequential leadership moves happen quietly, away from market speculation.
-              </p>
-            </div>
-          </div>
+          <p className="mt-6 text-gold/70 text-sm">Privileged access by executive invitation only</p>
           
-          {/* Strategic Value 3 */}
-          <div className={`transform transition-all duration-1000 delay-600 ${animatedItems.includes(2) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="rounded-lg p-8 h-full bg-black/50 backdrop-blur-sm border border-gold/10 group hover:border-gold/30 transition-all duration-500 relative overflow-hidden">
-              <div className="absolute -bottom-1 -right-1 w-20 h-20 border-b border-r border-gold/10 opacity-30 transition-opacity group-hover:opacity-60"></div>
-              
-              <div className="mb-6 relative">
-                <div className="absolute -inset-2 rounded-full bg-gold/5 blur-md opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                <Timer className="text-gold relative z-10" size={38} />
-              </div>
-              
-              <h3 className="text-xl md:text-2xl font-display font-bold mb-4">Time Advantage</h3>
-              <p className="text-grey-300 leading-relaxed">
-                Accelerate your executive search process by bypassing traditional channels. In markets that move fast, time is the ultimate competitive edge.
-              </p>
-            </div>
+          {/* Award indicator */}
+          <div className="mt-16 flex items-center justify-center">
+            <Award className="text-gold/40 mr-3" size={20} />
+            <span className="text-gold/40 text-sm uppercase tracking-wider">Top Executive Network 2023</span>
           </div>
         </div>
       </div>
