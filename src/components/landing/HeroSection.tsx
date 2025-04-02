@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown, Shield } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEffect, useState, useRef } from "react";
 
@@ -67,6 +67,19 @@ const HeroSection = () => {
           }}
         ></div>
         
+        {/* City skyline image with darkened overlay */}
+        <div className="absolute inset-0 z-0 opacity-20">
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: "url('/lovable-uploads/617e974e-d557-4cd2-941e-f4979985f635.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center"
+            }}
+          ></div>
+          <div className="absolute inset-0 bg-black/80"></div>
+        </div>
+        
         {/* Animated luxury particle field */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           {Array.from({ length: 70 }).map((_, i) => (
@@ -128,7 +141,7 @@ const HeroSection = () => {
           }}
         >
           <img 
-            src="/lovable-uploads/e2152856-f56b-4c0c-b903-4e7bb6eb7b92.png" 
+            src="/lovable-uploads/4b7a27c9-c295-4477-b5b4-b063392d75fe.png" 
             alt="CRE Confidential" 
             className="h-auto max-w-full mx-auto w-64 md:w-80 lg:w-96"
           />
@@ -146,7 +159,7 @@ const HeroSection = () => {
           }}
         >
           <p className="text-gold/80 text-sm md:text-base tracking-widest uppercase font-light">
-            Executive Recruitment Network
+            Business Matchmaker
           </p>
         </div>
         
@@ -162,7 +175,7 @@ const HeroSection = () => {
                   animationDuration: "1.2s" 
                 }}
               >
-                The distinguished channel
+                Discreet access to
               </span>
             </div>
             <div className="overflow-hidden mt-3">
@@ -175,7 +188,7 @@ const HeroSection = () => {
                 }}
               >
                 <span className="bg-gradient-to-r from-gold-dark via-gold to-gold-light bg-clip-text text-transparent relative">
-                  for exceptional talent
+                  stealth mode talent
                   <span className="absolute bottom-1 left-0 w-full h-[2px] bg-gradient-to-r from-gold-dark/30 to-gold/70"></span>
                 </span>
               </span>
@@ -189,7 +202,7 @@ const HeroSection = () => {
                   animationDuration: "1.2s" 
                 }}
               >
-                acquisition
+                without the fees
               </span>
             </div>
           </h1>
@@ -212,8 +225,20 @@ const HeroSection = () => {
             animationFillMode: "forwards"
           }}
         >
-          Where discerning executives connect with <span className="text-white font-medium">remarkable talent</span> before they become visible to the market. Establishing your <span className="text-gold font-medium">strategic precedence</span>.
+          Connect with <span className="text-white font-medium">exceptional candidates</span> who aren't actively searching, but are <span className="text-gold font-medium">privately open</span> to the right opportunity.
         </p>
+        
+        {/* Confidentiality badge */}
+        <div 
+          className={`flex items-center justify-center gap-2 mb-10 opacity-0 ${hasLoaded ? 'animate-fade-in' : ''}`}
+          style={{ 
+            animationDelay: "1.8s", 
+            animationFillMode: "forwards"
+          }}
+        >
+          <Shield className="text-gold h-5 w-5" />
+          <span className="text-gold/90 text-sm tracking-wider font-light">99% CONFIDENTIAL CANDIDATES</span>
+        </div>
         
         {/* Exclusive highlight message with 3D hover effect */}
         <div 
@@ -228,8 +253,8 @@ const HeroSection = () => {
           <div className="absolute -inset-1 bg-gradient-to-r from-gold/30 to-gold/10 rounded-lg blur opacity-80"></div>
           <p className="relative text-gold/90 italic text-lg md:text-xl py-8 px-10 border-l-2 border-r-2 border-gold/40 bg-black/80 backdrop-blur-md">
             <span className="absolute -top-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent"></span>
-            The advantage in executive acquisition isn't about <span className="font-semibold not-italic">who's visible</span>—
-            <span className="block mt-3 font-semibold not-italic">it's about <span className="text-white">who's accessible</span> to <span className="text-white">you alone</span>.</span>
+            The competitive edge isn't about <span className="font-semibold not-italic">who's actively looking</span>—
+            <span className="block mt-3 font-semibold not-italic">it's about <span className="text-white">who's privately available</span> if the right opportunity arises.</span>
             <span className="absolute -bottom-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent"></span>
           </p>
         </div>
@@ -247,7 +272,7 @@ const HeroSection = () => {
             asChild
           >
             <Link to="/agreement">
-              <span className="relative z-10">Access Elite Candidates</span>
+              <span className="relative z-10">View Stealth Candidates</span>
               <ArrowRight className="ml-2 relative z-10 transition-transform group-hover:translate-x-2" size={isMobile ? 16 : 18} />
               <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
             </Link>
@@ -259,7 +284,7 @@ const HeroSection = () => {
             asChild
           >
             <Link to="/agreement">
-              <span className="relative z-10">Partner With Our Network</span>
+              <span className="relative z-10">Partner With Us</span>
               <span className="absolute inset-0 bg-gold opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
             </Link>
           </Button>
@@ -277,7 +302,7 @@ const HeroSection = () => {
         }}
       >
         <div className="animate-bounce flex flex-col items-center">
-          <p className="text-gold/70 text-xs tracking-widest uppercase font-light mb-2">Discover Excellence</p>
+          <p className="text-gold/70 text-xs tracking-widest uppercase font-light mb-2">Discover The Network</p>
           <ChevronDown className="text-gold/70" size={24} />
         </div>
         {/* Luxury pulse circle behind scroll indicator */}

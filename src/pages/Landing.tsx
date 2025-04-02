@@ -24,7 +24,7 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white overflow-x-hidden">
-      {/* Hero Section */}
+      {/* Hero Section with confidentiality focus */}
       <HeroSection />
       
       {/* Value Proposition */}
