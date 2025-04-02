@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sword, Star, BookmarkCheck } from "lucide-react";
+import { Star } from "lucide-react";
 
 interface CandidateCardProps {
   id: string;
@@ -21,11 +21,12 @@ const CandidateCard = ({ id, headline, sectors, tags, category }: CandidateCardP
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold/40 via-gold to-gold/40"></div>
         
         {isOneManArmy && (
-          <div className="absolute top-3 right-3">
-            <Badge variant="outline" className="bg-gold/20 text-gold border-0 flex items-center gap-1.5 px-3 py-1 backdrop-blur-sm shadow-sm">
-              <Sword size={14} className="animate-pulse" />
-              <span className="text-xs font-medium">One Man Army</span>
-            </Badge>
+          <div className="absolute top-0 right-5">
+            <img 
+              src="/lovable-uploads/e1ac2dc5-b6bf-42e4-a501-cf37986c19ee.png" 
+              alt="One Man Army" 
+              className="h-16 w-auto"
+            />
           </div>
         )}
         
