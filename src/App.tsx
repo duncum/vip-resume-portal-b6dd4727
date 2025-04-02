@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
+import Landing from "./pages/Landing";
 import CandidateView from "./pages/CandidateView";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
@@ -30,11 +31,13 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Landing page as the main entry point */}
+          <Route path="/" element={<Landing />} />
+          
           {/* Agreement route */}
           <Route path="/agreement" element={<Agreement />} />
           
           {/* Protected routes */}
-          <Route path="/" element={<Navigate to="/candidates" replace />} />
           <Route 
             path="/candidates" 
             element={
