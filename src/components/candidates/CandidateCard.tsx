@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
+import { Star, MapPin } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CandidateCardProps {
@@ -11,11 +11,41 @@ interface CandidateCardProps {
   sectors: string[];
   tags: string[];
   category?: string;
+  title?: string;
+  summary?: string;
+  location?: string;
+  relocationPreference?: string;
 }
 
-const CandidateCard = ({ id, headline, sectors, tags, category }: CandidateCardProps) => {
+const CandidateCard = ({ 
+  id, 
+  headline, 
+  sectors, 
+  tags, 
+  category, 
+  title,
+  summary,
+  location,
+  relocationPreference
+}: CandidateCardProps) => {
   const isOneManArmy = category === "One Man Army";
   const isMobile = useIsMobile();
+
+  // Category to color mapping
+  const categoryColors = {
+    "Executive": "bg-blue-600 border-blue-400",
+    "Director": "bg-purple-600 border-purple-400",
+    "Mid-Senior level": "bg-green-600 border-green-400",
+    "Emerging Executives": "bg-amber-600 border-amber-400",
+    "One Man Army": "bg-red-600 border-red-400"
+  };
+
+  // Relocation badge color and text
+  const relocationBadge = {
+    "willing": { color: "bg-green-100 text-green-800 border-green-200", text: "Open to Relocation" },
+    "remote-only": { color: "bg-blue-100 text-blue-800 border-blue-200", text: "Remote Only" },
+    "flexible": { color: "bg-purple-100 text-purple-800 border-purple-200", text: "Flexible" }
+  };
 
   return (
     <Link to={`/candidate/${id}`}>
@@ -37,12 +67,47 @@ const CandidateCard = ({ id, headline, sectors, tags, category }: CandidateCardP
         </div>
         
         <CardHeader className="pb-1 md:pb-2">
+          {category && (
+            <div className="mb-2">
+              <Badge 
+                className={`${categoryColors[category as keyof typeof categoryColors] || "bg-gray-600 border-gray-400"} text-white text-xs`}
+              >
+                {category}
+              </Badge>
+              {title && (
+                <span className="text-grey-400 text-xs ml-2">
+                  {title}
+                </span>
+              )}
+            </div>
+          )}
           <CardTitle className="text-lg md:text-2xl font-display text-white leading-tight line-clamp-2">
             {headline}
           </CardTitle>
         </CardHeader>
         
         <CardContent className="pb-0">
+          {summary && (
+            <p className="text-grey-300 text-sm mb-3 line-clamp-2">
+              {summary}
+            </p>
+          )}
+          
+          {location && (
+            <div className="flex items-center text-grey-400 text-xs mb-3">
+              <MapPin size={14} className="mr-1" />
+              <span>{location}</span>
+              
+              {relocationPreference && (
+                <Badge 
+                  className={`ml-2 text-[10px] ${relocationBadge[relocationPreference as keyof typeof relocationBadge]?.color || ""}`}
+                >
+                  {relocationBadge[relocationPreference as keyof typeof relocationBadge]?.text || relocationPreference}
+                </Badge>
+              )}
+            </div>
+          )}
+          
           <div className="flex flex-wrap gap-1 md:gap-2 mb-4 md:mb-6">
             {sectors.map((sector, index) => (
               <Badge 

@@ -7,7 +7,7 @@ import ResumeViewer from "@/components/candidates/ResumeViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetchCandidateById } from "@/utils/googleSheets";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, MapPin } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Candidate {
@@ -16,6 +16,11 @@ interface Candidate {
   sectors: string[];
   tags: string[];
   resumeUrl: string;
+  category?: string;
+  title?: string;
+  summary?: string;
+  location?: string;
+  relocationPreference?: string;
 }
 
 const CandidateView = () => {
@@ -23,6 +28,22 @@ const CandidateView = () => {
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
+
+  // Category to color mapping
+  const categoryColors = {
+    "Executive": "bg-blue-600 border-blue-400",
+    "Director": "bg-purple-600 border-purple-400",
+    "Mid-Senior level": "bg-green-600 border-green-400",
+    "Emerging Executives": "bg-amber-600 border-amber-400",
+    "One Man Army": "bg-red-600 border-red-400"
+  };
+
+  // Relocation badge color and text
+  const relocationBadge = {
+    "willing": { color: "bg-green-100 text-green-800 border-green-200", text: "Open to Relocation" },
+    "remote-only": { color: "bg-blue-100 text-blue-800 border-blue-200", text: "Remote Only" },
+    "flexible": { color: "bg-purple-100 text-purple-800 border-purple-200", text: "Flexible" }
+  };
 
   useEffect(() => {
     const loadCandidate = async () => {
@@ -81,14 +102,50 @@ const CandidateView = () => {
       <main className="flex-grow container mx-auto py-6 md:py-8 px-4">
         <div className="mb-6 md:mb-8">
           <Button variant="ghost" asChild className="mb-4">
-            <Link to="/" className="flex items-center text-grey-600 hover:text-gold">
+            <Link to="/candidates" className="flex items-center text-grey-600 hover:text-gold">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Candidates
             </Link>
           </Button>
           
+          {candidate.category && (
+            <div className="mb-4">
+              <Badge 
+                className={`${categoryColors[candidate.category as keyof typeof categoryColors] || "bg-gray-600 border-gray-400"} text-white mr-2`}
+              >
+                {candidate.category}
+              </Badge>
+              {candidate.title && (
+                <span className="text-grey-500">
+                  {candidate.title}
+                </span>
+              )}
+            </div>
+          )}
+          
           <h1 className="text-2xl md:text-3xl font-bold font-display mb-4">
             {candidate.headline}
           </h1>
+          
+          {candidate.summary && (
+            <p className="text-grey-700 mb-4 md:mb-6">
+              {candidate.summary}
+            </p>
+          )}
+          
+          {candidate.location && (
+            <div className="flex items-center text-grey-600 mb-4 md:mb-6">
+              <MapPin size={16} className="mr-2" />
+              <span>{candidate.location}</span>
+              
+              {candidate.relocationPreference && (
+                <Badge 
+                  className={`ml-3 ${relocationBadge[candidate.relocationPreference as keyof typeof relocationBadge]?.color || ""}`}
+                >
+                  {relocationBadge[candidate.relocationPreference as keyof typeof relocationBadge]?.text || candidate.relocationPreference}
+                </Badge>
+              )}
+            </div>
+          )}
           
           <div className="flex flex-wrap gap-1.5 md:gap-2 mb-4 md:mb-6">
             {candidate.sectors.map((sector, index) => (

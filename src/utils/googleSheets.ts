@@ -16,7 +16,11 @@ const mockCandidates = [
     sectors: ["Marketing", "Advertising"],
     tags: ["Leadership", "Digital Marketing", "Brand Strategy"],
     resumeUrl: "https://example.com/resume1.pdf",
-    category: "Executive"
+    category: "Executive",
+    title: "CDO – Development",
+    summary: "Strategic marketing leader with over 15 years experience working with Fortune 500 companies and global brands.",
+    location: "New York, NY",
+    relocationPreference: "willing"
   },
   {
     id: "2",
@@ -24,7 +28,11 @@ const mockCandidates = [
     sectors: ["Finance", "Banking"],
     tags: ["Financial Modeling", "Valuation", "M&A"],
     resumeUrl: "https://example.com/resume2.pdf",
-    category: "Mid-Senior level"
+    category: "Mid-Senior level",
+    title: "Financial Planning Manager",
+    summary: "Detail-oriented financial analyst with expertise in investment banking and private equity transactions.",
+    location: "Chicago, IL",
+    relocationPreference: "flexible"
   },
   {
     id: "3",
@@ -32,7 +40,11 @@ const mockCandidates = [
     sectors: ["Technology", "Software"],
     tags: ["Team Leadership", "Agile", "Full Stack"],
     resumeUrl: "https://example.com/resume3.pdf",
-    category: "Director"
+    category: "Director",
+    title: "Director of Development",
+    summary: "Engineering leader who has built and scaled multiple technical teams at high-growth startups.",
+    location: "San Francisco, CA",
+    relocationPreference: "remote-only"
   },
   {
     id: "4",
@@ -40,7 +52,11 @@ const mockCandidates = [
     sectors: ["Human Resources", "Recruiting"],
     tags: ["Talent Management", "Employee Relations", "HR Strategy"],
     resumeUrl: "https://example.com/resume4.pdf",
-    category: "Director"
+    category: "Director",
+    title: "Director of Procurement",
+    summary: "Experienced HR leader with a track record of building effective talent acquisition strategies and programs.",
+    location: "Boston, MA",
+    relocationPreference: "willing"
   },
   {
     id: "5",
@@ -48,7 +64,11 @@ const mockCandidates = [
     sectors: ["Operations", "Supply Chain"],
     tags: ["Process Optimization", "Logistics", "Inventory Management"],
     resumeUrl: "https://example.com/resume5.pdf",
-    category: "Mid-Senior level"
+    category: "Mid-Senior level",
+    title: "Procurement Manager",
+    summary: "Supply chain expert with experience optimizing complex manufacturing and distribution networks.",
+    location: "Detroit, MI",
+    relocationPreference: "flexible"
   },
   {
     id: "6",
@@ -56,7 +76,11 @@ const mockCandidates = [
     sectors: ["Technology", "Software Development"],
     tags: ["Frontend", "Backend", "DevOps", "Database Design", "Cloud Architecture"],
     resumeUrl: "https://example.com/resume6.pdf",
-    category: "One Man Army"
+    category: "One Man Army",
+    title: "Independent Consultant",
+    summary: "Versatile developer capable of handling all aspects of software development from design to deployment.",
+    location: "Austin, TX",
+    relocationPreference: "remote-only"
   },
   {
     id: "7",
@@ -64,7 +88,11 @@ const mockCandidates = [
     sectors: ["Sales", "Technology"],
     tags: ["Client Relationship", "Prospecting", "SaaS"],
     resumeUrl: "https://example.com/resume7.pdf",
-    category: "Emerging Executives"
+    category: "Emerging Executives",
+    title: "Associate",
+    summary: "Up-and-coming sales professional with a technical background and a track record of exceeding targets.",
+    location: "Seattle, WA",
+    relocationPreference: "willing"
   }
 ];
 
