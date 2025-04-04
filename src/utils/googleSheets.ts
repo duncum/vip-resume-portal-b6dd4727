@@ -113,7 +113,7 @@ interface Candidate {
   relocationPreference?: string;
 }
 
-import { initGoogleApi, isUserAuthorized, signInToGoogle } from './googleAuth';
+import { initGoogleApi, isUserAuthorized, signInToGoogle } from './google';
 import { toast } from 'sonner';
 
 /**
