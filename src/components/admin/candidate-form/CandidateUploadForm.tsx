@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MapPin, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,11 @@ import ResumeUploader from "./ResumeUploader";
 
 const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
+  
+  // Generate a unique candidate ID combining timestamp and random string
+  const [candidateId] = useState(
+    `C${Date.now().toString().slice(-6)}${Math.random().toString(36).substring(2, 5).toUpperCase()}`
+  );
   
   // Form fields
   const [headline, setHeadline] = useState("");
@@ -259,6 +263,7 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
     });
     
     const candidateData = {
+      id: candidateId,
       headline,
       levels: selectedLevels,
       titleCategories: selectedTitleCategories,
@@ -312,7 +317,10 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
   return (
     <form onSubmit={handleUpload} className="space-y-6">
       <div className="flex justify-between items-center pb-4 mb-4 border-b">
-        <h3 className="text-xl font-medium">Upload New Resume</h3>
+        <div>
+          <h3 className="text-xl font-medium">Upload New Resume</h3>
+          <p className="text-sm text-gray-500">Candidate ID: <span className="font-mono text-gold">{candidateId}</span></p>
+        </div>
         <Badge variant="outline" className="text-gold border-gold">
           {candidateCount} Candidates
         </Badge>
@@ -436,7 +444,7 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
         </div>
       </div>
       
-      <ResumeUploader />
+      <ResumeUploader candidateId={candidateId} />
       
       <Button 
         type="submit" 

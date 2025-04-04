@@ -48,7 +48,8 @@ const ManageCandidates = ({ initialCandidates = [], isInitialLoading = false }: 
   const filteredCandidates = candidates.filter(candidate =>
     candidate.headline?.toLowerCase().includes(searchTerm.toLowerCase()) || 
     candidate.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    candidate.sectors?.some((sector: string) => sector.toLowerCase().includes(searchTerm.toLowerCase()))
+    candidate.sectors?.some((sector: string) => sector.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    candidate.id?.toString().includes(searchTerm)
   );
 
   const handleDelete = (id: string) => {
@@ -108,6 +109,7 @@ const ManageCandidates = ({ initialCandidates = [], isInitialLoading = false }: 
                 <table className="w-full">
                   <thead>
                     <tr className="bg-gray-50 border-b">
+                      <th className="text-left p-3 text-sm font-medium text-gray-600">ID</th>
                       <th className="text-left p-3 text-sm font-medium text-gray-600">Headline</th>
                       <th className="text-left p-3 text-sm font-medium text-gray-600">Position</th>
                       <th className="text-left p-3 text-sm font-medium text-gray-600">Category</th>
@@ -117,6 +119,7 @@ const ManageCandidates = ({ initialCandidates = [], isInitialLoading = false }: 
                   <tbody>
                     {filteredCandidates.map((candidate) => (
                       <tr key={candidate.id} className="border-b hover:bg-gray-50">
+                        <td className="p-3 text-sm font-mono">{candidate.id}</td>
                         <td className="p-3 text-sm line-clamp-1">{candidate.headline}</td>
                         <td className="p-3 text-sm">{candidate.title || "N/A"}</td>
                         <td className="p-3 text-sm">{candidate.category || "N/A"}</td>
