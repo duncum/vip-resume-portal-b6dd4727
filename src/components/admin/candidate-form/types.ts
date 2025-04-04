@@ -71,3 +71,34 @@ export interface CustomItemsProps {
 export interface ResumeUploaderProps {
   candidateId?: string;
 }
+
+export interface FormHeaderProps {
+  candidateId: string;
+  candidateCount: number;
+}
+
+export interface HeadlineInputProps {
+  headline: string;
+  onHeadlineChange: (value: string) => void;
+}
+
+export interface SummaryInputProps {
+  summary: string;
+  onSummaryChange: (value: string) => void;
+}
+
+export interface TagsInputProps {
+  tags: string;
+  onTagsChange: (value: string) => void;
+}
+
+export interface LocationSectionProps {
+  location: string;
+  onLocationChange: (value: string) => void;
+  relocationPreference: string;
+  onRelocationChange: (value: string) => void;
+}
+
+export interface SubmitButtonProps {
+  isUploading: boolean;
+}

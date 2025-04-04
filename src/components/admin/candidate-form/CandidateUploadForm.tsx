@@ -1,11 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { MapPin, Upload } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+import React, { useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { CandidateUploadFormProps } from "./types";
 import CollapsibleSection from "./CollapsibleSection";
 import CandidateLevels from "./CandidateLevels";
@@ -14,6 +9,12 @@ import SkillsSection from "./SkillsSection";
 import AssetTypesSection from "./AssetTypesSection";
 import SectorsSection from "./SectorsSection";
 import ResumeUploader from "./ResumeUploader";
+import FormHeader from "./FormHeader";
+import HeadlineInput from "./HeadlineInput";
+import SummaryInput from "./SummaryInput";
+import TagsInput from "./TagsInput";
+import LocationSection from "./LocationSection";
+import SubmitButton from "./SubmitButton";
 
 const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
@@ -316,24 +317,9 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
 
   return (
     <form onSubmit={handleUpload} className="space-y-6">
-      <div className="flex justify-between items-center pb-4 mb-4 border-b">
-        <div>
-          <h3 className="text-xl font-medium">Upload New Resume</h3>
-          <p className="text-sm text-gray-500">Candidate ID: <span className="font-mono text-gold">{candidateId}</span></p>
-        </div>
-        <Badge variant="outline" className="text-gold border-gold">
-          {candidateCount} Candidates
-        </Badge>
-      </div>
+      <FormHeader candidateId={candidateId} candidateCount={candidateCount} />
       
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Candidate Headline</label>
-        <Input 
-          placeholder="e.g. Senior Marketing Executive with 10+ years experience" 
-          value={headline}
-          onChange={(e) => setHeadline(e.target.value)}
-        />
-      </div>
+      <HeadlineInput headline={headline} onHeadlineChange={setHeadline} />
       
       <CollapsibleSection title="Candidate Level / Hierarchy">
         <CandidateLevels 
@@ -388,78 +374,20 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
         />
       </CollapsibleSection>
       
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Candidate Summary</label>
-        <Textarea 
-          placeholder="Brief description of candidate's background and strengths"
-          value={summary}
-          onChange={(e) => setSummary(e.target.value)}
-          className="min-h-[100px]"
-        />
-      </div>
+      <SummaryInput summary={summary} onSummaryChange={setSummary} />
       
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Additional Tags (comma separated)</label>
-        <Input 
-          placeholder="e.g. Leadership, Digital Marketing, Strategic Planning"
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-        />
-        <p className="text-xs text-grey-500">Use tags for additional searchable keywords</p>
-      </div>
+      <TagsInput tags={tags} onTagsChange={setTags} />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Current Location</label>
-          <div className="flex items-center">
-            <MapPin className="mr-2 h-4 w-4 text-grey-400" />
-            <Input 
-              placeholder="e.g. New York, NY"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
-          </div>
-        </div>
-        
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Relocation Preference</label>
-          <RadioGroup 
-            value={relocationPreference} 
-            onValueChange={setRelocationPreference}
-            className="flex flex-col space-y-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="willing" id="r1" />
-              <label htmlFor="r1" className="text-sm">Open to relocation</label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="remote-only" id="r2" />
-              <label htmlFor="r2" className="text-sm">Remote only</label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="flexible" id="r3" />
-              <label htmlFor="r3" className="text-sm">Flexible</label>
-            </div>
-          </RadioGroup>
-        </div>
-      </div>
+      <LocationSection
+        location={location}
+        onLocationChange={setLocation}
+        relocationPreference={relocationPreference}
+        onRelocationChange={setRelocationPreference}
+      />
       
       <ResumeUploader candidateId={candidateId} />
       
-      <Button 
-        type="submit" 
-        className="w-full bg-gold hover:bg-gold-dark text-white"
-        disabled={isUploading}
-      >
-        {isUploading ? (
-          <>
-            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-            Uploading...
-          </>
-        ) : (
-          "Upload Resume"
-        )}
-      </Button>
+      <SubmitButton isUploading={isUploading} />
     </form>
   );
 };
