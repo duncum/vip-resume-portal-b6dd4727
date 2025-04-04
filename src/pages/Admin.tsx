@@ -4,7 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import CandidateUploadForm from "@/components/admin/CandidateUploadForm";
+import { CandidateUploadForm } from "@/components/admin/candidate-form";
 import ManageCandidates from "@/components/admin/ManageCandidates";
 import Analytics from "@/components/admin/Analytics";
 import { useToast } from "@/components/ui/use-toast";
