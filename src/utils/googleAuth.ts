@@ -1,11 +1,12 @@
+
 // This file manages Google API authentication and access tokens
 
 import { toast } from "sonner";
 
 // Google API configuration
 // In production, these values should come from environment variables
-const CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID"; // Replace with your actual client ID
-const API_KEY = "YOUR_GOOGLE_API_KEY"; // Replace with your actual API key
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID"; // Replace with your actual client ID
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || "YOUR_GOOGLE_API_KEY"; // Replace with your actual API key
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
   "https://sheets.googleapis.com/$discovery/rest?version=v4"
