@@ -1,5 +1,8 @@
 
 import React from "react";
+import { Plus, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { SkillsProps } from "./types";
 import { highLevelSkills } from "./form-data";
 import CheckboxList from "./CheckboxList";
