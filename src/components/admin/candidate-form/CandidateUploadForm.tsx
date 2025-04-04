@@ -19,10 +19,8 @@ import SubmitButton from "./SubmitButton";
 const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
   
-  // Generate a unique candidate ID combining timestamp and random string
-  const [candidateId] = useState(
-    `C${Date.now().toString().slice(-6)}${Math.random().toString(36).substring(2, 5).toUpperCase()}`
-  );
+  // Candidate ID that can be entered by the user
+  const [candidateId, setCandidateId] = useState("");
   
   // Form fields
   const [headline, setHeadline] = useState("");
@@ -241,6 +239,13 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
   
   const handleUpload = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate candidateId exists
+    if (!candidateId.trim()) {
+      toast.error("Please enter a Candidate ID");
+      return;
+    }
+    
     setIsUploading(true);
     
     const processedTitles: Record<string, string[]> = {};
@@ -297,6 +302,8 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
         onSuccess();
       }
       
+      // Reset form fields
+      setCandidateId("");
       setHeadline("");
       setSummary("");
       setLocation("");
@@ -318,6 +325,11 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
   return (
     <form onSubmit={handleUpload} className="space-y-6">
       <FormHeader candidateId={candidateId} candidateCount={candidateCount} />
+      
+      <ResumeUploader 
+        candidateId={candidateId}
+        onCandidateIdChange={setCandidateId}
+      />
       
       <HeadlineInput headline={headline} onHeadlineChange={setHeadline} />
       
@@ -384,8 +396,6 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
         relocationPreference={relocationPreference}
         onRelocationChange={setRelocationPreference}
       />
-      
-      <ResumeUploader candidateId={candidateId} />
       
       <SubmitButton isUploading={isUploading} />
     </form>

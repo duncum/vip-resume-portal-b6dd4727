@@ -69,7 +69,9 @@ export interface CustomItemsProps {
 }
 
 export interface ResumeUploaderProps {
-  candidateId?: string;
+  candidateId: string;
+  onCandidateIdChange?: (value: string) => void;
+  isReadOnly?: boolean;
 }
 
 export interface FormHeaderProps {
