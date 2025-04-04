@@ -28,4 +28,3 @@ export const isAuthorized = false; // This was internal state
 // Import and export the printOAuthSetupInstructions for backward compatibility
 import { printOAuthSetupInstructions } from './google/config';
 export { printOAuthSetupInstructions };
-
