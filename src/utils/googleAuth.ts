@@ -1,4 +1,3 @@
-
 // This file manages Google API authentication and access tokens
 
 import { toast } from "sonner";
@@ -17,6 +16,13 @@ const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googlea
 let isGapiInitialized = false;
 let isGapiLoaded = false;
 let isAuthorized = false;
+
+/**
+ * Get the redirect URI for OAuth - should match what's configured in Google Cloud Console
+ */
+const getRedirectUri = () => {
+  return window.location.origin;
+};
 
 /**
  * Load the Google API client library
@@ -60,7 +66,8 @@ export const initGoogleApi = async (): Promise<boolean> => {
             apiKey: API_KEY,
             clientId: CLIENT_ID,
             discoveryDocs: DISCOVERY_DOCS,
-            scope: SCOPES
+            scope: SCOPES,
+            redirect_uri: getRedirectUri()
           });
           
           // Listen for sign-in state changes
@@ -109,7 +116,12 @@ export const signInToGoogle = async (): Promise<boolean> => {
   }
 
   try {
-    await window.gapi.auth2.getAuthInstance().signIn();
+    const options = {
+      ux_mode: 'popup',
+      redirect_uri: getRedirectUri()
+    };
+    
+    await window.gapi.auth2.getAuthInstance().signIn(options);
     return true;
   } catch (error) {
     console.error('Error signing in to Google:', error);
@@ -164,3 +176,26 @@ export const getCurrentUserEmail = (): string | null => {
   
   return null;
 };
+
+/**
+ * Print OAuth setup instructions to console for developers
+ */
+export const printOAuthSetupInstructions = () => {
+  console.info(
+    `Google OAuth Setup Instructions:
+    
+    1. In your Google Cloud Console project, configure these settings:
+       
+       - Authorized JavaScript origins: ${window.location.origin}
+       - Authorized redirect URIs: ${getRedirectUri()}
+       
+    2. Make sure your Client ID and API Key are correctly set in .env file.
+    
+    If you're seeing authentication errors, verify these settings in your Google Cloud Console.`
+  );
+};
+
+// Print setup instructions in development mode
+if (import.meta.env.DEV) {
+  printOAuthSetupInstructions();
+}

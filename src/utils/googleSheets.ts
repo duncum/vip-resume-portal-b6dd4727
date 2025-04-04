@@ -8,7 +8,7 @@ const positionCategories = [
 ];
 
 // Configuration for the Google Sheet
-const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID"; // Replace with your actual spreadsheet ID
+const SPREADSHEET_ID = import.meta.env.VITE_GOOGLE_SPREADSHEET_ID || "YOUR_SPREADSHEET_ID"; // Replace with your actual spreadsheet ID
 const CANDIDATES_RANGE = "Candidates!A2:Z"; // Adjust based on your sheet structure
 
 // Mocked data until Google Sheets API integration is set up
