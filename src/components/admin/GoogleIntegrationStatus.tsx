@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { initGoogleApi, isUserAuthorized, signInToGoogle, signOutFromGoogle, getCurrentUserEmail } from '@/utils/google';
 import { Button } from '@/components/ui/button';
@@ -143,7 +142,7 @@ const GoogleIntegrationStatus = () => {
             <Info 
               className="h-4 w-4 ml-2 text-amber-500 cursor-pointer" 
               onClick={showSetupInstructions}
-              title="API credentials missing. Click for setup instructions."
+              aria-label="API credentials missing. Click for setup instructions."
             />
           )}
         </CardTitle>
