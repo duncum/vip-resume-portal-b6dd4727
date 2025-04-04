@@ -25,5 +25,7 @@ export const isGapiLoaded = GoogleAuth.isApiLoaded;
 export const isGapiInitialized = false; // This was internal state
 export const isAuthorized = false; // This was internal state
 
-// Export the printOAuthSetupInstructions for backward compatibility
-export const { printOAuthSetupInstructions } = require('./google/config');
+// Import and export the printOAuthSetupInstructions for backward compatibility
+import { printOAuthSetupInstructions } from './google/config';
+export { printOAuthSetupInstructions };
+
