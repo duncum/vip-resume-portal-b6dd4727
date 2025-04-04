@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
@@ -6,9 +7,10 @@ import ResumeViewer from "@/components/candidates/ResumeViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetchCandidateById } from "@/utils/googleSheets";
-import { ArrowLeft, Download, MapPin } from "lucide-react";
+import { ArrowLeft, Download, ExternalLink, MapPin } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { trackDownload } from "@/utils/ipTracker";
+import { toast } from "sonner";
 
 interface Candidate {
   id: string;
@@ -52,6 +54,9 @@ const CandidateView = () => {
         setCandidate(data);
       } catch (error) {
         console.error("Error loading candidate:", error);
+        toast("Failed to load candidate", {
+          description: "Please try again later",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -90,7 +95,7 @@ const CandidateView = () => {
           <h2 className="text-xl md:text-2xl font-bold mb-4">Candidate Not Found</h2>
           <p className="text-grey-600 mb-6 text-center text-sm md:text-base">The candidate you're looking for doesn't exist or has been removed.</p>
           <Button asChild>
-            <Link to="/">
+            <Link to="/candidates">
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Candidates
             </Link>
           </Button>
@@ -168,13 +173,22 @@ const CandidateView = () => {
             ))}
           </div>
           
-          <div className="mb-6 md:mb-8">
+          <div className="mb-6 md:mb-8 flex flex-wrap gap-3">
             <Button 
               className="bg-gold hover:bg-gold-dark text-black flex items-center gap-2 text-sm md:text-base" 
               onClick={handleDownload}
             >
               <Download size={isMobile ? 14 : 16} />
               Download Resume
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="border-grey-700 text-grey-300 flex items-center gap-2 text-sm md:text-base"
+              onClick={() => window.open(candidate.resumeUrl, '_blank')}
+            >
+              <ExternalLink size={isMobile ? 14 : 16} />
+              Open in New Tab
             </Button>
           </div>
           

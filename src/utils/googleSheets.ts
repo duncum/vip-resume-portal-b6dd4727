@@ -115,7 +115,6 @@ interface Candidate {
 
 import { initGoogleApi, isUserAuthorized, signInToGoogle } from './googleAuth';
 import { toast } from 'sonner';
-import { uploadResumeToDrive } from './googleDrive';
 
 /**
  * Ensure the user is authorized before accessing Google Sheets
@@ -252,74 +251,3 @@ export const fetchCandidateById = async (id: string): Promise<Candidate> => {
     return candidate;
   }
 };
-
-/**
- * Add a new candidate to Google Sheets
- */
-export const addCandidate = async (candidateData: any): Promise<{ success: boolean, id: string }> => {
-  // Upload resume to Google Drive first if provided
-  let resumeUrl = candidateData.resumeUrl;
-  
-  if (candidateData.resumeFile) {
-    try {
-      resumeUrl = await uploadResumeToDrive(candidateData.resumeFile, candidateData.id);
-    } catch (error) {
-      console.error("Error uploading resume:", error);
-      toast.error("Failed to upload resume to Google Drive");
-      return { success: false, id: "" };
-    }
-  }
-  
-  // Check if we need to use mock behavior
-  const useRealApi = await ensureAuthorization();
-  
-  if (!useRealApi) {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("Adding candidate (mock):", candidateData);
-    return { success: true, id: Math.random().toString(36).substr(2, 9) };
-  }
-  
-  try {
-    // Prepare row data for Google Sheets
-    // Adjust these based on your sheet structure
-    const rowData = [
-      candidateData.id,
-      candidateData.headline,
-      candidateData.sectors ? candidateData.sectors.join(', ') : '',
-      candidateData.tags ? candidateData.tags.join(', ') : '',
-      resumeUrl,
-      candidateData.category,
-      candidateData.title,
-      candidateData.summary,
-      candidateData.location,
-      candidateData.relocationPreference || 'flexible'
-    ];
-    
-    // Append the new row to the sheet
-    await window.gapi.client.sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
-      range: 'Candidates!A2:J2',
-      valueInputOption: 'USER_ENTERED',
-      insertDataOption: 'INSERT_ROWS',
-      resource: {
-        values: [rowData]
-      }
-    });
-    
-    return { success: true, id: candidateData.id };
-  } catch (error) {
-    console.error("Error adding candidate to Google Sheets:", error);
-    toast.error("Failed to add candidate to Google Sheets");
-    return { success: false, id: "" };
-  }
-};
-
-// Note: In a real implementation, we would use the Google Sheets API
-// with an appropriate authentication method
-
-// Required information for Google Sheets integration:
-// 1. Google API credentials
-// 2. Google Sheet ID
-// 3. Google Sheet range (e.g., 'Sheet1!A1:Z1000')
-// 4. Appropriate scopes (e.g., 'https://www.googleapis.com/auth/spreadsheets')

@@ -1,3 +1,4 @@
+
 // This file manages Google API authentication and access tokens
 
 import { toast } from "sonner";
@@ -7,10 +8,9 @@ import { toast } from "sonner";
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID"; // Replace with your actual client ID
 const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || "YOUR_GOOGLE_API_KEY"; // Replace with your actual API key
 const DISCOVERY_DOCS = [
-  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
-  "https://sheets.googleapis.com/$discovery/rest?version=v4"
+  "https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest"
 ];
-const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file';
+const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'; // Read-only scope for Sheets
 
 // Global variables to track authentication state
 let isGapiInitialized = false;
@@ -182,16 +182,26 @@ export const getCurrentUserEmail = (): string | null => {
  */
 export const printOAuthSetupInstructions = () => {
   console.info(
-    `Google OAuth Setup Instructions:
+    `Google Sheets Read-Only Setup Instructions:
     
-    1. In your Google Cloud Console project, configure these settings:
+    1. In your Google Cloud Console project:
+       a. Enable the Google Sheets API
+       b. Configure OAuth consent screen
+       c. Create OAuth credentials with these settings:
+          - Authorized JavaScript origins: ${window.location.origin}
+          - Authorized redirect URIs: ${getRedirectUri()}
+       d. Create an API key
        
-       - Authorized JavaScript origins: ${window.location.origin}
-       - Authorized redirect URIs: ${getRedirectUri()}
+    2. In your Google Sheet:
+       a. Share your sheet with read access to the email address associated with your project
+       b. Note your spreadsheet ID (from the URL)
        
-    2. Make sure your Client ID and API Key are correctly set in .env file.
+    3. Set these environment variables:
+       - VITE_GOOGLE_CLIENT_ID: Your OAuth Client ID
+       - VITE_GOOGLE_API_KEY: Your API Key
+       - VITE_GOOGLE_SPREADSHEET_ID: Your Spreadsheet ID
     
-    If you're seeing authentication errors, verify these settings in your Google Cloud Console.`
+    Note: This implementation only requires read-only access to your Google Sheet.`
   );
 };
 
