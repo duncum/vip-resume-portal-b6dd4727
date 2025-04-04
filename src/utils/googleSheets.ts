@@ -1,7 +1,7 @@
 // Position categories
 const positionCategories = [
   "Executive",
-  "Director",
+  "Director", 
   "Mid-Senior level",
   "Emerging Executives",
   "One Man Army"

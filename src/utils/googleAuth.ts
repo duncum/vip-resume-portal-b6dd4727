@@ -1,4 +1,3 @@
-
 // This file manages Google API authentication and access tokens
 
 import { toast } from "sonner";
