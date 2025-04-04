@@ -7,14 +7,25 @@ import { Input } from "@/components/ui/input";
 import { fetchCandidates } from "@/utils/googleSheets";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 
-const ManageCandidates = () => {
-  const [candidates, setCandidates] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+interface ManageCandidatesProps {
+  initialCandidates?: any[];
+  isInitialLoading?: boolean;
+}
+
+const ManageCandidates = ({ initialCandidates = [], isInitialLoading = false }: ManageCandidatesProps) => {
+  const [candidates, setCandidates] = useState<any[]>(initialCandidates);
+  const [loading, setLoading] = useState(isInitialLoading);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
+    if (initialCandidates.length > 0) {
+      setCandidates(initialCandidates);
+      return;
+    }
+
     const loadCandidates = async () => {
       try {
         setLoading(true);
@@ -32,12 +43,12 @@ const ManageCandidates = () => {
     };
 
     loadCandidates();
-  }, [toast]);
+  }, [initialCandidates, toast]);
 
   const filteredCandidates = candidates.filter(candidate =>
-    candidate.headline.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    candidate.headline?.toLowerCase().includes(searchTerm.toLowerCase()) || 
     candidate.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    candidate.sectors.some((sector: string) => sector.toLowerCase().includes(searchTerm.toLowerCase()))
+    candidate.sectors?.some((sector: string) => sector.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleDelete = (id: string) => {
@@ -54,10 +65,17 @@ const ManageCandidates = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Manage Candidates</CardTitle>
-        <CardDescription>
-          View, edit, or remove candidates from the portal.
-        </CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="text-xl">Manage Candidates</CardTitle>
+            <CardDescription>
+              View, edit, or remove candidates from the portal.
+            </CardDescription>
+          </div>
+          <Badge variant="outline" className="text-gold border-gold">
+            {candidates.length} Candidates
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent>
         {loading ? (

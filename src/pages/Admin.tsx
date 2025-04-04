@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Card } from "@/components/ui/card";
@@ -8,14 +8,39 @@ import CandidateUploadForm from "@/components/admin/CandidateUploadForm";
 import ManageCandidates from "@/components/admin/ManageCandidates";
 import Analytics from "@/components/admin/Analytics";
 import { useToast } from "@/components/ui/use-toast";
+import { fetchCandidates } from "@/utils/googleSheets";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("upload");
+  const [candidates, setCandidates] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
   };
+  
+  useEffect(() => {
+    const loadCandidates = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchCandidates();
+        setCandidates(data);
+      } catch (error) {
+        toast({
+          title: "Error loading candidates",
+          description: "There was a problem fetching the candidates data.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCandidates();
+  }, [toast]);
+  
+  const candidateCount = candidates.length;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -46,19 +71,22 @@ const Admin = () => {
           
           <TabsContent value="upload" className="mt-0">
             <Card>
-              <CandidateUploadForm onSuccess={() => {
-                toast({
-                  title: "Candidate added successfully",
-                  description: "The candidate has been added to the database.",
-                });
-                // Switch to manage tab after successful upload
-                handleTabChange("manage");
-              }} />
+              <CandidateUploadForm 
+                candidateCount={candidateCount}
+                onSuccess={() => {
+                  toast({
+                    title: "Candidate added successfully",
+                    description: "The candidate has been added to the database.",
+                  });
+                  // Switch to manage tab after successful upload
+                  handleTabChange("manage");
+                }} 
+              />
             </Card>
           </TabsContent>
           
           <TabsContent value="manage">
-            <ManageCandidates />
+            <ManageCandidates initialCandidates={candidates} isInitialLoading={loading} />
           </TabsContent>
           
           <TabsContent value="analytics">

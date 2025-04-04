@@ -11,9 +11,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 interface CandidateUploadFormProps {
   onSuccess?: () => void;
+  candidateCount?: number;
 }
 
 // Candidate Hierarchy/Level
@@ -206,7 +208,7 @@ const sectorExperience = [
   "Construction Firm"
 ];
 
-const CandidateUploadForm = ({ onSuccess }: CandidateUploadFormProps) => {
+const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
   
   // Form fields
@@ -501,6 +503,13 @@ const CandidateUploadForm = ({ onSuccess }: CandidateUploadFormProps) => {
 
   return (
     <form onSubmit={handleUpload} className="space-y-6">
+      <div className="flex justify-between items-center pb-4 mb-4 border-b">
+        <h3 className="text-xl font-medium">Upload New Resume</h3>
+        <Badge variant="outline" className="text-gold border-gold">
+          {candidateCount} Candidates
+        </Badge>
+      </div>
+      
       <div className="space-y-2">
         <label className="text-sm font-medium">Candidate Headline</label>
         <Input 
