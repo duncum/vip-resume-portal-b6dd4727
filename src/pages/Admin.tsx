@@ -7,8 +7,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CandidateUploadForm from "@/components/admin/CandidateUploadForm";
 import ManageCandidates from "@/components/admin/ManageCandidates";
 import Analytics from "@/components/admin/Analytics";
+import { useToast } from "@/components/ui/use-toast";
 
 const Admin = () => {
+  const [activeTab, setActiveTab] = useState("upload");
+  const { toast } = useToast();
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -23,7 +31,7 @@ const Admin = () => {
           </p>
         </div>
         
-        <Tabs defaultValue="upload" className="max-w-4xl mx-auto">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="max-w-4xl mx-auto">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="upload" className="data-[state=active]:bg-gold data-[state=active]:text-white">
               Upload Resume
@@ -38,7 +46,14 @@ const Admin = () => {
           
           <TabsContent value="upload" className="mt-0">
             <Card>
-              <CandidateUploadForm />
+              <CandidateUploadForm onSuccess={() => {
+                toast({
+                  title: "Candidate added successfully",
+                  description: "The candidate has been added to the database.",
+                });
+                // Switch to manage tab after successful upload
+                handleTabChange("manage");
+              }} />
             </Card>
           </TabsContent>
           
