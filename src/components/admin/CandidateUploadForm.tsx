@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,10 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { toast } from "sonner";
+
+interface CandidateUploadFormProps {
+  onSuccess?: () => void;
+}
 
 // Candidate Hierarchy/Level
 const candidateLevels = [
@@ -203,7 +206,7 @@ const sectorExperience = [
   "Construction Firm"
 ];
 
-const CandidateUploadForm = () => {
+const CandidateUploadForm = ({ onSuccess }: CandidateUploadFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
   
   // Form fields
@@ -245,14 +248,12 @@ const CandidateUploadForm = () => {
   const handleTitleCategoryChange = (category: string, checked: boolean) => {
     if (checked) {
       setSelectedTitleCategories(prev => [...prev, category]);
-      // Initialize titles array for this category if it doesn't exist
       if (!selectedTitles[category]) {
         setSelectedTitles(prev => ({ ...prev, [category]: [] }));
         setCustomTitles(prev => ({ ...prev, [category]: [] }));
       }
     } else {
       setSelectedTitleCategories(prev => prev.filter(c => c !== category));
-      // Remove titles for this category
       const newSelectedTitles = { ...selectedTitles };
       delete newSelectedTitles[category];
       setSelectedTitles(newSelectedTitles);
@@ -271,25 +272,20 @@ const CandidateUploadForm = () => {
         [category]: [...(prev[category] || []), title]
       }));
       
-      // If it's not "Other", we don't need to add a custom title
       if (title !== "Other") return;
       
-      // Add an empty string for the custom title
       setCustomTitles(prev => ({
         ...prev,
         [category]: [...(prev[category] || []), ""]
       }));
     } else {
-      // Remove the title
       setSelectedTitles(prev => ({
         ...prev,
         [category]: (prev[category] || []).filter(t => t !== title)
       }));
       
-      // If it's not "Other", we don't need to remove a custom title
       if (title !== "Other") return;
       
-      // If we're unchecking "Other", remove all custom titles for this category
       setCustomTitles(prev => ({
         ...prev,
         [category]: []
@@ -311,7 +307,6 @@ const CandidateUploadForm = () => {
   
   // Add another "Other" option
   const addAnotherCustomTitle = (category: string) => {
-    // First make sure "Other" is selected for this category
     if (!selectedTitles[category]?.includes("Other")) {
       setSelectedTitles(prev => ({
         ...prev,
@@ -319,7 +314,6 @@ const CandidateUploadForm = () => {
       }));
     }
     
-    // Add another empty custom title field
     setCustomTitles(prev => ({
       ...prev,
       [category]: [...(prev[category] || []), ""]
@@ -332,7 +326,6 @@ const CandidateUploadForm = () => {
       const updatedCustomTitles = [...(prev[category] || [])];
       updatedCustomTitles.splice(index, 1);
       
-      // If no more custom titles, unselect "Other"
       if (updatedCustomTitles.length === 0) {
         setSelectedTitles(prev => ({
           ...prev,
@@ -435,20 +428,17 @@ const CandidateUploadForm = () => {
     e.preventDefault();
     setIsUploading(true);
     
-    // Process all titles including custom "Other" titles
     const processedTitles: Record<string, string[]> = {};
     
     selectedTitleCategories.forEach(category => {
       processedTitles[category] = [];
       
-      // Add all non-"Other" titles
       selectedTitles[category]?.forEach(title => {
         if (title !== "Other") {
           processedTitles[category].push(title);
         }
       });
       
-      // Add all custom titles
       if (customTitles[category]) {
         customTitles[category].forEach(customTitle => {
           if (customTitle.trim()) {
@@ -458,7 +448,6 @@ const CandidateUploadForm = () => {
       }
     });
     
-    // Prepare candidate data
     const candidateData = {
       headline,
       levels: selectedLevels,
@@ -482,29 +471,31 @@ const CandidateUploadForm = () => {
       tags: tags.split(",").map(t => t.trim()).filter(t => t !== "")
     };
     
-    // Simulate upload
     console.log("Candidate data:", candidateData);
     
     setTimeout(() => {
       toast.success("Resume uploaded successfully");
       setIsUploading(false);
       
-      // Optional: Reset form
-      // setHeadline("");
-      // setSummary("");
-      // setLocation("");
-      // setSelectedLevels([]);
-      // setSelectedTitleCategories([]);
-      // setSelectedTitles({});
-      // setCustomTitles({});
-      // setSelectedSkills([]);
-      // setCustomSkills([]);
-      // setSelectedAssetTypes([]);
-      // setCustomAssetTypes([]);
-      // setSelectedSectors([]);
-      // setCustomSectors([]);
-      // setTags("");
-      // setRelocationPreference("flexible");
+      if (onSuccess) {
+        onSuccess();
+      }
+      
+      setHeadline("");
+      setSummary("");
+      setLocation("");
+      setSelectedLevels([]);
+      setSelectedTitleCategories([]);
+      setSelectedTitles({});
+      setCustomTitles({});
+      setSelectedSkills([]);
+      setCustomSkills([]);
+      setSelectedAssetTypes([]);
+      setCustomAssetTypes([]);
+      setSelectedSectors([]);
+      setCustomSectors([]);
+      setTags("");
+      setRelocationPreference("flexible");
     }, 2000);
   };
 
@@ -519,7 +510,6 @@ const CandidateUploadForm = () => {
         />
       </div>
       
-      {/* Candidate Levels / Hierarchy */}
       <Collapsible className="border rounded-md p-4">
         <CollapsibleTrigger className="flex justify-between items-center w-full">
           <h3 className="text-sm font-medium">Candidate Level / Hierarchy</h3>
@@ -552,7 +542,6 @@ const CandidateUploadForm = () => {
         </CollapsibleContent>
       </Collapsible>
       
-      {/* Titles by Category */}
       <Collapsible className="border rounded-md p-4">
         <CollapsibleTrigger className="flex justify-between items-center w-full">
           <h3 className="text-sm font-medium">Position Titles</h3>
@@ -639,7 +628,6 @@ const CandidateUploadForm = () => {
         </CollapsibleContent>
       </Collapsible>
       
-      {/* Skills */}
       <Collapsible className="border rounded-md p-4">
         <CollapsibleTrigger className="flex justify-between items-center w-full">
           <h3 className="text-sm font-medium">High-Level Skills</h3>
@@ -665,7 +653,6 @@ const CandidateUploadForm = () => {
             ))}
           </div>
           
-          {/* Custom skills */}
           {customSkills.length > 0 && (
             <div className="mt-3 space-y-2">
               <p className="text-xs text-grey-600">Custom skills:</p>
@@ -702,7 +689,6 @@ const CandidateUploadForm = () => {
         </CollapsibleContent>
       </Collapsible>
       
-      {/* Asset Types */}
       <Collapsible className="border rounded-md p-4">
         <CollapsibleTrigger className="flex justify-between items-center w-full">
           <h3 className="text-sm font-medium">Asset Type Experience</h3>
@@ -728,7 +714,6 @@ const CandidateUploadForm = () => {
             ))}
           </div>
           
-          {/* Custom asset types */}
           {customAssetTypes.length > 0 && (
             <div className="mt-3 space-y-2">
               <p className="text-xs text-grey-600">Custom asset types:</p>
@@ -765,7 +750,6 @@ const CandidateUploadForm = () => {
         </CollapsibleContent>
       </Collapsible>
       
-      {/* Sector Experience */}
       <Collapsible className="border rounded-md p-4">
         <CollapsibleTrigger className="flex justify-between items-center w-full">
           <h3 className="text-sm font-medium">Sector / Ownership Experience</h3>
@@ -791,7 +775,6 @@ const CandidateUploadForm = () => {
             ))}
           </div>
           
-          {/* Custom sectors */}
           {customSectors.length > 0 && (
             <div className="mt-3 space-y-2">
               <p className="text-xs text-grey-600">Custom sectors:</p>
