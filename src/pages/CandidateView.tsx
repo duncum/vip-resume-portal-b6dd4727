@@ -11,19 +11,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { trackDownload } from "@/utils/ipTracker";
 import { toast } from "sonner";
 
-interface Candidate {
-  id: string;
-  headline: string;
-  sectors: string[];
-  tags: string[];
-  resumeUrl: string;
-  category?: string;
-  title?: string;
-  summary?: string;
-  location?: string;
-  relocationPreference?: string;
-}
-
 const CandidateView = () => {
   const { id } = useParams();
   const [candidate, setCandidate] = useState<Candidate | null>(null);
