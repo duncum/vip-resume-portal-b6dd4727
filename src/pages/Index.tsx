@@ -4,7 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CandidateSearch from "@/components/candidates/CandidateSearch";
 import CandidateList from "@/components/candidates/CandidateList";
-import { fetchCandidates } from "@/utils/googleSheets";
+import { fetchCandidates, Candidate } from "@/utils/sheets"; // Updated import
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -8,7 +7,7 @@ import { CandidateUploadForm } from "@/components/admin/candidate-form";
 import ManageCandidates from "@/components/admin/ManageCandidates";
 import Analytics from "@/components/admin/Analytics";
 import { useToast } from "@/components/ui/use-toast";
-import { fetchCandidates } from "@/utils/googleSheets";
+import { fetchCandidates } from "@/utils/sheets";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("upload");
@@ -78,7 +77,6 @@ const Admin = () => {
                     title: "Candidate added successfully",
                     description: "The candidate has been added to the database.",
                   });
-                  // Switch to manage tab after successful upload
                   handleTabChange("manage");
                 }} 
               />

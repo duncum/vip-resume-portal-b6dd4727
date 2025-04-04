@@ -4,7 +4,7 @@ import { Edit, Search, Trash2, UserPlus, Upload, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { fetchCandidates } from "@/utils/googleSheets";
+import { fetchCandidates } from "@/utils/sheets"; // Updated import
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
