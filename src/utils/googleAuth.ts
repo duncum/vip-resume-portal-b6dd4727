@@ -1,4 +1,3 @@
-
 // This file manages Google API authentication and access tokens
 
 import { toast } from "sonner";
@@ -66,8 +65,7 @@ export const initGoogleApi = async (): Promise<boolean> => {
             apiKey: API_KEY,
             clientId: CLIENT_ID,
             discoveryDocs: DISCOVERY_DOCS,
-            scope: SCOPES,
-            redirect_uri: getRedirectUri()
+            scope: SCOPES
           });
           
           // Listen for sign-in state changes
@@ -116,12 +114,7 @@ export const signInToGoogle = async (): Promise<boolean> => {
   }
 
   try {
-    const options = {
-      ux_mode: 'popup',
-      redirect_uri: getRedirectUri()
-    };
-    
-    await window.gapi.auth2.getAuthInstance().signIn(options);
+    await window.gapi.auth2.getAuthInstance().signIn();
     return true;
   } catch (error) {
     console.error('Error signing in to Google:', error);
