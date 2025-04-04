@@ -1,20 +1,11 @@
-
 import { useState, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CandidateSearch from "@/components/candidates/CandidateSearch";
 import CandidateList from "@/components/candidates/CandidateList";
-import { fetchCandidates, Candidate } from "@/utils/sheets"; // Updated import
+import { fetchCandidates, type Candidate } from "@/utils/sheets";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-interface Candidate {
-  id: string;
-  headline: string;
-  sectors: string[];
-  tags: string[];
-  category?: string;
-}
 
 const Index = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);

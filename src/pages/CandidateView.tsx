@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
@@ -6,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import ResumeViewer from "@/components/candidates/ResumeViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { fetchCandidateById } from "@/utils/googleSheets";
+import { fetchCandidateById, type Candidate } from "@/utils/sheets";
 import { ArrowLeft, Download, ExternalLink, MapPin } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { trackDownload } from "@/utils/ipTracker";

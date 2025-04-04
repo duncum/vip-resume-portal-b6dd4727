@@ -4,18 +4,18 @@ import { Edit, Search, Trash2, UserPlus, Upload, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { fetchCandidates } from "@/utils/sheets"; // Updated import
+import { fetchCandidates, type Candidate } from "@/utils/sheets"; // Updated import with type
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 
 interface ManageCandidatesProps {
-  initialCandidates?: any[];
+  initialCandidates?: Candidate[];
   isInitialLoading?: boolean;
 }
 
 const ManageCandidates = ({ initialCandidates = [], isInitialLoading = false }: ManageCandidatesProps) => {
-  const [candidates, setCandidates] = useState<any[]>(initialCandidates);
+  const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
   const [loading, setLoading] = useState(isInitialLoading);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();

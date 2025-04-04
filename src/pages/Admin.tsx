@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -7,11 +8,11 @@ import { CandidateUploadForm } from "@/components/admin/candidate-form";
 import ManageCandidates from "@/components/admin/ManageCandidates";
 import Analytics from "@/components/admin/Analytics";
 import { useToast } from "@/components/ui/use-toast";
-import { fetchCandidates } from "@/utils/sheets";
+import { fetchCandidates, type Candidate } from "@/utils/sheets"; // Updated import with type
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("upload");
-  const [candidates, setCandidates] = useState<any[]>([]);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
