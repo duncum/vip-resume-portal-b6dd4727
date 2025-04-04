@@ -1,4 +1,3 @@
-
 // Position categories
 const positionCategories = [
   "Executive",
@@ -7,6 +6,10 @@ const positionCategories = [
   "Emerging Executives",
   "One Man Army"
 ];
+
+// Configuration for the Google Sheet
+const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID"; // Replace with your actual spreadsheet ID
+const CANDIDATES_RANGE = "Candidates!A2:Z"; // Adjust based on your sheet structure
 
 // Mocked data until Google Sheets API integration is set up
 const mockCandidates = [
@@ -96,41 +99,220 @@ const mockCandidates = [
   }
 ];
 
+// Type definitions
+interface Candidate {
+  id: string;
+  headline: string;
+  sectors: string[];
+  tags: string[];
+  resumeUrl: string;
+  category?: string;
+  title?: string;
+  summary?: string;
+  location?: string;
+  relocationPreference?: string;
+}
+
+import { initGoogleApi, isUserAuthorized, signInToGoogle } from './googleAuth';
+import { toast } from 'sonner';
+import { uploadResumeToDrive } from './googleDrive';
+
+/**
+ * Ensure the user is authorized before accessing Google Sheets
+ */
+const ensureAuthorization = async (): Promise<boolean> => {
+  try {
+    // Initialize the API if needed
+    await initGoogleApi();
+    
+    // Check if the user is authorized
+    const authorized = await isUserAuthorized();
+    
+    if (!authorized) {
+      // Prompt for authorization
+      const signedIn = await signInToGoogle();
+      return signedIn;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Authorization error:', error);
+    return false;
+  }
+};
+
+/**
+ * Convert Google Sheets row data to a Candidate object
+ */
+const rowToCandidate = (row: any[]): Candidate => {
+  // Adjust these indices based on your actual sheet structure
+  return {
+    id: row[0] || "",
+    headline: row[1] || "",
+    sectors: (row[2] ? row[2].split(',') : []).map((s: string) => s.trim()),
+    tags: (row[3] ? row[3].split(',') : []).map((t: string) => t.trim()),
+    resumeUrl: row[4] || "",
+    category: row[5] || "",
+    title: row[6] || "",
+    summary: row[7] || "",
+    location: row[8] || "",
+    relocationPreference: row[9] || "flexible"
+  };
+};
+
 /**
  * Fetch all candidates from Google Sheets API
- * This is a mock implementation until Google Sheets API is integrated
  */
-export const fetchCandidates = async () => {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  return mockCandidates;
+export const fetchCandidates = async (): Promise<Candidate[]> => {
+  // Check if we need to use mock data (during development or when not authorized)
+  const useRealApi = await ensureAuthorization();
+  
+  if (!useRealApi) {
+    console.log("Using mock data for candidates");
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return mockCandidates;
+  }
+  
+  try {
+    const response = await window.gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: CANDIDATES_RANGE
+    });
+    
+    const rows = response.result.values;
+    
+    if (!rows || rows.length === 0) {
+      console.log("No data found in Google Sheet");
+      return [];
+    }
+    
+    // Convert rows to candidate objects
+    const candidates = rows.map(rowToCandidate);
+    return candidates;
+  } catch (error) {
+    console.error("Error fetching candidates from Google Sheets:", error);
+    toast.error("Failed to load candidates from Google Sheets");
+    return mockCandidates; // Fall back to mock data on error
+  }
 };
 
 /**
  * Fetch a single candidate by ID from Google Sheets API
- * This is a mock implementation until Google Sheets API is integrated
  */
-export const fetchCandidateById = async (id: string) => {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 800));
-  const candidate = mockCandidates.find(c => c.id === id);
+export const fetchCandidateById = async (id: string): Promise<Candidate> => {
+  // Check if we need to use mock data
+  const useRealApi = await ensureAuthorization();
   
-  if (!candidate) {
-    throw new Error("Candidate not found");
+  if (!useRealApi) {
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const candidate = mockCandidates.find(c => c.id === id);
+    
+    if (!candidate) {
+      throw new Error("Candidate not found");
+    }
+    
+    return candidate;
   }
   
-  return candidate;
+  try {
+    // Get all candidates and filter by ID
+    // A more efficient approach would be to use a query with a filter if your sheet is large
+    const response = await window.gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: CANDIDATES_RANGE
+    });
+    
+    const rows = response.result.values;
+    
+    if (!rows || rows.length === 0) {
+      throw new Error("No data found in Google Sheet");
+    }
+    
+    // Find the row with the matching ID
+    const candidateRow = rows.find(row => row[0] === id);
+    
+    if (!candidateRow) {
+      throw new Error("Candidate not found");
+    }
+    
+    return rowToCandidate(candidateRow);
+  } catch (error) {
+    console.error("Error fetching candidate from Google Sheets:", error);
+    toast.error("Failed to load candidate details");
+    
+    // Fall back to mock data on error
+    const candidate = mockCandidates.find(c => c.id === id);
+    
+    if (!candidate) {
+      throw new Error("Candidate not found");
+    }
+    
+    return candidate;
+  }
 };
 
 /**
  * Add a new candidate to Google Sheets
- * This is a mock implementation until Google Sheets API is integrated
  */
-export const addCandidate = async (candidateData: any) => {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  console.log("Adding candidate:", candidateData);
-  return { success: true, id: Math.random().toString(36).substr(2, 9) };
+export const addCandidate = async (candidateData: any): Promise<{ success: boolean, id: string }> => {
+  // Upload resume to Google Drive first if provided
+  let resumeUrl = candidateData.resumeUrl;
+  
+  if (candidateData.resumeFile) {
+    try {
+      resumeUrl = await uploadResumeToDrive(candidateData.resumeFile, candidateData.id);
+    } catch (error) {
+      console.error("Error uploading resume:", error);
+      toast.error("Failed to upload resume to Google Drive");
+      return { success: false, id: "" };
+    }
+  }
+  
+  // Check if we need to use mock behavior
+  const useRealApi = await ensureAuthorization();
+  
+  if (!useRealApi) {
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    console.log("Adding candidate (mock):", candidateData);
+    return { success: true, id: Math.random().toString(36).substr(2, 9) };
+  }
+  
+  try {
+    // Prepare row data for Google Sheets
+    // Adjust these based on your sheet structure
+    const rowData = [
+      candidateData.id,
+      candidateData.headline,
+      candidateData.sectors ? candidateData.sectors.join(', ') : '',
+      candidateData.tags ? candidateData.tags.join(', ') : '',
+      resumeUrl,
+      candidateData.category,
+      candidateData.title,
+      candidateData.summary,
+      candidateData.location,
+      candidateData.relocationPreference || 'flexible'
+    ];
+    
+    // Append the new row to the sheet
+    await window.gapi.client.sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Candidates!A2:J2',
+      valueInputOption: 'USER_ENTERED',
+      insertDataOption: 'INSERT_ROWS',
+      resource: {
+        values: [rowData]
+      }
+    });
+    
+    return { success: true, id: candidateData.id };
+  } catch (error) {
+    console.error("Error adding candidate to Google Sheets:", error);
+    toast.error("Failed to add candidate to Google Sheets");
+    return { success: false, id: "" };
+  }
 };
 
 // Note: In a real implementation, we would use the Google Sheets API

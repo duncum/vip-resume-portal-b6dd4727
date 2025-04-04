@@ -7,6 +7,8 @@ import { getAnalyticsData } from "@/utils/ipTracker";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { ChartContainer } from "../ui/chart";
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { initGoogleApi, isUserAuthorized, signInToGoogle } from "@/utils/googleAuth";
+import { Button } from "../ui/button";
 
 const Analytics = () => {
   const [analyticsData, setAnalyticsData] = useState({
@@ -16,6 +18,12 @@ const Analytics = () => {
     topCandidates: []
   });
   
+  const [googleAuthStatus, setGoogleAuthStatus] = useState({
+    isInitialized: false,
+    isAuthorized: false,
+    isLoading: true
+  });
+  
   // Mock downloads data until we implement the full feature
   const downloadsCount = 0;
 
@@ -23,7 +31,47 @@ const Analytics = () => {
     // Get data from tracker
     const data = getAnalyticsData();
     setAnalyticsData(data);
+    
+    // Check Google API status
+    const checkGoogleAuth = async () => {
+      try {
+        await initGoogleApi();
+        const authorized = await isUserAuthorized();
+        
+        setGoogleAuthStatus({
+          isInitialized: true,
+          isAuthorized: authorized,
+          isLoading: false
+        });
+      } catch (error) {
+        console.error("Error checking Google auth:", error);
+        setGoogleAuthStatus({
+          isInitialized: false,
+          isAuthorized: false,
+          isLoading: false
+        });
+      }
+    };
+    
+    checkGoogleAuth();
   }, []);
+  
+  const handleGoogleSignIn = async () => {
+    setGoogleAuthStatus(prev => ({ ...prev, isLoading: true }));
+    
+    try {
+      const success = await signInToGoogle();
+      
+      setGoogleAuthStatus({
+        isInitialized: true,
+        isAuthorized: success,
+        isLoading: false
+      });
+    } catch (error) {
+      console.error("Error signing in:", error);
+      setGoogleAuthStatus(prev => ({ ...prev, isLoading: false }));
+    }
+  };
   
   // Check if we have any data to display
   const hasData = analyticsData.totalViews > 0;
@@ -39,6 +87,16 @@ const Analytics = () => {
     { name: 'Sun', views: 6 },
   ];
 
+  const downloadsChartData = [
+    { name: 'Mon', downloads: 1 },
+    { name: 'Tue', downloads: 2 },
+    { name: 'Wed', downloads: 0 },
+    { name: 'Thu', downloads: 3 },
+    { name: 'Fri', downloads: 1 },
+    { name: 'Sat', downloads: 0 },
+    { name: 'Sun', downloads: 2 },
+  ];
+
   return (
     <Card>
       <CardHeader>
@@ -48,10 +106,28 @@ const Analytics = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {!googleAuthStatus.isAuthorized && !googleAuthStatus.isLoading && (
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-md">
+            <h3 className="text-amber-800 text-sm font-medium mb-2">Google Integration Required</h3>
+            <p className="text-amber-700 text-xs mb-3">
+              Connect to Google to access detailed analytics and resume storage features.
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleGoogleSignIn}
+              className="bg-white"
+            >
+              Connect Google Account
+            </Button>
+          </div>
+        )}
+        
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="engagement">Engagement</TabsTrigger>
+            <TabsTrigger value="downloads">Downloads</TabsTrigger>
             <TabsTrigger value="sources">Traffic Sources</TabsTrigger>
           </TabsList>
           
@@ -133,6 +209,65 @@ const Analytics = () => {
               <h3 className="text-lg font-medium mb-2">No Engagement Data Yet</h3>
               <p className="text-grey-500">Engagement metrics will show interactions with your candidate profiles.</p>
             </div>
+          </TabsContent>
+          
+          <TabsContent value="downloads" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="bg-grey-100 p-4 rounded-md text-center">
+                <div className="text-3xl font-bold mb-1 text-gold">{downloadsCount}</div>
+                <div className="text-sm text-grey-600">Total Downloads</div>
+              </div>
+              <div className="bg-grey-100 p-4 rounded-md text-center">
+                <div className="text-3xl font-bold mb-1 text-gold">0</div>
+                <div className="text-sm text-grey-600">Unique Downloaders</div>
+              </div>
+            </div>
+            
+            {hasData ? (
+              <>
+                <h3 className="text-lg font-medium mb-3">Most Downloaded Resumes</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Candidate ID</TableHead>
+                      <TableHead className="text-right">Downloads</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell colSpan={2} className="text-center py-4 text-grey-500">
+                        No download data yet
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+                
+                <div className="mt-8">
+                  <h3 className="text-lg font-medium mb-3">Downloads Over Time</h3>
+                  <div className="h-64 bg-grey-50 rounded-lg">
+                    <ChartContainer
+                      config={{
+                        downloads: { color: "hsl(210, 75%, 60%)" }
+                      }}
+                      className="p-2"
+                    >
+                      <RechartsBarChart data={downloadsChartData}>
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="downloads" fill="var(--color-downloads)" />
+                      </RechartsBarChart>
+                    </ChartContainer>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-6">
+                <Download className="mx-auto h-12 w-12 text-grey-400 mb-3" />
+                <h3 className="text-lg font-medium mb-2">No Downloads Yet</h3>
+                <p className="text-grey-500">Download analytics will appear once resumes are downloaded.</p>
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="sources" className="space-y-4">
