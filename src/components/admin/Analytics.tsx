@@ -1,10 +1,44 @@
 
-import { BarChart, FileText, Users } from "lucide-react";
+import { BarChart, Download, Eye, FileText, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { ChartConfig } from "@/components/ui/chart";
+import { useEffect, useState } from "react";
+import { getAnalyticsData } from "@/utils/ipTracker";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { ChartContainer } from "../ui/chart";
+import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const Analytics = () => {
+  const [analyticsData, setAnalyticsData] = useState({
+    totalViews: 0,
+    uniqueViewers: 0,
+    recentViews: [],
+    topCandidates: []
+  });
+  
+  // Mock downloads data until we implement the full feature
+  const downloadsCount = 0;
+
+  useEffect(() => {
+    // Get data from tracker
+    const data = getAnalyticsData();
+    setAnalyticsData(data);
+  }, []);
+  
+  // Check if we have any data to display
+  const hasData = analyticsData.totalViews > 0;
+  
+  // Sample chart data for demonstration
+  const viewsChartData = [
+    { name: 'Mon', views: 3 },
+    { name: 'Tue', views: 5 },
+    { name: 'Wed', views: 2 },
+    { name: 'Thu', views: 8 },
+    { name: 'Fri', views: 4 },
+    { name: 'Sat', views: 1 },
+    { name: 'Sun', views: 6 },
+  ];
+
   return (
     <Card>
       <CardHeader>
@@ -24,24 +58,73 @@ const Analytics = () => {
           <TabsContent value="overview" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="bg-grey-100 p-4 rounded-md text-center">
-                <div className="text-3xl font-bold mb-1 text-gold">0</div>
+                <div className="text-3xl font-bold mb-1 text-gold">{analyticsData.totalViews}</div>
                 <div className="text-sm text-grey-600">Total Views</div>
               </div>
               <div className="bg-grey-100 p-4 rounded-md text-center">
-                <div className="text-3xl font-bold mb-1 text-gold">0</div>
+                <div className="text-3xl font-bold mb-1 text-gold">{analyticsData.uniqueViewers}</div>
                 <div className="text-sm text-grey-600">Unique Visitors</div>
               </div>
               <div className="bg-grey-100 p-4 rounded-md text-center">
-                <div className="text-3xl font-bold mb-1 text-gold">0</div>
+                <div className="text-3xl font-bold mb-1 text-gold">{downloadsCount}</div>
                 <div className="text-sm text-grey-600">Downloads</div>
               </div>
             </div>
             
-            <div className="text-center py-6">
-              <FileText className="mx-auto h-12 w-12 text-grey-400 mb-3" />
-              <h3 className="text-lg font-medium mb-2">No View Data Available</h3>
-              <p className="text-grey-500">Analytics will appear once resumes are viewed.</p>
-            </div>
+            {hasData ? (
+              <>
+                <h3 className="text-lg font-medium mb-3">Top Viewed Candidates</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Candidate ID</TableHead>
+                      <TableHead className="text-right">Views</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {analyticsData.topCandidates.length > 0 ? (
+                      analyticsData.topCandidates.map((candidate: any) => (
+                        <TableRow key={candidate.id}>
+                          <TableCell className="font-mono">{candidate.id}</TableCell>
+                          <TableCell className="text-right">{candidate.views}</TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={2} className="text-center py-4 text-grey-500">
+                          No candidate view data yet
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+                
+                <div className="mt-8">
+                  <h3 className="text-lg font-medium mb-3">Views Over Time</h3>
+                  <div className="h-64 bg-grey-50 rounded-lg">
+                    <ChartContainer
+                      config={{
+                        views: { color: "hsl(48, 95%, 53%)" }
+                      }}
+                      className="p-2"
+                    >
+                      <RechartsBarChart data={viewsChartData}>
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="views" fill="var(--color-views)" />
+                      </RechartsBarChart>
+                    </ChartContainer>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-6">
+                <Eye className="mx-auto h-12 w-12 text-grey-400 mb-3" />
+                <h3 className="text-lg font-medium mb-2">No View Data Available</h3>
+                <p className="text-grey-500">Analytics will appear once resumes are viewed.</p>
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="engagement" className="space-y-4">

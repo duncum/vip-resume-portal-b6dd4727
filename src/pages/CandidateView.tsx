@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { fetchCandidateById } from "@/utils/googleSheets";
 import { ArrowLeft, Download, MapPin } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { trackDownload } from "@/utils/ipTracker";
 
 interface Candidate {
   id: string;
@@ -28,7 +29,6 @@ const CandidateView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
 
-  // Category to color mapping - updated to be cohesive with site theme
   const categoryColors = {
     "Executive": "bg-gold/80 border-gold/60",
     "Director": "bg-gold/60 border-gold/40",
@@ -37,7 +37,6 @@ const CandidateView = () => {
     "One Man Army": "bg-gold border-gold/80"
   };
 
-  // Relocation badge color and text - updated for site cohesion
   const relocationBadge = {
     "willing": { color: "bg-grey-800 text-gold border-gold/30", text: "Open to Relocation" },
     "remote-only": { color: "bg-grey-800 text-white/80 border-grey-700", text: "Remote Only" },
@@ -60,6 +59,13 @@ const CandidateView = () => {
 
     loadCandidate();
   }, [id]);
+
+  const handleDownload = () => {
+    if (candidate) {
+      trackDownload(candidate.id);
+      window.open(candidate.resumeUrl, '_blank');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -163,7 +169,10 @@ const CandidateView = () => {
           </div>
           
           <div className="mb-6 md:mb-8">
-            <Button className="bg-gold hover:bg-gold-dark text-black flex items-center gap-2 text-sm md:text-base">
+            <Button 
+              className="bg-gold hover:bg-gold-dark text-black flex items-center gap-2 text-sm md:text-base" 
+              onClick={handleDownload}
+            >
               <Download size={isMobile ? 14 : 16} />
               Download Resume
             </Button>
