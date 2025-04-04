@@ -3,7 +3,9 @@ import { useState, useEffect } from 'react';
 import { initGoogleApi, isUserAuthorized, signInToGoogle, signOutFromGoogle, getCurrentUserEmail } from '@/utils/google';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { CheckCircle, XCircle, RefreshCw, Info } from 'lucide-react';
+import { toast } from 'sonner';
+import { API_KEY, CLIENT_ID } from '@/utils/google';
 
 // Create a custom Google icon since lucide-react doesn't have one
 const GoogleIcon = ({ className = "", size = 24, ...props }) => {
@@ -35,10 +37,30 @@ const GoogleIntegrationStatus = () => {
     userEmail: null as string | null
   });
 
+  const [missingCredentials, setMissingCredentials] = useState({
+    clientId: !CLIENT_ID,
+    apiKey: !API_KEY
+  });
+
   const checkStatus = async () => {
     setStatus(prev => ({ ...prev, isLoading: true }));
     
     try {
+      // Check if credentials are missing
+      if (!CLIENT_ID || !API_KEY) {
+        setMissingCredentials({
+          clientId: !CLIENT_ID,
+          apiKey: !API_KEY
+        });
+        setStatus({
+          isInitialized: false,
+          isAuthorized: false,
+          isLoading: false,
+          userEmail: null
+        });
+        return;
+      }
+
       await initGoogleApi();
       const authorized = await isUserAuthorized();
       const email = authorized ? getCurrentUserEmail() : null;
@@ -51,6 +73,7 @@ const GoogleIntegrationStatus = () => {
       });
     } catch (error) {
       console.error('Error checking Google API status:', error);
+      toast.error('Failed to initialize Google API');
       setStatus({
         isInitialized: false,
         isAuthorized: false,
@@ -65,16 +88,23 @@ const GoogleIntegrationStatus = () => {
   }, []);
 
   const handleSignIn = async () => {
+    if (missingCredentials.clientId || missingCredentials.apiKey) {
+      toast.error('Google API credentials are missing. Please set them up first.');
+      return;
+    }
+
     setStatus(prev => ({ ...prev, isLoading: true }));
     try {
       const success = await signInToGoogle();
       if (success) {
         checkStatus();
+        toast.success('Successfully signed in to Google');
       } else {
         setStatus(prev => ({ ...prev, isLoading: false }));
       }
     } catch (error) {
       console.error('Error signing in:', error);
+      toast.error('Failed to sign in to Google');
       setStatus(prev => ({ ...prev, isLoading: false }));
     }
   };
@@ -84,10 +114,23 @@ const GoogleIntegrationStatus = () => {
     try {
       await signOutFromGoogle();
       checkStatus();
+      toast.success('Successfully signed out from Google');
     } catch (error) {
       console.error('Error signing out:', error);
+      toast.error('Failed to sign out from Google');
       setStatus(prev => ({ ...prev, isLoading: false }));
     }
+  };
+
+  const showSetupInstructions = () => {
+    toast.info(
+      'You need to set up your Google API credentials. Open the browser console (F12) to see detailed instructions.',
+      { duration: 8000 }
+    );
+    // This will trigger the detailed instructions to be printed in the console
+    import('@/utils/google/config').then(module => {
+      module.printOAuthSetupInstructions();
+    });
   };
 
   return (
@@ -96,6 +139,13 @@ const GoogleIntegrationStatus = () => {
         <CardTitle className="text-base flex items-center">
           <GoogleIcon className="h-4 w-4 mr-2" />
           Google Integration
+          {(missingCredentials.clientId || missingCredentials.apiKey) && (
+            <Info 
+              className="h-4 w-4 ml-2 text-amber-500 cursor-pointer" 
+              onClick={showSetupInstructions}
+              title="API credentials missing. Click for setup instructions."
+            />
+          )}
         </CardTitle>
         <CardDescription className="text-xs">
           Required for sheet access and resume storage
@@ -106,6 +156,20 @@ const GoogleIntegrationStatus = () => {
           <div className="flex items-center justify-center p-2">
             <RefreshCw className="h-4 w-4 animate-spin text-grey-400" />
             <span className="ml-2 text-sm text-grey-400">Checking status...</span>
+          </div>
+        ) : missingCredentials.clientId || missingCredentials.apiKey ? (
+          <div className="flex items-center text-sm">
+            <XCircle className="h-4 w-4 mr-2 text-amber-500" />
+            <div>
+              <div className="font-medium">Setup required</div>
+              <div className="text-xs text-grey-500">
+                {missingCredentials.clientId && missingCredentials.apiKey 
+                  ? 'Client ID and API Key missing' 
+                  : missingCredentials.clientId 
+                    ? 'Client ID missing' 
+                    : 'API Key missing'}
+              </div>
+            </div>
           </div>
         ) : status.isAuthorized ? (
           <div className="flex items-center text-sm">
@@ -128,7 +192,16 @@ const GoogleIntegrationStatus = () => {
         )}
       </CardContent>
       <CardFooter className="pt-2">
-        {status.isAuthorized ? (
+        {missingCredentials.clientId || missingCredentials.apiKey ? (
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={showSetupInstructions}
+            className="w-full text-xs"
+          >
+            View Setup Instructions
+          </Button>
+        ) : status.isAuthorized ? (
           <Button size="sm" variant="outline" onClick={handleSignOut} className="w-full text-xs">
             Disconnect
           </Button>
