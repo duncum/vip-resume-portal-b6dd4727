@@ -27,24 +27,34 @@ const updateSignInStatus = (isSignedIn: boolean) => {
  */
 export const initGoogleApi = async (): Promise<boolean> => {
   if (isGapiInitialized) {
+    console.log("Google API already initialized");
     return true;
   }
 
   try {
+    // Check for API credentials
+    if (!API_KEY || !CLIENT_ID) {
+      console.info('client_id and apiKey must both be provided to initialize OAuth.');
+      isGapiInitialized = false;
+      return false;
+    }
+
     if (!isApiLoaded()) {
+      console.log("Google API not loaded, loading now...");
       await loadGoogleApi();
     }
     
+    if (!window.gapi) {
+      console.error("Google API failed to load properly - window.gapi is undefined");
+      return false;
+    }
+    
     return new Promise((resolve) => {
+      console.log("Loading client:auth2...");
       window.gapi.load('client:auth2', async () => {
         try {
-          // Check if API key and client ID are available
-          if (!API_KEY || !CLIENT_ID) {
-            console.info('client_id and apiKey must both be provided to initialize OAuth.');
-            isGapiInitialized = false;
-            resolve(false);
-            return;
-          }
+          console.log("Initializing client with API_KEY and CLIENT_ID...");
+          console.log(`API_KEY: ${API_KEY ? "provided" : "missing"}, CLIENT_ID: ${CLIENT_ID ? "provided" : "missing"}`);
 
           await window.gapi.client.init({
             apiKey: API_KEY,
@@ -53,7 +63,15 @@ export const initGoogleApi = async (): Promise<boolean> => {
             scope: SCOPES
           });
           
+          console.log("Client initialized, getting auth instance...");
+          
           // Check if auth instance exists before accessing it
+          if (!window.gapi.auth2) {
+            console.error("Auth2 module not loaded properly");
+            resolve(false);
+            return;
+          }
+          
           const authInstance = window.gapi.auth2.getAuthInstance();
           if (authInstance) {
             // Listen for sign-in state changes
@@ -61,6 +79,8 @@ export const initGoogleApi = async (): Promise<boolean> => {
             
             // Set the initial sign-in state
             updateSignInStatus(authInstance.isSignedIn.get());
+            
+            console.log("Auth instance initialized successfully");
           } else {
             console.error('Auth instance is null');
             resolve(false);

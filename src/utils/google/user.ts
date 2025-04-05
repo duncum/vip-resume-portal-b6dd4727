@@ -6,20 +6,34 @@
  */
 export const getCurrentUserEmail = (): string | null => {
   try {
-    if (!window.gapi?.auth2?.getAuthInstance?.()) {
+    if (!window.gapi) {
+      console.log("gapi not loaded yet");
+      return null;
+    }
+    
+    if (!window.gapi.auth2) {
+      console.log("auth2 module not loaded yet");
       return null;
     }
     
     const authInstance = window.gapi.auth2.getAuthInstance();
-    if (!authInstance) return null;
+    if (!authInstance) {
+      console.log("No auth instance available");
+      return null;
+    }
     
     const user = authInstance.currentUser.get();
-    if (!user) return null;
+    if (!user) {
+      console.log("No current user available");
+      return null;
+    }
     
     const profile = user.getBasicProfile();
     
     if (profile) {
       return profile.getEmail();
+    } else {
+      console.log("No user profile available");
     }
   } catch (error) {
     console.error('Error getting user email:', error);
@@ -33,19 +47,34 @@ export const getCurrentUserEmail = (): string | null => {
  */
 export const getUserProfile = () => {
   try {
-    if (!window.gapi?.auth2?.getAuthInstance?.()) {
+    if (!window.gapi) {
+      console.log("gapi not loaded yet");
+      return null;
+    }
+    
+    if (!window.gapi.auth2) {
+      console.log("auth2 module not loaded yet");
       return null;
     }
     
     const authInstance = window.gapi.auth2.getAuthInstance();
-    if (!authInstance) return null;
+    if (!authInstance) {
+      console.log("No auth instance available");
+      return null;
+    }
     
     const user = authInstance.currentUser.get();
-    if (!user) return null;
+    if (!user) {
+      console.log("No current user available");
+      return null;
+    }
     
     const profile = user.getBasicProfile();
     
-    if (!profile) return null;
+    if (!profile) {
+      console.log("No user profile available");
+      return null;
+    }
     
     return {
       id: profile.getId(),
