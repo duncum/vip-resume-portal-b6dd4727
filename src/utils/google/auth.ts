@@ -34,7 +34,8 @@ export const initGoogleApi = async (): Promise<boolean> => {
   try {
     // Check for API credentials
     if (!API_KEY || !CLIENT_ID) {
-      console.info('client_id and apiKey must both be provided to initialize OAuth.');
+      console.error('Google API credentials missing. Client ID and API Key must both be provided to initialize OAuth.');
+      toast.error('Google API credentials missing. Please enter your Client ID and API Key.');
       isGapiInitialized = false;
       return false;
     }
@@ -46,11 +47,11 @@ export const initGoogleApi = async (): Promise<boolean> => {
     
     if (!window.gapi) {
       console.error("Google API failed to load properly - window.gapi is undefined");
+      toast.error("Failed to load Google API. Please check your internet connection and try again.");
       return false;
     }
     
     return new Promise((resolve) => {
-      console.log("Loading client:auth2...");
       window.gapi.load('client:auth2', async () => {
         try {
           console.log("Initializing client with API_KEY and CLIENT_ID...");
@@ -65,9 +66,10 @@ export const initGoogleApi = async (): Promise<boolean> => {
           
           console.log("Client initialized, getting auth instance...");
           
-          // Check if auth instance exists before accessing it
+          // Check if auth2 module exists before accessing it
           if (!window.gapi.auth2) {
             console.error("Auth2 module not loaded properly");
+            toast.error("Failed to initialize Google auth. Please try again later.");
             resolve(false);
             return;
           }
@@ -83,6 +85,7 @@ export const initGoogleApi = async (): Promise<boolean> => {
             console.log("Auth instance initialized successfully");
           } else {
             console.error('Auth instance is null');
+            toast.error("Failed to initialize Google auth. Please try again later.");
             resolve(false);
             return;
           }
@@ -91,6 +94,7 @@ export const initGoogleApi = async (): Promise<boolean> => {
           resolve(true);
         } catch (error) {
           console.error('Error initializing Google API client:', error);
+          toast.error(`Failed to initialize Google API: ${error instanceof Error ? error.message : 'Unknown error'}`);
           isGapiInitialized = false;
           resolve(false);
         }
@@ -98,6 +102,7 @@ export const initGoogleApi = async (): Promise<boolean> => {
     });
   } catch (error) {
     console.error('Error loading Google API:', error);
+    toast.error(`Failed to load Google API: ${error instanceof Error ? error.message : 'Unknown error'}`);
     return false;
   }
 };
@@ -109,12 +114,17 @@ export const signInToGoogle = async (): Promise<boolean> => {
   if (!isGapiInitialized) {
     const initialized = await initGoogleApi();
     if (!initialized) {
-      toast.error('Failed to initialize Google API');
+      toast.error('Failed to initialize Google API. Please check your credentials.');
       return false;
     }
   }
 
   try {
+    if (!window.gapi || !window.gapi.auth2) {
+      toast.error('Google Auth not initialized properly');
+      return false;
+    }
+    
     const authInstance = window.gapi.auth2.getAuthInstance();
     if (!authInstance) {
       toast.error('Google Auth not initialized properly');
@@ -122,10 +132,17 @@ export const signInToGoogle = async (): Promise<boolean> => {
     }
     
     await authInstance.signIn();
+    toast.success('Successfully signed in to Google');
     return true;
   } catch (error) {
     console.error('Error signing in to Google:', error);
-    toast.error('Failed to sign in to Google');
+    if (error instanceof Error && error.message.includes('popup')) {
+      toast.error('Pop-up blocked. Please allow pop-ups for this site and try again.');
+    } else if (error instanceof Error && error.message.includes('user closed')) {
+      toast.error('Sign-in cancelled by user.');
+    } else {
+      toast.error('Failed to sign in to Google. Please try again.');
+    }
     return false;
   }
 };
@@ -139,12 +156,19 @@ export const signOutFromGoogle = async (): Promise<void> => {
   }
 
   try {
+    if (!window.gapi || !window.gapi.auth2) {
+      console.log("Auth2 module not loaded, cannot sign out");
+      return;
+    }
+    
     const authInstance = window.gapi.auth2.getAuthInstance();
     if (authInstance) {
       await authInstance.signOut();
+      toast.success('Successfully signed out from Google');
     }
   } catch (error) {
     console.error('Error signing out from Google:', error);
+    toast.error('Error signing out from Google');
   }
 };
 
@@ -161,6 +185,11 @@ export const isUserAuthorized = async (): Promise<boolean> => {
   
   // Safely check if auth instance exists and user is signed in
   try {
+    if (!window.gapi || !window.gapi.auth2) {
+      console.log("Auth2 module not loaded, user cannot be authorized");
+      return false;
+    }
+    
     const authInstance = window.gapi.auth2.getAuthInstance();
     return authInstance ? authInstance.isSignedIn.get() : false;
   } catch (error) {

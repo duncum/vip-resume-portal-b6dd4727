@@ -30,9 +30,14 @@ export const loadGoogleApi = (): Promise<void> => {
     script.async = true;
     script.defer = true;
     script.onload = () => {
-      isGapiLoaded = true;
-      console.log('Google API client library loaded successfully');
-      resolve();
+      if (window.gapi) {
+        isGapiLoaded = true;
+        console.log('Google API client library loaded successfully');
+        resolve();
+      } else {
+        console.error('Script loaded but window.gapi is not defined');
+        reject(new Error('Script loaded but window.gapi is not defined'));
+      }
     };
     script.onerror = (error) => {
       console.error('Failed to load Google API client library', error);
