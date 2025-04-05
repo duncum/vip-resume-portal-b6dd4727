@@ -38,6 +38,14 @@ export const initGoogleApi = async (): Promise<boolean> => {
     return new Promise((resolve) => {
       window.gapi.load('client:auth2', async () => {
         try {
+          // Check if API key and client ID are available
+          if (!API_KEY || !CLIENT_ID) {
+            console.info('client_id and apiKey must both be provided to initialize OAuth.');
+            isGapiInitialized = false;
+            resolve(false);
+            return;
+          }
+
           await window.gapi.client.init({
             apiKey: API_KEY,
             clientId: CLIENT_ID,
@@ -45,16 +53,25 @@ export const initGoogleApi = async (): Promise<boolean> => {
             scope: SCOPES
           });
           
-          // Listen for sign-in state changes
-          window.gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
-          
-          // Set the initial sign-in state
-          updateSignInStatus(window.gapi.auth2.getAuthInstance().isSignedIn.get());
+          // Check if auth instance exists before accessing it
+          const authInstance = window.gapi.auth2.getAuthInstance();
+          if (authInstance) {
+            // Listen for sign-in state changes
+            authInstance.isSignedIn.listen(updateSignInStatus);
+            
+            // Set the initial sign-in state
+            updateSignInStatus(authInstance.isSignedIn.get());
+          } else {
+            console.error('Auth instance is null');
+            resolve(false);
+            return;
+          }
           
           isGapiInitialized = true;
           resolve(true);
         } catch (error) {
           console.error('Error initializing Google API client:', error);
+          isGapiInitialized = false;
           resolve(false);
         }
       });
@@ -78,7 +95,13 @@ export const signInToGoogle = async (): Promise<boolean> => {
   }
 
   try {
-    await window.gapi.auth2.getAuthInstance().signIn();
+    const authInstance = window.gapi.auth2.getAuthInstance();
+    if (!authInstance) {
+      toast.error('Google Auth not initialized properly');
+      return false;
+    }
+    
+    await authInstance.signIn();
     return true;
   } catch (error) {
     console.error('Error signing in to Google:', error);
@@ -96,7 +119,10 @@ export const signOutFromGoogle = async (): Promise<void> => {
   }
 
   try {
-    await window.gapi.auth2.getAuthInstance().signOut();
+    const authInstance = window.gapi.auth2.getAuthInstance();
+    if (authInstance) {
+      await authInstance.signOut();
+    }
   } catch (error) {
     console.error('Error signing out from Google:', error);
   }
@@ -113,5 +139,12 @@ export const isUserAuthorized = async (): Promise<boolean> => {
     }
   }
   
-  return isAuthorized;
+  // Safely check if auth instance exists and user is signed in
+  try {
+    const authInstance = window.gapi.auth2.getAuthInstance();
+    return authInstance ? authInstance.isSignedIn.get() : false;
+  } catch (error) {
+    console.error('Error checking authorization status:', error);
+    return false;
+  }
 };
