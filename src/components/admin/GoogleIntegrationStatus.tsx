@@ -1,10 +1,14 @@
+
 import { useState, useEffect } from 'react';
 import { initGoogleApi, isUserAuthorized, signInToGoogle, signOutFromGoogle, getCurrentUserEmail } from '@/utils/google';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, XCircle, RefreshCw, Info } from 'lucide-react';
+import { CheckCircle, XCircle, RefreshCw, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
-import { API_KEY, CLIENT_ID } from '@/utils/google';
+import { CLIENT_ID, API_KEY } from '@/utils/google';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { SPREADSHEET_ID } from '@/utils/sheets';
 
 // Create a custom Google icon since lucide-react doesn't have one
 const GoogleIcon = ({ className = "", size = 24, ...props }) => {
@@ -36,20 +40,43 @@ const GoogleIntegrationStatus = () => {
     userEmail: null as string | null
   });
 
+  const [showCredentialsForm, setShowCredentialsForm] = useState(false);
+  const [credentials, setCredentials] = useState({
+    clientId: CLIENT_ID || '',
+    apiKey: API_KEY || '',
+    spreadsheetId: SPREADSHEET_ID || ''
+  });
+
   const [missingCredentials, setMissingCredentials] = useState({
     clientId: !CLIENT_ID,
     apiKey: !API_KEY
   });
+
+  // Store credentials in localStorage
+  useEffect(() => {
+    // Load saved credentials from localStorage
+    const savedClientId = localStorage.getItem('google_client_id');
+    const savedApiKey = localStorage.getItem('google_api_key');
+    const savedSpreadsheetId = localStorage.getItem('google_spreadsheet_id');
+    
+    if (savedClientId || savedApiKey || savedSpreadsheetId) {
+      setCredentials({
+        clientId: savedClientId || credentials.clientId,
+        apiKey: savedApiKey || credentials.apiKey,
+        spreadsheetId: savedSpreadsheetId || credentials.spreadsheetId
+      });
+    }
+  }, []);
 
   const checkStatus = async () => {
     setStatus(prev => ({ ...prev, isLoading: true }));
     
     try {
       // Check if credentials are missing
-      if (!CLIENT_ID || !API_KEY) {
+      if (!credentials.clientId || !credentials.apiKey) {
         setMissingCredentials({
-          clientId: !CLIENT_ID,
-          apiKey: !API_KEY
+          clientId: !credentials.clientId,
+          apiKey: !credentials.apiKey
         });
         setStatus({
           isInitialized: false,
@@ -58,6 +85,13 @@ const GoogleIntegrationStatus = () => {
           userEmail: null
         });
         return;
+      }
+
+      // Use credentials from state
+      window.localStorage.setItem('google_client_id', credentials.clientId);
+      window.localStorage.setItem('google_api_key', credentials.apiKey);
+      if (credentials.spreadsheetId) {
+        window.localStorage.setItem('google_spreadsheet_id', credentials.spreadsheetId);
       }
 
       await initGoogleApi();
@@ -119,6 +153,13 @@ const GoogleIntegrationStatus = () => {
       toast.error('Failed to sign out from Google');
       setStatus(prev => ({ ...prev, isLoading: false }));
     }
+  };
+
+  const handleCredentialSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    checkStatus();
+    setShowCredentialsForm(false);
+    toast.success('Credentials saved');
   };
 
   const showSetupInstructions = () => {
@@ -189,16 +230,72 @@ const GoogleIntegrationStatus = () => {
             </div>
           </div>
         )}
+        
+        {/* Collapsible credentials form */}
+        <div className="mt-3">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowCredentialsForm(!showCredentialsForm)}
+            className="w-full flex items-center justify-between text-xs"
+          >
+            <span>API Credentials</span>
+            {showCredentialsForm ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+          </Button>
+          
+          {showCredentialsForm && (
+            <form onSubmit={handleCredentialSubmit} className="mt-3 space-y-3 p-3 bg-slate-50 rounded-md">
+              <div className="space-y-1">
+                <Label htmlFor="clientId" className="text-xs">Client ID</Label>
+                <Input 
+                  id="clientId"
+                  placeholder="Your OAuth Client ID" 
+                  value={credentials.clientId}
+                  onChange={(e) => setCredentials({...credentials, clientId: e.target.value})}
+                  className="text-xs h-8"
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <Label htmlFor="apiKey" className="text-xs">API Key</Label>
+                <Input 
+                  id="apiKey"
+                  placeholder="Your Google API Key" 
+                  value={credentials.apiKey}
+                  onChange={(e) => setCredentials({...credentials, apiKey: e.target.value})}
+                  className="text-xs h-8"
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <Label htmlFor="spreadsheetId" className="text-xs">
+                  Spreadsheet ID <span className="text-slate-500">(Optional)</span>
+                </Label>
+                <Input 
+                  id="spreadsheetId"
+                  placeholder="Your Google Spreadsheet ID" 
+                  value={credentials.spreadsheetId}
+                  onChange={(e) => setCredentials({...credentials, spreadsheetId: e.target.value})}
+                  className="text-xs h-8"
+                />
+              </div>
+              
+              <div className="pt-1">
+                <Button type="submit" size="sm" className="w-full text-xs">Save Credentials</Button>
+              </div>
+            </form>
+          )}
+        </div>
       </CardContent>
       <CardFooter className="pt-2">
         {missingCredentials.clientId || missingCredentials.apiKey ? (
           <Button 
             size="sm" 
             variant="outline" 
-            onClick={showSetupInstructions}
+            onClick={() => setShowCredentialsForm(true)}
             className="w-full text-xs"
           >
-            View Setup Instructions
+            Enter API Credentials
           </Button>
         ) : status.isAuthorized ? (
           <Button size="sm" variant="outline" onClick={handleSignOut} className="w-full text-xs">

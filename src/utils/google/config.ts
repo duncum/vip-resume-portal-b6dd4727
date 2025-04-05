@@ -1,10 +1,17 @@
 
 // Google API configuration constants
 
-// Google API configuration
-// These values are read from the environment variables
-export const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ""; 
-export const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || "";
+// Get credentials from localStorage if available
+export const CLIENT_ID = 
+  typeof window !== 'undefined' && window.localStorage.getItem('google_client_id') || 
+  import.meta.env.VITE_GOOGLE_CLIENT_ID || 
+  "";
+
+export const API_KEY = 
+  typeof window !== 'undefined' && window.localStorage.getItem('google_api_key') || 
+  import.meta.env.VITE_GOOGLE_API_KEY || 
+  "";
+
 export const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest",
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"  // Added Drive API for resume uploads
@@ -26,9 +33,9 @@ export const printOAuthSetupInstructions = () => {
     `Google Sheets Integration Setup Instructions:
     
     1. You need these three values to connect to Google Sheets:
-       - VITE_GOOGLE_CLIENT_ID: Your OAuth Client ID
-       - VITE_GOOGLE_API_KEY: Your API Key
-       - VITE_GOOGLE_SPREADSHEET_ID: Your Spreadsheet ID
+       - Client ID: Your OAuth Client ID
+       - API Key: Your API Key
+       - Spreadsheet ID: Your Spreadsheet ID
     
     2. To get these values:
        a) Go to https://console.cloud.google.com/
@@ -45,11 +52,7 @@ export const printOAuthSetupInstructions = () => {
     3. Your Spreadsheet ID is found in your Google Sheet URL:
        https://docs.google.com/spreadsheets/d/[YOUR_SPREADSHEET_ID]/edit
        
-    4. For development, you can directly modify the values in:
-       - src/utils/google/config.ts 
-       - src/utils/sheets/config.ts
-       
-    5. For production, use environment variables with your hosting service.
+    4. You can enter these credentials in the API Credentials form in the app.
     
     Once you have your credentials, the Google Integration Status panel will allow you to connect and access your spreadsheet.`
   );

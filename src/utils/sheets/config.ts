@@ -9,7 +9,11 @@
  * 2. Look at the URL: https://docs.google.com/spreadsheets/d/[YOUR_SPREADSHEET_ID]/edit
  * 3. Copy the [YOUR_SPREADSHEET_ID] portion
  */
-export const SPREADSHEET_ID = import.meta.env.VITE_GOOGLE_SPREADSHEET_ID || ""; 
+export const SPREADSHEET_ID = 
+  typeof window !== 'undefined' && window.localStorage.getItem('google_spreadsheet_id') || 
+  import.meta.env.VITE_GOOGLE_SPREADSHEET_ID || 
+  ""; 
+
 export const CANDIDATES_RANGE = "Candidates!A2:Z"; // Adjust based on your sheet structure
 
 // Example sheet structure:
