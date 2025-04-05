@@ -2,7 +2,12 @@
 import React from 'react';
 
 // Custom Google icon since lucide-react doesn't have one
-const GoogleIcon = ({ className = "", size = 24, ...props }: React.SVGProps<SVGSVGElement>) => {
+interface GoogleIconProps extends React.SVGProps<SVGSVGElement> {
+  size?: number;
+  className?: string;
+}
+
+const GoogleIcon = ({ className = "", size = 24, ...props }: GoogleIconProps) => {
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
