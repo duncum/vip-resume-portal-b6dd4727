@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { ensureAuthorization } from "@/utils/sheets/auth-helper";
 import { SPREADSHEET_ID, CANDIDATES_RANGE } from "@/utils/sheets/config";
 import { addCandidate } from "@/utils/sheets";
-import { uploadResumeToDrive } from "@/utils/googleDrive";
+import { uploadResumeToDrive } from "@/utils/drive";
 
 export const useFormState = (onSuccess?: () => void) => {
   const [isUploading, setIsUploading] = useState(false);

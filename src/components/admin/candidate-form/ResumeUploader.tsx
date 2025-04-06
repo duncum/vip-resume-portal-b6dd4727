@@ -4,7 +4,7 @@ import { Upload, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { uploadResumeToDrive } from "@/utils/googleDrive";
+import { uploadResumeToDrive } from "@/utils/drive"; // Updated import path
 import { Button } from "@/components/ui/button";
 
 interface ResumeUploaderProps {
