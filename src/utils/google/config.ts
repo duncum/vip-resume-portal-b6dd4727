@@ -16,7 +16,7 @@ export const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest",
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"  // Added Drive API for resume uploads
 ];
-export const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly https://www.googleapis.com/auth/drive.file'; // Added Drive scope
+export const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file'; // Updated to include full sheets access
 
 /**
  * Get the redirect URI for OAuth - should match what's configured in Google Cloud Console

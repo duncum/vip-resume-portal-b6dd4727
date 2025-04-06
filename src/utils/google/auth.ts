@@ -41,6 +41,8 @@ export const initGoogleApi = async (): Promise<boolean> => {
       window.gapi.load('client', async () => {
         try {
           console.log("Initializing client with API_KEY and CLIENT_ID...");
+          console.log("API_KEY:", API_KEY ? "Present" : "Missing");
+          console.log("CLIENT_ID:", CLIENT_ID ? "Present" : "Missing");
           
           await window.gapi.client.init({
             apiKey: API_KEY,

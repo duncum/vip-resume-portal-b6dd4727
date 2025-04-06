@@ -15,14 +15,14 @@ export const useGoogleIntegration = () => {
 
   const [showCredentialsForm, setShowCredentialsForm] = useState(false);
   const [credentials, setCredentials] = useState({
-    clientId: CLIENT_ID || '',
-    apiKey: API_KEY || '',
-    spreadsheetId: SPREADSHEET_ID || ''
+    clientId: '',
+    apiKey: '',
+    spreadsheetId: ''
   });
 
   const [missingCredentials, setMissingCredentials] = useState({
-    clientId: !CLIENT_ID,
-    apiKey: !API_KEY
+    clientId: true,
+    apiKey: true
   });
 
   // Load saved credentials from localStorage
@@ -33,15 +33,15 @@ export const useGoogleIntegration = () => {
     
     if (savedClientId || savedApiKey || savedSpreadsheetId) {
       setCredentials({
-        clientId: savedClientId || credentials.clientId,
-        apiKey: savedApiKey || credentials.apiKey,
-        spreadsheetId: savedSpreadsheetId || credentials.spreadsheetId
+        clientId: savedClientId || '',
+        apiKey: savedApiKey || '',
+        spreadsheetId: savedSpreadsheetId || ''
       });
       
       // Set missing credentials state
       setMissingCredentials({
-        clientId: !savedClientId && !credentials.clientId,
-        apiKey: !savedApiKey && !credentials.apiKey
+        clientId: !savedClientId,
+        apiKey: !savedApiKey
       });
     }
   }, []);
@@ -51,10 +51,13 @@ export const useGoogleIntegration = () => {
     
     try {
       // Check if credentials are missing
-      if (!credentials.clientId || !credentials.apiKey) {
+      const savedClientId = localStorage.getItem('google_client_id');
+      const savedApiKey = localStorage.getItem('google_api_key');
+      
+      if (!savedClientId || !savedApiKey) {
         setMissingCredentials({
-          clientId: !credentials.clientId,
-          apiKey: !credentials.apiKey
+          clientId: !savedClientId,
+          apiKey: !savedApiKey
         });
         setStatus({
           isInitialized: false,
@@ -65,13 +68,10 @@ export const useGoogleIntegration = () => {
         return;
       }
 
-      // Use credentials from state
-      window.localStorage.setItem('google_client_id', credentials.clientId);
-      window.localStorage.setItem('google_api_key', credentials.apiKey);
-      if (credentials.spreadsheetId) {
-        window.localStorage.setItem('google_spreadsheet_id', credentials.spreadsheetId);
-      }
-
+      // Use the most up-to-date credentials (from localStorage)
+      window.localStorage.setItem('google_client_id', savedClientId);
+      window.localStorage.setItem('google_api_key', savedApiKey);
+      
       const apiInitialized = await initGoogleApi();
       const authorized = await isUserAuthorized();
       
@@ -91,7 +91,7 @@ export const useGoogleIntegration = () => {
         userEmail: null
       });
     }
-  }, [credentials]);
+  }, []);
 
   useEffect(() => {
     checkStatus();
@@ -169,6 +169,23 @@ export const useGoogleIntegration = () => {
 
   const handleCredentialSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Store credentials in localStorage
+    if (credentials.clientId) {
+      localStorage.setItem('google_client_id', credentials.clientId);
+    }
+    if (credentials.apiKey) {
+      localStorage.setItem('google_api_key', credentials.apiKey);
+    }
+    if (credentials.spreadsheetId) {
+      localStorage.setItem('google_spreadsheet_id', credentials.spreadsheetId);
+    }
+    
+    setMissingCredentials({
+      clientId: !credentials.clientId,
+      apiKey: !credentials.apiKey
+    });
+    
     checkStatus();
     setShowCredentialsForm(false);
     toast.success('Credentials saved');
