@@ -95,11 +95,11 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
               </div>
             </div>
             
-            {/* PDF viewer iframe with CSS to hide controls */}
+            {/* PDF viewer iframe with enhanced CSS to hide controls */}
             <div className="iframe-container w-full h-[800px] relative">
-              {/* Use a style element without the jsx attribute */}
               <style>
                 {`
+                  /* Hide standard download UI elements */
                   .iframe-container::after {
                     content: '';
                     position: absolute;
@@ -111,8 +111,37 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
                     z-index: 100;
                     pointer-events: none;
                   }
+                  
+                  /* Additional overlay to hide bottom controls */
+                  .iframe-container::before {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                    width: 40px;
+                    height: 40px;
+                    background: white;
+                    z-index: 100;
+                    pointer-events: none;
+                  }
+                  
+                  /* Right side overlay to hide controls */
+                  .right-overlay {
+                    position: absolute;
+                    top: 30%;
+                    right: 0;
+                    width: 40px;
+                    height: 50%;
+                    background: white;
+                    z-index: 100;
+                    pointer-events: none;
+                  }
                 `}
               </style>
+              
+              {/* Extra overlays to hide UI elements */}
+              <div className="right-overlay"></div>
+              
               <iframe
                 src={embedUrl}
                 className="w-full h-full border-0"
