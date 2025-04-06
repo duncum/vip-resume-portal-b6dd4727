@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef } from "react";
 import ResumeOverlays from "./ResumeOverlays";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface DocumentViewerProps {
   embedUrl: string;
@@ -9,7 +10,7 @@ interface DocumentViewerProps {
 
 /**
  * Component that renders the document in an iframe with enhanced security
- * and watermark protection
+ * and watermark protection without interfering with document viewing
  */
 const DocumentViewer: React.FC<DocumentViewerProps> = ({ embedUrl, onError }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -57,7 +58,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ embedUrl, onError }) =>
   const handleIframeLoad = () => {
     try {
       if (iframeRef.current && iframeRef.current.contentDocument) {
-        // Apply overlay protections to the iframe content
+        // Apply protection to the iframe content
         const iframeDoc = iframeRef.current.contentDocument;
         iframeDoc.addEventListener('contextmenu', (e) => e.preventDefault());
         
@@ -70,8 +71,36 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ embedUrl, onError }) =>
             -moz-user-select: none !important;
             -ms-user-select: none !important;
           }
+          
+          /* Hide download UI elements */
+          #download, .download, button[download], a[download],
+          [id*="download"], [class*="download"],
+          [id*="print"], [class*="print"],
+          [id*="save"], [class*="save"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+          }
         `;
         iframeDoc.head.appendChild(style);
+        
+        // Find and remove download buttons
+        const removeDownloadButtons = () => {
+          const elements = iframeDoc.querySelectorAll('button, a');
+          elements.forEach(el => {
+            if (el.textContent?.toLowerCase().includes('download') || 
+                el.getAttribute('aria-label')?.toLowerCase().includes('download')) {
+              el.style.display = 'none';
+              el.style.visibility = 'hidden';
+              el.style.pointerEvents = 'none';
+            }
+          });
+        };
+        
+        // Run immediately and periodically check
+        removeDownloadButtons();
+        setInterval(removeDownloadButtons, 500);
       }
     } catch (e) {
       // Cross-origin errors will occur, which is fine
@@ -81,20 +110,20 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ embedUrl, onError }) =>
 
   return (
     <div className="relative resume-container" id="resume-for-print">
-      {/* Enhanced watermark pattern overlay with denser pattern */}
+      {/* Enhanced watermark pattern overlay with subtle opacity */}
       <div 
-        className="absolute inset-0 overflow-hidden pointer-events-none z-10 print:block opacity-20 print:opacity-40" 
+        className="absolute inset-0 overflow-hidden pointer-events-none z-10 print:block opacity-[0.15] print:opacity-30" 
         id="resume-watermark"
         style={{ pointerEvents: 'none' }}
       >
         <div className="absolute inset-0 flex flex-col">
-          {/* Generate multiple rows to ensure coverage for any document length */}
-          {[...Array(20)].map((_, rowIndex) => (
+          {/* Generate a pattern of watermarks */}
+          {[...Array(8)].map((_, rowIndex) => (
             <div 
               key={`row-${rowIndex}`} 
-              className={`flex justify-between px-8 py-16 ${rowIndex % 2 === 0 ? '' : 'ml-24'}`}
+              className={`flex justify-between px-12 py-24 ${rowIndex % 2 === 0 ? '' : 'ml-24'}`}
             >
-              {[...Array(5)].map((_, colIndex) => (
+              {[...Array(3)].map((_, colIndex) => (
                 <div 
                   key={`watermark-${rowIndex}-${colIndex}`} 
                   className="transform -rotate-45"
@@ -112,26 +141,25 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ embedUrl, onError }) =>
         </div>
       </div>
       
-      {/* PDF viewer iframe with subtle CSS to hide all controls */}
-      <div className="iframe-container w-full h-[800px] relative">
-        <ResumeOverlays />
-        
-        {/* Security layer to prevent access to PDF content */}
-        <div className="absolute inset-0 z-5 pointer-events-none"></div>
-        
-        <iframe
-          ref={iframeRef}
-          src={embedUrl}
-          className="w-full h-full border-0"
-          title="Resume PDF"
-          onError={onError}
-          onLoad={handleIframeLoad}
-          frameBorder="0"
-          allowFullScreen
-          id="resume-iframe"
-          sandbox="allow-same-origin allow-scripts"
-        />
-      </div>
+      {/* PDF viewer with custom scroll area for better performance */}
+      <ScrollArea className="h-[800px] w-full">
+        <div className="iframe-container w-full relative">
+          <ResumeOverlays />
+          
+          <iframe
+            ref={iframeRef}
+            src={embedUrl}
+            className="w-full h-[800px] border-0"
+            title="Resume PDF"
+            onError={onError}
+            onLoad={handleIframeLoad}
+            frameBorder="0"
+            allowFullScreen
+            id="resume-iframe"
+            sandbox="allow-same-origin allow-scripts"
+          />
+        </div>
+      </ScrollArea>
     </div>
   );
 };
