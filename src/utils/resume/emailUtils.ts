@@ -27,7 +27,7 @@ export const sendResumeEmail = async (data: SendResumeEmailData): Promise<boolea
     trackDownload(candidateId);
     
     // Also record this action in Google Sheets
-    await recordResumeShare(candidateId, recipientEmail, "email");
+    await recordResumeShareToCandidatesSheet(candidateId, recipientEmail);
     
     // Prepare the email content
     const emailContent = {
@@ -67,16 +67,14 @@ export const sendResumeEmail = async (data: SendResumeEmailData): Promise<boolea
 };
 
 /**
- * Record resume share activity in Google Sheets
+ * Record resume share activity in the Candidates sheet
  * 
  * @param candidateId The ID of the candidate
- * @param recipientEmail Email of the recipient
- * @param actionType Type of action (email, download, view)
+ * @param recipientEmail Email of the recipient 
  */
-const recordResumeShare = async (
+const recordResumeShareToCandidatesSheet = async (
   candidateId: string, 
-  recipientEmail: string, 
-  actionType: "email" | "download" | "view"
+  recipientEmail: string
 ): Promise<boolean> => {
   try {
     // Check if Google API is available
@@ -95,24 +93,44 @@ const recordResumeShare = async (
       return false;
     }
     
-    // Format timestamp
-    const timestamp = new Date().toISOString();
-    
-    // Prepare the row data
-    const values = [
-      [timestamp, candidateId, recipientEmail, actionType]
-    ];
-    
-    // Append to "ResumeShares" sheet (will be created if it doesn't exist)
-    const response = await window.gapi.client.sheets.spreadsheets.values.append({
+    // First, get the candidate row by searching for the ID in the Candidates sheet
+    const response = await window.gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: "ResumeShares!A:D",
-      valueInputOption: "USER_ENTERED",
-      insertDataOption: "INSERT_ROWS",
-      resource: { values }
+      range: "Candidates!A:A", // Search in first column where IDs are stored
     });
     
-    console.log("Resume share recorded in Google Sheets:", response);
+    const values = response.result.values || [];
+    let rowIndex = -1;
+    
+    // Find the row with the matching candidate ID
+    for (let i = 0; i < values.length; i++) {
+      if (values[i][0] === candidateId) {
+        rowIndex = i + 1; // Sheets rows are 1-indexed
+        break;
+      }
+    }
+    
+    if (rowIndex === -1) {
+      console.warn(`Candidate with ID ${candidateId} not found in sheet`);
+      return false;
+    }
+    
+    // Determine which columns to update (assuming we add these columns to the sheet)
+    // We'll update the "LastEmailedTo" and "LastEmailedDate" columns
+    // Assuming these might be columns P and Q (adjust based on your sheet structure)
+    const timestamp = new Date().toISOString();
+    
+    // Update the candidate row with email tracking information
+    await window.gapi.client.sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `Candidates!P${rowIndex}:Q${rowIndex}`,
+      valueInputOption: "USER_ENTERED",
+      resource: {
+        values: [[recipientEmail, timestamp]]
+      }
+    });
+    
+    console.log(`Resume share recorded for candidate ${candidateId}`);
     return true;
   } catch (error) {
     console.error("Error recording resume share in Google Sheets:", error);
