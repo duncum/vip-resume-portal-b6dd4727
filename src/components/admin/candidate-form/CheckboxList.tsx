@@ -8,6 +8,7 @@ interface CheckboxListProps {
   onChange: (item: string, checked: boolean) => void;
   descriptions?: Record<string, string>;
   columns?: number;
+  disabled?: boolean;  // Add disabled prop
 }
 
 const CheckboxList = ({ 
@@ -15,7 +16,8 @@ const CheckboxList = ({
   selectedItems, 
   onChange, 
   descriptions, 
-  columns = 2 
+  columns = 2,
+  disabled = false  // Default to not disabled
 }: CheckboxListProps) => {
   // Hardcode the column classes to avoid runtime template string issues
   return (
@@ -24,16 +26,17 @@ const CheckboxList = ({
                      columns === 4 ? "grid grid-cols-1 md:grid-cols-4 gap-2 mb-2" : 
                      "grid grid-cols-1 gap-2 mb-2"}>
       {items.map((item) => (
-        <div key={item} className="flex items-start space-x-2">
+        <div key={item} className={`flex items-start space-x-2 ${disabled ? 'opacity-60' : ''}`}>
           <Checkbox 
             id={`item-${item}`} 
             checked={selectedItems.includes(item)}
             onCheckedChange={(checked) => onChange(item, checked === true)}
+            disabled={disabled}
           />
           <div>
             <label 
               htmlFor={`item-${item}`} 
-              className="text-sm cursor-pointer"
+              className={`text-sm ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {item}
             </label>

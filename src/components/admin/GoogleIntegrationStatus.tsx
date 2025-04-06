@@ -6,6 +6,7 @@ import StatusDisplay from './google/StatusDisplay';
 import CredentialsToggle from './google/CredentialsToggle';
 import ConnectionButton from './google/ConnectionButton';
 import { useGoogleIntegration } from './google/useGoogleIntegration';
+import { AlertCircle } from 'lucide-react';
 
 const GoogleIntegrationStatus = () => {
   const hasAutoConnected = useRef(false);
@@ -38,6 +39,9 @@ const GoogleIntegrationStatus = () => {
     }
   }, [status.isAuthorized, missingCredentials.apiKey, status.isLoading, autoConnect]);
 
+  // Check if we're in API key only mode
+  const isApiKeyOnly = !credentials.clientId && credentials.apiKey;
+
   return (
     <Card className="border-dashed">
       <CardHeader className="pb-3">
@@ -60,6 +64,27 @@ const GoogleIntegrationStatus = () => {
           showSetupInstructions={showSetupInstructions}
           switchToApiKeyOnlyMode={switchToApiKeyOnlyMode}
         />
+        
+        {/* Show API key only mode notice */}
+        {status.isAuthorized && isApiKeyOnly && (
+          <div className="mt-3 p-3 bg-amber-50 text-xs rounded-md border border-amber-200">
+            <div className="flex items-start">
+              <AlertCircle className="h-4 w-4 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-medium">API Key Only Mode Limitations:</p>
+                <ul className="list-disc pl-4 space-y-1 mt-1">
+                  <li>View and search candidates (✓)</li>
+                  <li>Add new candidates (✗)</li>
+                  <li>Upload resumes to Google Drive (✗)</li>
+                </ul>
+                <p className="mt-2">
+                  To enable all features, add a Google OAuth Client ID with
+                  <span className="font-bold"> {window.location.origin}</span> as an authorized JavaScript origin.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Show a help message about how to share the Google Sheet */}
         {status.isAuthorized && (

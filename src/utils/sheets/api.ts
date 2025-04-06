@@ -191,11 +191,11 @@ export const addCandidate = async (candidateData: any): Promise<boolean> => {
     
     // If we don't have Client ID set, show an informative message
     if (!localStorage.getItem('google_client_id') || localStorage.getItem('google_client_id') === '') {
-      toast.warning("In API key only mode: data saved locally but not to Google Sheets", {
-        duration: 6000
-      });
-      // Mark as success but warn user
-      return true;
+      toast.error(
+        "API key only mode: Cannot add candidates. To enable adding candidates, you need to set up an OAuth Client ID in Google settings.", 
+        { duration: 8000 }
+      );
+      return false;
     }
     
     // Otherwise simulate API call delay
@@ -213,6 +213,15 @@ export const addCandidate = async (candidateData: any): Promise<boolean> => {
       toast.error("Spreadsheet ID missing. Please add it in Google settings.", {
         duration: 5000
       });
+      return false;
+    }
+    
+    // Check if we're in API key only mode
+    if (!localStorage.getItem('google_client_id') || localStorage.getItem('google_client_id') === '') {
+      toast.error(
+        "API key only mode: Cannot add candidates. To enable adding candidates, you need to set up an OAuth Client ID in Google settings.", 
+        { duration: 8000 }
+      );
       return false;
     }
     
@@ -254,15 +263,15 @@ export const addCandidate = async (candidateData: any): Promise<boolean> => {
     if (error.result?.error?.code === 401 || error.result?.error?.code === 403) {
       // API key only mode - this is expected
       if (!localStorage.getItem('google_client_id') || localStorage.getItem('google_client_id') === '') {
-        toast.warning("API key only mode: Can view data but not write to Google Sheets. Adding OAuth Client ID would enable write access.", {
-          duration: 8000
-        });
-        // Still return true to not block the user
-        return true;
+        toast.error(
+          "API key only mode: Cannot add candidates. To enable adding candidates, you need to set up an OAuth Client ID in Google settings.", 
+          { duration: 8000 }
+        );
       } else {
-        toast.error("OAuth authentication required for adding candidates. Please check your Google settings.", {
-          duration: 6000
-        });
+        toast.error(
+          "OAuth authentication required for adding candidates. Your Client ID may not be configured properly.", 
+          { duration: 6000 }
+        );
       }
     } else if (error.result?.error?.status === "NOT_FOUND") {
       toast.error("Spreadsheet not found - check your Spreadsheet ID", {

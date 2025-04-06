@@ -97,7 +97,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
             </div>
             {!isOAuthMode && (
               <div className="text-xs text-amber-500 mt-1">
-                Note: Read-only mode active. Client ID needed for write access.
+                Note: Read-only mode active. Adding candidates unavailable in API key only mode.
               </div>
             )}
           </div>
