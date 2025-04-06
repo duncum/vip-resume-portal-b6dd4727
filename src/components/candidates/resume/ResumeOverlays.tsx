@@ -53,76 +53,76 @@ const ResumeOverlays: React.FC = () => {
     <>
       <style>
         {`
-          /* Enhanced control hiding with more aggressive coverage */
+          /* Enhanced control hiding with more subtle approach */
           .iframe-container::after {
             content: '';
             position: absolute;
             top: 0;
             right: 0;
-            width: 80px;
-            height: 80px;
-            background: white;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.6);
             z-index: 1000;
             pointer-events: none;
           }
           
-          /* Additional overlay to hide bottom controls */
+          /* Thinner bottom overlay */
           .iframe-container::before {
             content: '';
             position: absolute;
             bottom: 0;
             right: 0;
             width: 100%;
-            height: 50px;
-            background: white;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.6);
             z-index: 1000;
             pointer-events: none;
           }
           
-          /* Wider right side overlay to hide controls including download button */
+          /* Narrower right side overlay */
           .right-overlay {
             position: absolute;
             top: 0;
             right: 0;
-            width: 80px; 
+            width: 40px; 
             height: 100%;
-            background: white;
+            background: rgba(255, 255, 255, 0.6);
             z-index: 1000;
             pointer-events: none;
           }
           
-          /* Fullscreen exit button remover */
+          /* Smaller corner overlay */
           .top-right-corner {
             position: absolute;
             top: 0;
             right: 0;
-            width: 80px;
-            height: 80px;
-            background: white;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.6);
             z-index: 1001;
             pointer-events: none;
           }
           
-          /* Fixed positioned overlay that stays in view when scrolling */
+          /* Thinner fixed overlay */
           .fixed-right-overlay {
             position: fixed;
             top: 0;
             right: 0;
-            width: 80px;
+            width: 40px;
             height: 100vh;
-            background: white;
+            background: rgba(255, 255, 255, 0.6);
             z-index: 9999;
             pointer-events: none;
           }
           
-          /* Enhanced bottom control hider */
+          /* Thinner bottom control hider */
           .bottom-overlay {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 50px;
-            background: white;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.6);
             z-index: 1000;
             pointer-events: none;
           }
@@ -134,10 +134,10 @@ const ResumeOverlays: React.FC = () => {
             -webkit-user-select: none;
           }
           
-          /* More aggressive right-side coverage for Google Drive UI */
+          /* More refined right-side coverage */
           @media screen and (min-width: 768px) {
             .right-overlay, .fixed-right-overlay {
-              width: 100px;
+              width: 40px;
             }
           }
           
@@ -151,14 +151,14 @@ const ResumeOverlays: React.FC = () => {
         `}
       </style>
       
-      {/* Extra overlays to hide all UI elements with inline styles for extra protection */}
-      <div className="right-overlay" style={{ position: 'absolute', right: 0, top: 0, height: '100%', width: '80px', background: 'white', zIndex: 1000 }}></div>
-      <div className="top-right-corner" style={{ position: 'absolute', right: 0, top: 0, height: '80px', width: '80px', background: 'white', zIndex: 1001 }}></div>
-      <div className="bottom-overlay" style={{ position: 'absolute', bottom: 0, left: 0, height: '50px', width: '100%', background: 'white', zIndex: 1000 }}></div>
-      <div className="fixed-right-overlay" style={{ position: 'fixed', right: 0, top: 0, height: '100vh', width: '80px', background: 'white', zIndex: 9999 }}></div>
+      {/* More subtle overlays with semi-transparency */}
+      <div className="right-overlay" style={{ position: 'absolute', right: 0, top: 0, height: '100%', width: '40px', background: 'rgba(255, 255, 255, 0.6)', zIndex: 1000 }}></div>
+      <div className="top-right-corner" style={{ position: 'absolute', right: 0, top: 0, height: '40px', width: '40px', background: 'rgba(255, 255, 255, 0.6)', zIndex: 1001 }}></div>
+      <div className="bottom-overlay" style={{ position: 'absolute', bottom: 0, left: 0, height: '30px', width: '100%', background: 'rgba(255, 255, 255, 0.6)', zIndex: 1000 }}></div>
+      <div className="fixed-right-overlay" style={{ position: 'fixed', right: 0, top: 0, height: '100vh', width: '40px', background: 'rgba(255, 255, 255, 0.6)', zIndex: 9999 }}></div>
       
-      {/* Additional protections for other potential UI controls */}
-      <div style={{ position: 'absolute', top: '0', left: '0', width: '50px', height: '50px', background: 'white', zIndex: 1000 }}></div>
+      {/* Additional protection with reduced size */}
+      <div style={{ position: 'absolute', top: '0', left: '0', width: '30px', height: '30px', background: 'rgba(255, 255, 255, 0.6)', zIndex: 1000 }}></div>
     </>
   );
 };
