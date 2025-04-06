@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackIpAddress } from "@/utils/ipTracker";
@@ -30,54 +29,91 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
   };
 
   const embedUrl = getEmbedUrl(fileUrl);
+  
+  // Function to disable download buttons on the iframe
+  const disableDownloadButtons = () => {
+    if (!iframeRef.current) return;
+    
+    try {
+      // Try to access the iframe content
+      const iframeDocument = iframeRef.current.contentDocument || 
+                           (iframeRef.current.contentWindow?.document);
+      
+      if (iframeDocument) {
+        // For Google Drive embeds - hide download buttons and toolbars
+        const elementsToHide = [
+          '[role="button"]',          // Generic buttons
+          'button',                   // HTML buttons
+          '.ndfHFb-c4YZDc-Wrql6b',    // Google Drive toolbar
+          '.ndfHFb-c4YZDc-to915-LgbsSe', // Download buttons
+          '.goog-inline-block',       // Google Drive UI elements
+          '[aria-label*="Download"]', // Elements with aria labels for download
+          '[aria-label*="Print"]',    // Elements with aria labels for print
+          '[title*="Download"]',      // Elements with title containing Download
+          '[title*="Print"]'          // Elements with title containing Print
+        ];
+        
+        // Apply the selectors
+        elementsToHide.forEach(selector => {
+          const elements = iframeDocument.querySelectorAll(selector);
+          elements.forEach(element => {
+            if (element instanceof HTMLElement) {
+              element.style.display = 'none';
+              element.style.opacity = '0';
+              element.style.visibility = 'hidden';
+              // Also remove click listeners when possible
+              element.onclick = (e) => e.preventDefault();
+              element.style.pointerEvents = 'none';
+            }
+          });
+        });
+        
+        // Disable all links
+        const links = iframeDocument.querySelectorAll('a');
+        links.forEach(link => {
+          if (link instanceof HTMLElement) {
+            link.style.pointerEvents = 'none';
+            link.onclick = (e) => e.preventDefault();
+          }
+        });
+        
+        // Style scrollbars if needed
+        const scrollElements = iframeDocument.querySelectorAll('.goog-inline-block');
+        scrollElements.forEach((element) => {
+          if (element instanceof HTMLElement) {
+            element.style.scrollbarWidth = 'thin';
+            element.style.scrollbarColor = '#888 #f1f1f1';
+          }
+        });
+      }
+    } catch (e) {
+      // Silent catch - security restrictions prevent modifying cross-origin iframes
+      console.log("Note: Unable to modify iframe content due to security restrictions");
+    }
+  };
 
   useEffect(() => {
     // Track IP address when resume is viewed
     trackIpAddress(candidateId);
     
-    // Simulate PDF loading
+    // Reset states when URL changes
+    setIsLoading(true);
+    setIsError(false);
+    
+    // Set up periodic checks for download buttons (they might be added dynamically)
     const timer = setTimeout(() => {
       setIsLoading(false);
       
-      // After loading, ensure download buttons are removed and scrollbars are styled properly
-      const cleanupTimer = setTimeout(() => {
-        // Only run if iframe exists and has loaded successfully
-        if (iframeRef.current && !isError) {
-          try {
-            // Try to access the iframe's document to remove UI elements that enable downloads
-            const iframeDocument = iframeRef.current.contentDocument || 
-                                 (iframeRef.current.contentWindow?.document);
-            
-            if (iframeDocument) {
-              // For Google Drive embeds - hide download buttons & print buttons
-              const downloadButtons = iframeDocument.querySelectorAll('[role="button"], .ndfHFb-c4YZDc-Wrql6b');
-              downloadButtons.forEach((button) => {
-                if (button instanceof HTMLElement) {
-                  button.style.display = 'none';
-                }
-              });
-              
-              // Style scrollbars if needed
-              const scrollElements = iframeDocument.querySelectorAll('.goog-inline-block');
-              scrollElements.forEach((element) => {
-                if (element instanceof HTMLElement) {
-                  element.style.scrollbarWidth = 'thin';
-                  element.style.scrollbarColor = '#888 #f1f1f1';
-                }
-              });
-            }
-          } catch (e) {
-            // Silent catch - security restrictions prevent modifying cross-origin iframes
-            console.log("Note: Unable to modify iframe content due to security restrictions");
-          }
-        }
-      }, 1000);
+      // Apply security measures and continue checking periodically
+      const securityInterval = setInterval(() => {
+        disableDownloadButtons();
+      }, 1000); // Check every second
       
-      return () => clearTimeout(cleanupTimer);
+      return () => clearInterval(securityInterval);
     }, 1500);
     
     return () => clearTimeout(timer);
-  }, [candidateId, isError]);
+  }, [candidateId, fileUrl]);
 
   const handleIframeError = () => {
     setIsError(true);
@@ -86,8 +122,15 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
   };
 
   const handleIframeLoad = () => {
+    // Apply security measures immediately when iframe loads
+    disableDownloadButtons();
+    
     // Keep the loading state for a moment to ensure document is fully rendered
-    setTimeout(() => setIsLoading(false), 500);
+    setTimeout(() => {
+      setIsLoading(false);
+      // Apply security again after short delay (when document is fully loaded)
+      disableDownloadButtons();
+    }, 500);
   };
 
   return (
