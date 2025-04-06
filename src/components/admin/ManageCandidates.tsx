@@ -8,6 +8,7 @@ import { fetchCandidates, type Candidate } from "@/utils/sheets"; // Updated imp
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
+import PaginatedResults from "@/components/candidates/PaginatedResults";
 
 interface ManageCandidatesProps {
   initialCandidates?: Candidate[];
@@ -19,6 +20,7 @@ const ManageCandidates = ({ initialCandidates = [], isInitialLoading = false }: 
   const [loading, setLoading] = useState(isInitialLoading);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+  const itemsPerPage = 5; // Set number of candidates per page
 
   useEffect(() => {
     if (initialCandidates.length > 0) {
@@ -63,6 +65,60 @@ const ManageCandidates = ({ initialCandidates = [], isInitialLoading = false }: 
     setCandidates(candidates.filter(candidate => candidate.id !== id));
   };
 
+  const renderCandidateTable = (currentCandidates: Candidate[]) => {
+    if (currentCandidates.length === 0) {
+      return (
+        <div className="text-center py-8 border rounded-md">
+          <p className="text-grey-500">No candidates found matching your search.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="border rounded-md overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-gray-50 border-b">
+              <th className="text-left p-3 text-sm font-medium text-gray-600">ID</th>
+              <th className="text-left p-3 text-sm font-medium text-gray-600">Headline</th>
+              <th className="text-left p-3 text-sm font-medium text-gray-600">Position</th>
+              <th className="text-left p-3 text-sm font-medium text-gray-600">Category</th>
+              <th className="text-left p-3 text-sm font-medium text-gray-600">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentCandidates.map((candidate) => (
+              <tr key={candidate.id} className="border-b hover:bg-gray-50">
+                <td className="p-3 text-sm font-mono">{candidate.id}</td>
+                <td className="p-3 text-sm line-clamp-1">{candidate.headline}</td>
+                <td className="p-3 text-sm">{candidate.title || "N/A"}</td>
+                <td className="p-3 text-sm">{candidate.category || "N/A"}</td>
+                <td className="p-3 text-sm space-x-2 whitespace-nowrap">
+                  <Link to={`/candidate/${candidate.id}`}>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 text-red-500" 
+                    onClick={() => handleDelete(candidate.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -104,53 +160,11 @@ const ManageCandidates = ({ initialCandidates = [], isInitialLoading = false }: 
               </Button>
             </div>
             
-            {filteredCandidates.length > 0 ? (
-              <div className="border rounded-md overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gray-50 border-b">
-                      <th className="text-left p-3 text-sm font-medium text-gray-600">ID</th>
-                      <th className="text-left p-3 text-sm font-medium text-gray-600">Headline</th>
-                      <th className="text-left p-3 text-sm font-medium text-gray-600">Position</th>
-                      <th className="text-left p-3 text-sm font-medium text-gray-600">Category</th>
-                      <th className="text-left p-3 text-sm font-medium text-gray-600">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredCandidates.map((candidate) => (
-                      <tr key={candidate.id} className="border-b hover:bg-gray-50">
-                        <td className="p-3 text-sm font-mono">{candidate.id}</td>
-                        <td className="p-3 text-sm line-clamp-1">{candidate.headline}</td>
-                        <td className="p-3 text-sm">{candidate.title || "N/A"}</td>
-                        <td className="p-3 text-sm">{candidate.category || "N/A"}</td>
-                        <td className="p-3 text-sm space-x-2 whitespace-nowrap">
-                          <Link to={`/candidate/${candidate.id}`}>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 w-8 p-0 text-red-500" 
-                            onClick={() => handleDelete(candidate.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-center py-8 border rounded-md">
-                <p className="text-grey-500">No candidates found matching your search.</p>
-              </div>
-            )}
+            <PaginatedResults
+              items={filteredCandidates}
+              itemsPerPage={itemsPerPage}
+              renderItems={renderCandidateTable}
+            />
           </>
         ) : (
           <div className="text-center py-8">
