@@ -121,3 +121,11 @@
   @apply bg-black text-white;
 }
 
+/* Fix for text visibility */
+body {
+  color: #fff;
+}
+
+.bg-black {
+  background-color: #000;
+}
