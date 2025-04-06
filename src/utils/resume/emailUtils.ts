@@ -1,6 +1,8 @@
 
 import { trackDownload } from "@/utils/ipTracker";
 import { toast } from "sonner";
+import { API_KEY } from "@/utils/google";
+import { SPREADSHEET_ID } from "@/utils/sheets";
 
 /**
  * Interface for the email data needed to send a resume
@@ -21,8 +23,11 @@ export const sendResumeEmail = async (data: SendResumeEmailData): Promise<boolea
   const { recipientEmail, candidateId, resumeUrl } = data;
   
   try {
-    // Track the download/email action
+    // Track the download/email action in our local tracking system
     trackDownload(candidateId);
+    
+    // Also record this action in Google Sheets
+    await recordResumeShare(candidateId, recipientEmail, "email");
     
     // Prepare the email content
     const emailContent = {
@@ -41,7 +46,7 @@ export const sendResumeEmail = async (data: SendResumeEmailData): Promise<boolea
       candidateId: candidateId
     };
     
-    // Send email using a third-party service
+    // Send email using EmailJS
     const response = await sendEmailViaAPI(emailContent);
     
     if (response.success) {
@@ -62,20 +67,78 @@ export const sendResumeEmail = async (data: SendResumeEmailData): Promise<boolea
 };
 
 /**
- * Send email using a third-party email API service
+ * Record resume share activity in Google Sheets
  * 
- * Note: Replace this with your preferred email service (SendGrid, Mailgun, etc.)
+ * @param candidateId The ID of the candidate
+ * @param recipientEmail Email of the recipient
+ * @param actionType Type of action (email, download, view)
+ */
+const recordResumeShare = async (
+  candidateId: string, 
+  recipientEmail: string, 
+  actionType: "email" | "download" | "view"
+): Promise<boolean> => {
+  try {
+    // Check if Google API is available
+    if (!window.gapi || !window.gapi.client || !window.gapi.client.sheets) {
+      console.warn("Google Sheets API not available, skipping share tracking");
+      return false;
+    }
+    
+    // Get spreadsheet ID from local storage or config
+    const spreadsheetId = 
+      localStorage.getItem('google_spreadsheet_id') || 
+      SPREADSHEET_ID;
+    
+    if (!spreadsheetId) {
+      console.warn("No spreadsheet ID available, skipping share tracking");
+      return false;
+    }
+    
+    // Format timestamp
+    const timestamp = new Date().toISOString();
+    
+    // Prepare the row data
+    const values = [
+      [timestamp, candidateId, recipientEmail, actionType]
+    ];
+    
+    // Append to "ResumeShares" sheet (will be created if it doesn't exist)
+    const response = await window.gapi.client.sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: "ResumeShares!A:D",
+      valueInputOption: "USER_ENTERED",
+      insertDataOption: "INSERT_ROWS",
+      resource: { values }
+    });
+    
+    console.log("Resume share recorded in Google Sheets:", response);
+    return true;
+  } catch (error) {
+    console.error("Error recording resume share in Google Sheets:", error);
+    // Don't throw here - this is a non-critical operation
+    return false;
+  }
+};
+
+/**
+ * Send email using EmailJS
  */
 const sendEmailViaAPI = async (emailData: any): Promise<{success: boolean, message?: string}> => {
   try {
     // For this example, we'll use EmailJS as it works directly from frontend
-    // API endpoint for your chosen email service
     const API_URL = "https://api.emailjs.com/api/v1.0/email/send";
     
-    // Replace these with your actual EmailJS credentials
-    const SERVICE_ID = "your_service_id";  // Get this from EmailJS dashboard
-    const TEMPLATE_ID = "your_template_id";  // Get this from EmailJS dashboard
-    const USER_ID = "your_user_id";  // Get this from EmailJS dashboard
+    // Get EmailJS credentials from localStorage (or use defaults for demo)
+    const SERVICE_ID = localStorage.getItem('emailjs_service_id') || "your_service_id";
+    const TEMPLATE_ID = localStorage.getItem('emailjs_template_id') || "your_template_id";
+    const USER_ID = localStorage.getItem('emailjs_user_id') || "your_user_id";
+    
+    // Check if we have valid credentials
+    if (SERVICE_ID === "your_service_id" || TEMPLATE_ID === "your_template_id" || USER_ID === "your_user_id") {
+      console.warn("Using fallback email sending because EmailJS credentials not set");
+      return fallbackEmailSending(emailData);
+    }
     
     const requestData = {
       service_id: SERVICE_ID,
