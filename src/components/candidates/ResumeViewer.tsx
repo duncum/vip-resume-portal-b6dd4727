@@ -142,25 +142,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
               allowFullScreen
             />
             
-            {/* Print Options */}
-            <div className="absolute bottom-4 right-4 flex gap-2 z-20">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      onClick={handlePrint}
-                      className="bg-gold text-black hover:bg-gold/90"
-                    >
-                      <Printer className="mr-2 h-4 w-4" />
-                      Print
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Print the document</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+            {/* Print Options - Removed */}
           </div>
         )}
       </CardContent>

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { trackDownload } from "@/utils/ipTracker";
@@ -32,13 +31,6 @@ const CandidateActions = ({ candidateId }: CandidateActionsProps) => {
 
   return (
     <div className="mb-6 md:mb-8 flex flex-wrap gap-3">
-      <Button 
-        className="bg-gold hover:bg-gold-dark text-black flex items-center gap-2 text-sm md:text-base" 
-        onClick={handlePrintResume}
-      >
-        <Printer size={isMobile ? 14 : 16} />
-        Print
-      </Button>
     </div>
   );
 };
