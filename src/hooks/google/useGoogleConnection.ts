@@ -23,11 +23,10 @@ export const useGoogleConnection = (missingCredentials: MissingCredentials) => {
     setStatus(prev => ({ ...prev, isLoading: true }));
     
     try {
-      // Check if credentials are missing
-      const savedClientId = localStorage.getItem('google_client_id');
+      // Check if API key is missing (the only required credential)
       const savedApiKey = localStorage.getItem('google_api_key');
       
-      if (!savedClientId || !savedApiKey) {
+      if (!savedApiKey) {
         setStatus({
           isInitialized: false,
           isAuthorized: false,
@@ -59,8 +58,8 @@ export const useGoogleConnection = (missingCredentials: MissingCredentials) => {
   }, []);
 
   const handleSignIn = async () => {
-    if (missingCredentials.clientId || missingCredentials.apiKey) {
-      toast.error('Google API credentials are missing. Please set them up first.');
+    if (missingCredentials.apiKey) {
+      toast.error('Google API key is missing. Please set it up first.');
       return;
     }
 
@@ -102,7 +101,7 @@ export const useGoogleConnection = (missingCredentials: MissingCredentials) => {
   };
 
   const autoConnect = async () => {
-    if (missingCredentials.clientId || missingCredentials.apiKey) {
+    if (missingCredentials.apiKey) {
       return;
     }
     

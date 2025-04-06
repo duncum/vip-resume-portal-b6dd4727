@@ -21,7 +21,7 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
   onSignOut,
   onSignIn
 }) => {
-  if (missingCredentials.clientId || missingCredentials.apiKey) {
+  if (missingCredentials.apiKey) {
     return (
       <Button 
         size="sm" 

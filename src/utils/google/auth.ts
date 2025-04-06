@@ -10,17 +10,17 @@ import { CLIENT_ID, API_KEY, DISCOVERY_DOCS, SCOPES } from './config';
 let isGapiInitialized = false;
 
 /**
- * Initialize the Google API client with API key only
+ * Initialize the Google API client with API key
  * No user sign-in required as authentication is handled by Memberspace
  */
 export const initGoogleApi = async (): Promise<boolean> => {
   try {
     console.log("Initializing Google API...");
     
-    // Check for API credentials
-    if (!API_KEY || !CLIENT_ID) {
-      console.error('Google API credentials missing. Client ID and API Key must both be provided.');
-      toast.error('Google API credentials missing. Please enter your Client ID and API Key.');
+    // Check for API key (required)
+    if (!API_KEY) {
+      console.error('Google API key missing. API Key must be provided.');
+      toast.error('Google API key missing. Please enter your API Key.');
       isGapiInitialized = false;
       return false;
     }
@@ -39,14 +39,22 @@ export const initGoogleApi = async (): Promise<boolean> => {
     return new Promise((resolve) => {
       window.gapi.load('client', async () => {
         try {
-          console.log("Initializing client with API_KEY and CLIENT_ID...");
+          console.log("Initializing client with API_KEY...");
           
-          await window.gapi.client.init({
+          // Initialize with minimum required parameters
+          const initConfig: any = {
             apiKey: API_KEY,
-            clientId: CLIENT_ID,
-            discoveryDocs: DISCOVERY_DOCS,
-            scope: SCOPES
-          });
+            discoveryDocs: DISCOVERY_DOCS
+          };
+          
+          // Add clientId if available but not required
+          if (CLIENT_ID) {
+            initConfig.clientId = CLIENT_ID;
+            initConfig.scope = SCOPES;
+            console.log("Client ID provided, adding to initialization");
+          }
+          
+          await window.gapi.client.init(initConfig);
           
           // Simple check to see if API is initialized
           if (!window.gapi.client) {
@@ -57,7 +65,7 @@ export const initGoogleApi = async (): Promise<boolean> => {
           }
           
           isGapiInitialized = true;
-          console.log("Google API initialized successfully (service account mode)");
+          console.log("Google API initialized successfully (API key mode)");
           resolve(true);
         } catch (error) {
           console.error('Error initializing Google API client:', error);
@@ -75,7 +83,7 @@ export const initGoogleApi = async (): Promise<boolean> => {
 };
 
 /**
- * Check if the API is initialized (we don't check user authorization)
+ * Check if the API is initialized
  */
 export const isUserAuthorized = async (): Promise<boolean> => {
   return isGapiInitialized;

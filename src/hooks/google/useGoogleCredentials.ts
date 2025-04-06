@@ -23,7 +23,7 @@ export const useGoogleCredentials = () => {
   });
 
   const [missingCredentials, setMissingCredentials] = useState<MissingCredentials>({
-    clientId: true,
+    clientId: false, // Changed to false since it's optional now
     apiKey: true
   });
 
@@ -42,10 +42,10 @@ export const useGoogleCredentials = () => {
         spreadsheetId: savedSpreadsheetId || ''
       });
       
-      // Set missing credentials state
+      // Set missing credentials state - only API key is required
       setMissingCredentials({
-        clientId: !savedClientId,
-        apiKey: !savedApiKey
+        clientId: false, // Always false as it's optional
+        apiKey: !savedApiKey // Only API key is required
       });
     }
   }, []);
@@ -65,8 +65,8 @@ export const useGoogleCredentials = () => {
     }
     
     setMissingCredentials({
-      clientId: !credentials.clientId,
-      apiKey: !credentials.apiKey
+      clientId: false, // Always false as it's optional
+      apiKey: !credentials.apiKey // Only API key is required
     });
     
     setShowCredentialsForm(false);

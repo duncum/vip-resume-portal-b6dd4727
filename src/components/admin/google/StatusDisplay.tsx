@@ -29,18 +29,14 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
     );
   }
   
-  if (missingCredentials.clientId || missingCredentials.apiKey) {
+  if (missingCredentials.apiKey) {
     return (
       <div className="flex items-center text-sm">
         <XCircle className="h-4 w-4 mr-2 text-amber-500" />
         <div>
           <div className="font-medium">Setup required</div>
           <div className="text-xs text-grey-500">
-            {missingCredentials.clientId && missingCredentials.apiKey 
-              ? 'Client ID and API Key missing' 
-              : missingCredentials.clientId 
-                ? 'Client ID missing' 
-                : 'API Key missing'}
+            API Key required to connect
           </div>
         </div>
         <Info 

@@ -26,23 +26,26 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
   return (
     <form onSubmit={onSubmit} className="mt-3 space-y-3 p-3 bg-slate-50 rounded-md">
       <div className="space-y-1">
-        <Label htmlFor="clientId" className="text-xs">Client ID</Label>
-        <Input 
-          id="clientId"
-          placeholder="Your OAuth Client ID" 
-          value={credentials.clientId}
-          onChange={(e) => setCredentials({...credentials, clientId: e.target.value})}
-          className="text-xs h-8"
-        />
-      </div>
-      
-      <div className="space-y-1">
-        <Label htmlFor="apiKey" className="text-xs">API Key</Label>
+        <Label htmlFor="apiKey" className="text-xs">API Key <span className="text-red-500">*</span></Label>
         <Input 
           id="apiKey"
           placeholder="Your Google API Key" 
           value={credentials.apiKey}
           onChange={(e) => setCredentials({...credentials, apiKey: e.target.value})}
+          className="text-xs h-8"
+          required
+        />
+      </div>
+      
+      <div className="space-y-1">
+        <Label htmlFor="clientId" className="text-xs">
+          Client ID <span className="text-slate-500">(Optional)</span>
+        </Label>
+        <Input 
+          id="clientId"
+          placeholder="Your OAuth Client ID (optional)" 
+          value={credentials.clientId}
+          onChange={(e) => setCredentials({...credentials, clientId: e.target.value})}
           className="text-xs h-8"
         />
       </div>
