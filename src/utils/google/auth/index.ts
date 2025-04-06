@@ -1,11 +1,16 @@
 
 // Main entry point for the Google Auth module
-// Re-exports all necessary functions for backward compatibility
+// Re-exports all necessary functions from specialized modules
 
+// From core module (initialization)
+export { initGoogleApi } from './core';
+
+// From authorization module
 export { 
-  initGoogleApi,
   isUserAuthorized,
   signInToGoogle, 
-  signOutFromGoogle,
-  getIsGapiInitialized
-} from './core';
+  signOutFromGoogle
+} from './authorize';
+
+// From initialization module
+export { getIsGapiInitialized } from './initialize';
