@@ -1,6 +1,7 @@
 
 import { toast } from "sonner";
 import { EmailSendResponse } from "./types";
+import { EmailTemplate, getTemplateById, processTemplate, RESUME_TEMPLATE } from "./templates";
 
 /**
  * Send email using EmailJS
@@ -29,6 +30,7 @@ export const sendEmailViaAPI = async (emailData: any): Promise<EmailSendResponse
         to_email: emailData.to,
         subject: emailData.subject,
         message: emailData.text,
+        html_content: emailData.html,
         resume_url: emailData.resumeUrl,
         candidate_id: emailData.candidateId
       }
@@ -78,20 +80,28 @@ export const fallbackEmailSending = async (emailData: any): Promise<EmailSendRes
 /**
  * Prepare email content for sending
  */
-export const prepareEmailContent = (recipientEmail: string, resumeUrl: string, candidateId: string) => {
+export const prepareEmailContent = (
+  recipientEmail: string, 
+  resumeUrl: string, 
+  candidateId: string,
+  templateId?: string,
+  customSubject?: string
+) => {
+  // Get the template (default or specified)
+  const template = templateId ? getTemplateById(templateId) : RESUME_TEMPLATE;
+  
+  // Process the template with variables
+  const processedTemplate = processTemplate(template, {
+    resumeUrl,
+    candidateId,
+    recipientEmail
+  });
+  
   return {
     to: recipientEmail,
-    subject: "Resume from CRE Recruitment",
-    text: `You can view the resume at: ${resumeUrl}`,
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Your Requested Resume</h2>
-        <p>Thank you for your interest in our candidate. You can view or download the resume using the link below:</p>
-        <p><a href="${resumeUrl}" style="display: inline-block; background-color: #daa520; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Resume</a></p>
-        <p>If you have any questions, please contact us.</p>
-        <p>Best regards,<br>CRE Recruitment Team</p>
-      </div>
-    `,
+    subject: customSubject || processedTemplate.subject,
+    text: processedTemplate.textBody,
+    html: processedTemplate.htmlBody,
     candidateId: candidateId,
     resumeUrl
   };

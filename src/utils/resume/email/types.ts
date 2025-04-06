@@ -6,6 +6,8 @@ export interface SendResumeEmailData {
   recipientEmail: string;
   candidateId: string;
   resumeUrl: string;
+  templateId?: string;      // Optional template ID to use
+  customSubject?: string;   // Optional custom subject line
 }
 
 /**
