@@ -1,13 +1,13 @@
 
 import { useState } from "react";
+import { toast } from "sonner";
 
-type CustomListParams = {
-  itemName?: string;
-};
+interface UseCustomListStateParams {
+  itemName: string;
+  maxItems?: number;
+}
 
-export function useCustomListState(params?: CustomListParams) {
-  const itemName = params?.itemName || 'item';
-  
+export function useCustomListState({ itemName, maxItems = 50 }: UseCustomListStateParams) {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [customItems, setCustomItems] = useState<string[]>([]);
 
@@ -18,11 +18,16 @@ export function useCustomListState(params?: CustomListParams) {
       setSelectedItems(prev => prev.filter(i => i !== item));
     }
   };
-  
+
   const addCustomItem = () => {
+    if (customItems.length >= maxItems) {
+      toast.warning(`You've reached the maximum of ${maxItems} custom ${itemName}s`);
+      return;
+    }
+    
     setCustomItems(prev => [...prev, ""]);
   };
-  
+
   const handleCustomItemChange = (index: number, value: string) => {
     setCustomItems(prev => {
       const updated = [...prev];
@@ -30,21 +35,21 @@ export function useCustomListState(params?: CustomListParams) {
       return updated;
     });
   };
-  
+
   const removeCustomItem = (index: number) => {
     setCustomItems(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const getAllItems = () => {
-    return [
-      ...selectedItems,
-      ...customItems.filter(item => item.trim() !== "")
-    ];
   };
 
   const reset = () => {
     setSelectedItems([]);
     setCustomItems([]);
+  };
+
+  const getAllItems = (): string[] => {
+    return [
+      ...selectedItems,
+      ...customItems.filter(item => item.trim() !== "")
+    ];
   };
 
   return {

@@ -24,7 +24,7 @@ export function useTitlesState() {
       setCustomTitles(newCustomTitles);
     }
   };
-  
+
   const handleTitleChange = (category: string, title: string, checked: boolean) => {
     if (checked) {
       setSelectedTitles(prev => ({
@@ -52,7 +52,7 @@ export function useTitlesState() {
       }));
     }
   };
-  
+
   const handleCustomTitleChange = (category: string, index: number, value: string) => {
     setCustomTitles(prev => {
       const updatedCustomTitles = [...(prev[category] || [])];
@@ -63,7 +63,7 @@ export function useTitlesState() {
       };
     });
   };
-  
+
   const addAnotherCustomTitle = (category: string) => {
     if (!selectedTitles[category]?.includes("Other")) {
       setSelectedTitles(prev => ({
@@ -77,7 +77,7 @@ export function useTitlesState() {
       [category]: [...(prev[category] || []), ""]
     }));
   };
-  
+
   const removeCustomTitle = (category: string, index: number) => {
     setCustomTitles(prev => {
       const updatedCustomTitles = [...(prev[category] || [])];
@@ -97,7 +97,7 @@ export function useTitlesState() {
     });
   };
 
-  const getProcessedTitles = () => {
+  const getProcessedTitles = (): Record<string, string[]> => {
     const processedTitles: Record<string, string[]> = {};
     
     selectedTitleCategories.forEach(category => {
@@ -117,7 +117,7 @@ export function useTitlesState() {
         });
       }
     });
-
+    
     return processedTitles;
   };
 
@@ -129,10 +129,10 @@ export function useTitlesState() {
 
   return {
     selectedTitleCategories,
-    selectedTitles,
-    customTitles,
     handleTitleCategoryChange,
+    selectedTitles,
     handleTitleChange,
+    customTitles,
     handleCustomTitleChange,
     addAnotherCustomTitle,
     removeCustomTitle,

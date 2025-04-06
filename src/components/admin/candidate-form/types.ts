@@ -4,9 +4,35 @@ export interface CandidateUploadFormProps {
   candidateCount?: number;
 }
 
-export interface CollapsibleSectionProps {
-  title: string;
-  children: React.ReactNode;
+export interface FormHeaderProps {
+  candidateId: string;
+  candidateCount: number;
+}
+
+export interface HeadlineInputProps {
+  headline: string;
+  onHeadlineChange: (value: string) => void;
+}
+
+export interface SummaryInputProps {
+  summary: string;
+  onSummaryChange: (value: string) => void;
+}
+
+export interface TagsInputProps {
+  tags: string;
+  onTagsChange: (value: string) => void;
+}
+
+export interface LocationSectionProps {
+  location: string;
+  onLocationChange: (value: string) => void;
+  relocationPreference: string;
+  onRelocationChange: (value: string) => void;
+}
+
+export interface SubmitButtonProps {
+  isUploading: boolean;
 }
 
 export interface CandidateLevelsProps {
@@ -52,20 +78,9 @@ export interface SectorsProps {
   onRemoveCustomSector: (index: number) => void;
 }
 
-export interface CheckboxListProps {
-  items: string[];
-  selectedItems: string[];
-  onChange: (item: string, checked: boolean) => void;
-  descriptions?: Record<string, string>;
-  columns?: number;
-}
-
-export interface CustomItemsProps {
-  items: string[];
-  onAdd: () => void;
-  onChange: (index: number, value: string) => void;
-  onRemove: (index: number) => void;
-  placeholder: string;
+export interface CollapsibleSectionProps {
+  title: string;
+  children: React.ReactNode;
 }
 
 export interface ResumeUploaderProps {
@@ -73,35 +88,4 @@ export interface ResumeUploaderProps {
   onCandidateIdChange?: (value: string) => void;
   isReadOnly?: boolean;
   onResumeUrlChange?: (url: string) => void;
-}
-
-export interface FormHeaderProps {
-  candidateId: string;
-  candidateCount: number;
-}
-
-export interface HeadlineInputProps {
-  headline: string;
-  onHeadlineChange: (value: string) => void;
-}
-
-export interface SummaryInputProps {
-  summary: string;
-  onSummaryChange: (value: string) => void;
-}
-
-export interface TagsInputProps {
-  tags: string;
-  onTagsChange: (value: string) => void;
-}
-
-export interface LocationSectionProps {
-  location: string;
-  onLocationChange: (value: string) => void;
-  relocationPreference: string;
-  onRelocationChange: (value: string) => void;
-}
-
-export interface SubmitButtonProps {
-  isUploading: boolean;
 }
