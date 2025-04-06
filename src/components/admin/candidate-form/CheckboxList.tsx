@@ -17,8 +17,14 @@ const CheckboxList = ({
   descriptions, 
   columns = 2 
 }: CheckboxListProps) => {
+  // Create a dynamic class based on column count
+  const gridClass = `grid grid-cols-1 md:grid-cols-${columns} gap-2 mb-2`;
+  
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-${columns} gap-2 mb-2`}>
+    <div className={columns === 2 ? "grid grid-cols-1 md:grid-cols-2 gap-2 mb-2" : 
+                     columns === 3 ? "grid grid-cols-1 md:grid-cols-3 gap-2 mb-2" : 
+                     columns === 4 ? "grid grid-cols-1 md:grid-cols-4 gap-2 mb-2" : 
+                     "grid grid-cols-1 gap-2 mb-2"}>
       {items.map((item) => (
         <div key={item} className="flex items-start space-x-2">
           <Checkbox 

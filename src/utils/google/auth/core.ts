@@ -121,6 +121,17 @@ const initializeClient = async (): Promise<boolean> => {
             console.log("Google API initialized successfully (API key mode)");
             resolve(true);
           } catch (error) {
+            // If error is related to OAuth but we're using API key only mode, 
+            // we can still consider this a success for read operations
+            const errorMsg = String(error);
+            if ((errorMsg.includes('idpiframe_initialization_failed') || errorMsg.includes('origin')) && 
+                (!CLIENT_ID || CLIENT_ID.trim() === '')) {
+              console.log("OAuth-related error in API key only mode - continuing anyway");
+              isGapiInitialized = true;
+              resolve(true);
+              return;
+            }
+            
             handleInitError(error);
             isGapiInitialized = false;
             resolve(false);
