@@ -6,11 +6,20 @@ interface RelocationBadgeProps {
   relocationPreference?: string;
 }
 
-// Relocation badge color and text mapping
+// Enhanced relocation badge color and text mapping
 const relocationBadge = {
-  "willing": { color: "bg-gold/20 text-gold border-gold/40", text: "Open to Relocation" },
-  "remote-only": { color: "bg-grey-800 text-white/80 border-grey-700", text: "Remote Only" },
-  "flexible": { color: "bg-gold/10 text-gold/90 border-gold/30", text: "Flexible Location" }
+  "willing": { 
+    color: "bg-gold/20 text-gold border-gold/40 hover:bg-gold/30", 
+    text: "Open to Relocation" 
+  },
+  "remote-only": { 
+    color: "bg-grey-800 text-white/80 border-grey-700 hover:bg-grey-700", 
+    text: "Remote Only" 
+  },
+  "flexible": { 
+    color: "bg-gold/10 text-gold/90 border-gold/30 hover:bg-gold/20", 
+    text: "Flexible Location" 
+  }
 };
 
 const RelocationBadge = ({ relocationPreference }: RelocationBadgeProps) => {
@@ -19,7 +28,7 @@ const RelocationBadge = ({ relocationPreference }: RelocationBadgeProps) => {
   // For remote-only
   if (relocationPreference === "remote-only") {
     return (
-      <Badge className="flex items-center gap-1 bg-grey-800 text-white/80 border-grey-700">
+      <Badge className="flex items-center gap-1 px-2 py-1 rounded-full bg-grey-800 text-white/80 border border-grey-700 transition-colors duration-200 hover:bg-grey-700">
         <Globe size={10} className="opacity-80" />
         Remote Only
       </Badge>
@@ -28,12 +37,12 @@ const RelocationBadge = ({ relocationPreference }: RelocationBadgeProps) => {
   
   // For willing, flexible, or other values
   const badgeInfo = relocationBadge[relocationPreference as keyof typeof relocationBadge] || {
-    color: "bg-gold/20 text-gold border-gold/40",
+    color: "bg-gold/20 text-gold border-gold/40 hover:bg-gold/30",
     text: relocationPreference
   };
     
   return (
-    <Badge className={`flex items-center gap-1 ${badgeInfo.color}`}>
+    <Badge className={`flex items-center gap-1 px-2 py-1 rounded-full border transition-colors duration-200 ${badgeInfo.color}`}>
       <Globe size={10} className="opacity-80" />
       {badgeInfo.text}
     </Badge>

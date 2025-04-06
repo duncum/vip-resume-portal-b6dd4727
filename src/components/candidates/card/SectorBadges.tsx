@@ -14,7 +14,9 @@ const SectorBadges = ({ sectors }: SectorBadgesProps) => {
         <Badge 
           key={index} 
           variant="outline" 
-          className="bg-grey-800/70 text-grey-200 border-grey-700 backdrop-blur-sm shadow-sm text-xs whitespace-nowrap"
+          className="bg-grey-800/70 text-grey-200 border border-grey-700 
+            backdrop-blur-sm shadow-sm text-xs whitespace-nowrap rounded-md px-2 py-1
+            hover:bg-grey-700/80 hover:border-grey-600 transition-colors"
         >
           {sector}
         </Badge>
