@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackIpAddress } from "@/utils/ipTracker";
 import { AlertCircle } from "lucide-react";
@@ -72,7 +72,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
         ) : (
           <div className="relative resume-container">
             {/* Watermark pattern overlay - consistent grid with alternating rows */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none z-10 print:block">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-10 print:block" id="resume-watermark">
               <div className="absolute inset-0 flex flex-col">
                 {/* Generate multiple rows to ensure coverage for any document length */}
                 {[...Array(20)].map((_, rowIndex) => (
@@ -105,6 +105,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
               onError={handleIframeError}
               frameBorder="0"
               allowFullScreen
+              id="resume-iframe"
             />
           </div>
         )}
