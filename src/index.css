@@ -156,6 +156,11 @@
     animation: rotateSlow 20s linear infinite;
   }
 
+  /* Background effects */
+  .bg-radial-gold {
+    background: radial-gradient(circle at center, rgba(171,135,85,0.2) 0%, rgba(0,0,0,0) 70%);
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

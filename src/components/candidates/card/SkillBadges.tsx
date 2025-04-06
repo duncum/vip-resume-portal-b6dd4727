@@ -16,16 +16,16 @@ const SkillBadges = ({ tags }: SkillBadgesProps) => {
       {tags.slice(0, isMobile ? 3 : 5).map((tag, index) => (
         <Badge 
           key={index} 
-          className="bg-gold/10 hover:bg-gold/20 text-gold border border-gold/20 
-            transition-colors text-xs whitespace-nowrap rounded-full px-2.5 py-0.5
-            hover:shadow-sm hover:shadow-gold/10"
+          className="bg-gold/10 hover:bg-gold/20 text-gold border border-gold/30 
+            transition-all duration-300 text-xs whitespace-nowrap rounded-full px-2.5 py-0.5
+            hover:shadow-sm hover:shadow-gold/20"
         >
           {tag}
         </Badge>
       ))}
       {tags.length > (isMobile ? 3 : 5) && (
-        <Badge className="bg-grey-800/50 hover:bg-grey-700/60 text-grey-300 
-          border-grey-700 text-xs rounded-full px-2.5 py-0.5 hover:text-grey-200 transition-colors">
+        <Badge className="bg-grey-800/40 hover:bg-grey-700/50 text-grey-300 hover:text-grey-200
+          border border-grey-700/60 hover:border-grey-600 text-xs rounded-full px-2.5 py-0.5 transition-all duration-300">
           +{tags.length - (isMobile ? 3 : 5)} more
         </Badge>
       )}

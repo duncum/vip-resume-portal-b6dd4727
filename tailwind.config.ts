@@ -70,6 +70,7 @@ export default {
 					600: '#525252',
 					700: '#404040',
 					800: '#262626',
+					850: '#1e1e1e', // New darker grey shade
 					900: '#171717',
 				},
 				sidebar: {
@@ -118,7 +119,10 @@ export default {
 			fontFamily: {
 				sans: ['Inter', 'sans-serif'],
 				display: ['Playfair Display', 'serif']
-			}
+			},
+			backgroundImage: {
+				'radial-gold': 'radial-gradient(circle at center, rgba(171,135,85,0.2) 0%, rgba(0,0,0,0) 70%)',
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

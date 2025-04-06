@@ -9,14 +9,15 @@ const SectorBadges = ({ sectors }: SectorBadgesProps) => {
   if (!sectors.length) return null;
   
   return (
-    <div className="flex flex-wrap gap-1.5 mb-2.5">
+    <div className="flex flex-wrap gap-1.5 mb-3">
       {sectors.map((sector, index) => (
         <Badge 
           key={index} 
           variant="outline" 
-          className="bg-grey-800/50 text-grey-300 border border-grey-700/80 
-            text-xs whitespace-nowrap rounded-md px-2 py-0.5
-            hover:bg-grey-700/60 hover:text-grey-200 transition-colors"
+          className="bg-grey-800/40 text-grey-300 border border-grey-700/60 
+            text-xs whitespace-nowrap rounded-md px-2.5 py-0.5
+            hover:bg-grey-700/50 hover:text-grey-100 hover:border-grey-600
+            transition-all duration-300 shadow-sm"
         >
           {sector}
         </Badge>

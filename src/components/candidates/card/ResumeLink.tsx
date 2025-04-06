@@ -21,12 +21,12 @@ const ResumeLink = ({ resumeUrl, candidateId }: ResumeLinkProps) => {
   return (
     <button 
       onClick={handleClick}
-      className="w-full text-center inline-flex items-center justify-center text-xs px-3 py-1.5 rounded-md
-        bg-gradient-to-r from-grey-800/90 to-grey-800/70 hover:from-grey-700/90 hover:to-grey-700/70
+      className="w-full text-center inline-flex items-center justify-center text-xs px-3 py-2 rounded-md
+        bg-gradient-to-r from-gold/20 to-gold/10 hover:from-gold/30 hover:to-gold/20
         text-gold border border-gold/30 
-        transition-all duration-300
-        hover:shadow-[0_0_15px_rgba(171,135,85,0.15)]
-        hover:border-gold/40
+        transition-all duration-500
+        hover:shadow-[0_0_15px_rgba(171,135,85,0.2)]
+        hover:border-gold/50
         group"
     >
       <FileText size={14} className="mr-1.5 group-hover:scale-110 transition-transform duration-300" />
