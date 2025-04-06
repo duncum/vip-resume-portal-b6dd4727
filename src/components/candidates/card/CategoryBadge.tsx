@@ -18,16 +18,27 @@ const categoryColors = {
 const CategoryBadge = ({ category, title }: CategoryBadgeProps) => {
   if (!category) return null;
   
-  // Get the base color for this category
-  const baseColor = categoryColors[category as keyof typeof categoryColors] || "bg-gradient-to-r from-grey-800 to-grey-700 text-white border-grey-600 hover:bg-grey-700 hover:shadow-md hover:shadow-grey-700/20";
+  // Split category by comma and trim whitespace
+  const categories = category.split(',').map(cat => cat.trim());
   
   return (
     <div className="flex flex-col space-y-1">
-      <Badge 
-        className={`${baseColor} text-xs font-medium px-3 py-1 rounded-full shadow-sm transition-all duration-200`}
-      >
-        {category}
-      </Badge>
+      <div className="flex flex-wrap gap-1.5">
+        {categories.map((singleCategory, index) => {
+          // Get the base color for this category
+          const baseColor = categoryColors[singleCategory as keyof typeof categoryColors] || 
+            "bg-gradient-to-r from-grey-800 to-grey-700 text-white border-grey-600 hover:bg-grey-700 hover:shadow-md hover:shadow-grey-700/20";
+          
+          return (
+            <Badge 
+              key={index}
+              className={`${baseColor} text-xs font-medium px-3 py-1 rounded-full shadow-sm transition-all duration-200`}
+            >
+              {singleCategory}
+            </Badge>
+          );
+        })}
+      </div>
       
       {title && (
         <span className="text-grey-400 text-xs">

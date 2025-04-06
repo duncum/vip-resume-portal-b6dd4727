@@ -11,9 +11,9 @@ const CandidateSummary = ({ summary }: CandidateSummaryProps) => {
   
   if (!summary) return null;
 
-  // Truncate summary to approximately 4 lines (around 200 characters)
-  const truncatedSummary = summary.length > 200 
-    ? `${summary.substring(0, 200)}...` 
+  // Truncate summary to approximately 4 lines (around 300 characters instead of 200)
+  const truncatedSummary = summary.length > 300 
+    ? `${summary.substring(0, 300)}...` 
     : summary;
 
   return (
@@ -21,7 +21,7 @@ const CandidateSummary = ({ summary }: CandidateSummaryProps) => {
       p-2 rounded-md border border-grey-700/40 hover:border-grey-700/60 transition-colors">
       <p className="text-grey-300 text-sm leading-relaxed min-h-[5rem]">
         {showFullSummary ? summary : truncatedSummary}
-        {summary.length > 200 && (
+        {summary.length > 300 && (
           <button 
             onClick={(e) => {
               e.preventDefault();
