@@ -97,19 +97,22 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
             
             {/* PDF viewer iframe with CSS to hide controls */}
             <div className="iframe-container w-full h-[800px] relative">
-              <style jsx>{`
-                .iframe-container::after {
-                  content: '';
-                  position: absolute;
-                  top: 0;
-                  right: 0;
-                  width: 60px;
-                  height: 60px;
-                  background: white;
-                  z-index: 100;
-                  pointer-events: none;
-                }
-              `}</style>
+              {/* Use a style element without the jsx attribute */}
+              <style>
+                {`
+                  .iframe-container::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 60px;
+                    height: 60px;
+                    background: white;
+                    z-index: 100;
+                    pointer-events: none;
+                  }
+                `}
+              </style>
               <iframe
                 src={embedUrl}
                 className="w-full h-full border-0"
