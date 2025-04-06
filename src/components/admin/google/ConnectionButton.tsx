@@ -43,7 +43,11 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
   }
   
   return (
-    <Button size="sm" onClick={onSignIn} className="w-full text-xs bg-white border-grey-200 text-grey-800 hover:bg-grey-100">
+    <Button 
+      size="sm" 
+      onClick={onSignIn} 
+      className="w-full text-xs bg-white border border-gray-200 text-gray-800 hover:bg-gray-100"
+    >
       <GoogleIcon className="h-3 w-3 mr-2" />
       Connect Google API
     </Button>

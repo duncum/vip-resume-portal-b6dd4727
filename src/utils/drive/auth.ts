@@ -1,6 +1,6 @@
 
 import { toast } from 'sonner';
-import { initGoogleApi } from '../google';
+import { signInToGoogle } from '../google';
 
 /**
  * Ensure API is initialized before accessing Google Drive
@@ -8,10 +8,10 @@ import { initGoogleApi } from '../google';
  */
 export const ensureAuthorization = async (): Promise<boolean> => {
   try {
-    // Initialize the API with credentials only (no user sign-in required)
-    return await initGoogleApi();
+    // Use signInToGoogle which will handle initialization
+    return await signInToGoogle();
   } catch (error) {
-    console.error('Authorization error:', error);
+    console.error('Drive authorization error:', error);
     toast.error('Not connected to Google API. Please enter your credentials first.');
     return false;
   }

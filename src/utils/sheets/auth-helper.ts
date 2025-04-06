@@ -1,6 +1,6 @@
 
 // Helper functions for managing Google authentication for Sheets API
-import { initGoogleApi } from '../google';
+import { signInToGoogle } from '../google';
 
 /**
  * Ensure API is initialized for accessing Google Sheets
@@ -8,11 +8,10 @@ import { initGoogleApi } from '../google';
  */
 export const ensureAuthorization = async (): Promise<boolean> => {
   try {
-    // Initialize the API with stored credentials
-    const apiInitialized = await initGoogleApi();
-    return apiInitialized;
+    // Use signInToGoogle which will handle initialization
+    return await signInToGoogle();
   } catch (error) {
-    console.error('Authorization error:', error);
+    console.error('Sheets authorization error:', error);
     return false;
   }
 };

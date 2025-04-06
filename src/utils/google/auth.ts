@@ -14,12 +14,9 @@ let isGapiInitialized = false;
  * No user sign-in required as authentication is handled by Memberspace
  */
 export const initGoogleApi = async (): Promise<boolean> => {
-  if (isGapiInitialized) {
-    console.log("Google API already initialized");
-    return true;
-  }
-
   try {
+    console.log("Initializing Google API...");
+    
     // Check for API credentials
     if (!API_KEY || !CLIENT_ID) {
       console.error('Google API credentials missing. Client ID and API Key must both be provided.');
@@ -81,17 +78,17 @@ export const initGoogleApi = async (): Promise<boolean> => {
  * Check if the API is initialized (we don't check user authorization)
  */
 export const isUserAuthorized = async (): Promise<boolean> => {
-  if (!isGapiInitialized) {
-    const initialized = await initGoogleApi();
-    return initialized;
-  }
-  
   return isGapiInitialized;
 };
 
 // Simplified implementations for Memberspace integration
 export const signInToGoogle = async (): Promise<boolean> => {
-  return await initGoogleApi();
+  const result = await initGoogleApi();
+  if (result) {
+    isGapiInitialized = true;
+    toast.success('Successfully connected to Google API');
+  }
+  return result;
 };
 
 export const signOutFromGoogle = async (): Promise<void> => {

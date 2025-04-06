@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { initGoogleApi, isUserAuthorized } from '@/utils/google';
+import { initGoogleApi, signInToGoogle, signOutFromGoogle, isUserAuthorized } from '@/utils/google';
 import { toast } from 'sonner';
 import { MissingCredentials } from './useGoogleCredentials';
 
@@ -37,22 +37,18 @@ export const useGoogleConnection = (missingCredentials: MissingCredentials) => {
         return;
       }
 
-      // Use the most up-to-date credentials (from localStorage)
-      window.localStorage.setItem('google_client_id', savedClientId);
-      window.localStorage.setItem('google_api_key', savedApiKey);
-      
-      const apiInitialized = await initGoogleApi();
+      // Check if already authorized
       const authorized = await isUserAuthorized();
       
       setStatus({
-        isInitialized: apiInitialized,
+        isInitialized: authorized,
         isAuthorized: authorized,
         isLoading: false,
-        userEmail: 'service-account@example.com'
+        userEmail: authorized ? 'service-account@example.com' : null
       });
     } catch (error) {
       console.error('Error checking Google API status:', error);
-      toast.error('Failed to initialize Google API');
+      toast.error('Failed to check Google API status');
       setStatus({
         isInitialized: false,
         isAuthorized: false,
@@ -70,7 +66,7 @@ export const useGoogleConnection = (missingCredentials: MissingCredentials) => {
 
     setStatus(prev => ({ ...prev, isLoading: true }));
     try {
-      const success = await initGoogleApi();
+      const success = await signInToGoogle();
       if (success) {
         setStatus({
           isInitialized: true,
@@ -78,7 +74,6 @@ export const useGoogleConnection = (missingCredentials: MissingCredentials) => {
           isLoading: false,
           userEmail: 'service-account@example.com'
         });
-        toast.success('Successfully connected to Google API');
       } else {
         throw new Error('Failed to initialize Google API');
       }
@@ -92,14 +87,13 @@ export const useGoogleConnection = (missingCredentials: MissingCredentials) => {
   const handleSignOut = async () => {
     setStatus(prev => ({ ...prev, isLoading: true }));
     try {
-      // Reset the initialization state
+      await signOutFromGoogle();
       setStatus({
         isInitialized: false,
         isAuthorized: false,
         isLoading: false,
         userEmail: null
       });
-      toast.success('Disconnected from Google API');
     } catch (error) {
       console.error('Error disconnecting from Google API:', error);
       toast.error('Failed to disconnect from Google API');
@@ -114,17 +108,13 @@ export const useGoogleConnection = (missingCredentials: MissingCredentials) => {
     
     setStatus(prev => ({ ...prev, isLoading: true }));
     try {
-      const success = await initGoogleApi();
+      const success = await signInToGoogle();
       setStatus({
         isInitialized: success,
         isAuthorized: success,
         isLoading: false,
         userEmail: success ? 'service-account@example.com' : null
       });
-      
-      if (success) {
-        toast.success('Connected to Google API');
-      }
     } catch (error) {
       console.error('Error in auto-connect:', error);
       setStatus(prev => ({ ...prev, isLoading: false }));
