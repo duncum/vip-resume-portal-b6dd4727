@@ -95,7 +95,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
               </div>
             </div>
             
-            {/* PDF viewer iframe with enhanced CSS to hide controls */}
+            {/* PDF viewer iframe with comprehensive CSS to hide all controls */}
             <div className="iframe-container w-full h-[800px] relative">
               <style>
                 {`
@@ -125,13 +125,55 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
                     pointer-events: none;
                   }
                   
-                  /* Right side overlay to hide controls */
+                  /* Right side overlay to hide controls including download button */
                   .right-overlay {
                     position: absolute;
-                    top: 30%;
+                    top: 0;
                     right: 0;
-                    width: 40px;
-                    height: 50%;
+                    width: 60px; 
+                    height: 100%;
+                    background: white;
+                    z-index: 100;
+                    pointer-events: none;
+                  }
+                  
+                  /* Fullscreen exit button remover */
+                  .top-right-corner {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 60px;
+                    height: 60px;
+                    background: white;
+                    z-index: 101;
+                    pointer-events: none;
+                  }
+                  
+                  /* Fixed positioned overlay that stays in view when scrolling */
+                  .fixed-right-overlay {
+                    position: fixed;
+                    top: 0;
+                    right: 0;
+                    width: 60px;
+                    height: 100vh;
+                    background: white;
+                    z-index: 9999;
+                    pointer-events: none;
+                    display: none;
+                  }
+                  
+                  /* Show the fixed overlay only when inside an iframe */
+                  iframe:focus + .fixed-right-overlay {
+                    display: block;
+                  }
+                  
+                  /* Bottom control hider */
+                  .bottom-overlay {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 40px;
                     background: white;
                     z-index: 100;
                     pointer-events: none;
@@ -139,8 +181,11 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
                 `}
               </style>
               
-              {/* Extra overlays to hide UI elements */}
+              {/* Extra overlays to hide all UI elements */}
               <div className="right-overlay"></div>
+              <div className="top-right-corner"></div>
+              <div className="bottom-overlay"></div>
+              <div className="fixed-right-overlay"></div>
               
               <iframe
                 src={embedUrl}
