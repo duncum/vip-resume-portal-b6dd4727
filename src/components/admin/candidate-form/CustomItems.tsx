@@ -1,21 +1,22 @@
 
 import React from "react";
-import { X, Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CustomItemsProps } from "./types";
 
-const CustomItems = ({ 
-  items, 
-  onAdd, 
-  onChange, 
-  onRemove, 
-  placeholder 
+const CustomItems = ({
+  items,
+  onAdd,
+  onChange,
+  onRemove,
+  placeholder
 }: CustomItemsProps) => {
   return (
-    <div className="mt-3 space-y-2">
+    <>
       {items.length > 0 && (
-        <div className="space-y-2">
+        <div className="mt-3 space-y-2">
+          <p className="text-xs text-grey-600">Custom items:</p>
           {items.map((item, index) => (
             <div key={index} className="flex items-center space-x-2">
               <Input 
@@ -42,11 +43,11 @@ const CustomItems = ({
         variant="outline"
         size="sm"
         onClick={onAdd}
-        className="flex items-center mt-1 border-dashed border-gray-300 text-gray-500"
+        className="flex items-center mt-3 border-dashed border-gray-300 text-gray-500"
       >
         <Plus className="h-3 w-3 mr-1" /> Add Custom Item
       </Button>
-    </div>
+    </>
   );
 };
 

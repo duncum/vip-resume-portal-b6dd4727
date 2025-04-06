@@ -72,6 +72,7 @@ export interface ResumeUploaderProps {
   candidateId: string;
   onCandidateIdChange?: (value: string) => void;
   isReadOnly?: boolean;
+  onResumeUrlChange?: (url: string) => void;
 }
 
 export interface FormHeaderProps {
