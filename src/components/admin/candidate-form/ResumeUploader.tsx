@@ -6,19 +6,13 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { uploadResumeToDrive } from "@/utils/drive";
 import { Button } from "@/components/ui/button";
-
-interface ResumeUploaderProps {
-  candidateId: string;
-  onCandidateIdChange?: (value: string) => void;
-  isReadOnly?: boolean;
-  onResumeUrlChange?: (url: string) => void;
-}
+import { ResumeUploaderProps } from "./types";
 
 const ResumeUploader = ({ 
   candidateId, 
   onCandidateIdChange, 
-  isReadOnly = false,
-  onResumeUrlChange
+  onResumeUrlChange,
+  disabled
 }: ResumeUploaderProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -90,7 +84,7 @@ const ResumeUploader = ({
   };
 
   const triggerFileInput = () => {
-    if (fileInputRef.current) {
+    if (fileInputRef.current && !disabled) {
       fileInputRef.current.click();
     }
   };
@@ -101,25 +95,22 @@ const ResumeUploader = ({
         <FileText className="h-5 w-5 text-gold" />
         <div className="flex-1">
           <Label className="text-sm">Candidate ID</Label>
-          {isReadOnly ? (
-            <p className="font-mono text-sm">{candidateId}</p>
-          ) : (
-            <Input
-              value={candidateId}
-              onChange={(e) => onCandidateIdChange?.(e.target.value)}
-              placeholder="Enter candidate ID"
-              className="font-mono text-sm"
-              required
-            />
-          )}
+          <Input
+            value={candidateId}
+            onChange={(e) => onCandidateIdChange?.(e.target.value)}
+            placeholder="Enter candidate ID"
+            className="font-mono text-sm"
+            required
+            disabled={disabled}
+          />
         </div>
       </div>
       
       <div 
-        className={`border-2 border-dashed ${uploadedUrl ? 'border-green-300 bg-green-50' : 'border-grey-300'} rounded-md p-6 flex flex-col items-center justify-center`}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onClick={uploadedUrl ? undefined : triggerFileInput}
+        className={`border-2 border-dashed ${uploadedUrl ? 'border-green-300 bg-green-50' : 'border-grey-300'} rounded-md p-6 flex flex-col items-center justify-center ${disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+        onDrop={disabled ? undefined : handleDrop}
+        onDragOver={disabled ? undefined : handleDragOver}
+        onClick={uploadedUrl || disabled ? undefined : triggerFileInput}
       >
         {uploadedUrl ? (
           <div className="text-center">
@@ -154,16 +145,17 @@ const ResumeUploader = ({
               accept=".pdf"
               className="hidden"
               onChange={handleFileChange}
+              disabled={disabled}
             />
             
-            {selectedFile && !uploadedUrl && (
+            {selectedFile && !uploadedUrl && !disabled && (
               <Button 
                 type="button" 
                 onClick={(e) => {
                   e.stopPropagation();
                   handleUpload();
                 }}
-                disabled={isUploading}
+                disabled={isUploading || disabled}
                 className="mt-2"
               >
                 {isUploading ? "Uploading..." : "Upload Resume"}

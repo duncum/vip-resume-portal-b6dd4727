@@ -1,17 +1,14 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { SubmitButtonProps } from "./types";
 
-interface SubmitButtonProps {
-  isUploading: boolean;
-}
-
-const SubmitButton = ({ isUploading }: SubmitButtonProps) => {
+const SubmitButton = ({ isUploading, disabled }: SubmitButtonProps) => {
   return (
     <Button 
       type="submit" 
       className="w-full bg-gold hover:bg-gold-dark text-white"
-      disabled={isUploading}
+      disabled={isUploading || disabled}
     >
       {isUploading ? (
         <>

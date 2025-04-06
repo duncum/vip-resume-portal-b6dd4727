@@ -3,19 +3,14 @@ import React from "react";
 import { MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-
-interface LocationSectionProps {
-  location: string;
-  onLocationChange: (value: string) => void;
-  relocationPreference: string;
-  onRelocationChange: (value: string) => void;
-}
+import { LocationSectionProps } from "./types";
 
 const LocationSection = ({
   location,
   onLocationChange,
   relocationPreference,
-  onRelocationChange
+  onRelocationChange,
+  disabled
 }: LocationSectionProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -27,6 +22,7 @@ const LocationSection = ({
             placeholder="e.g. New York, NY"
             value={location}
             onChange={(e) => onLocationChange(e.target.value)}
+            disabled={disabled}
           />
         </div>
       </div>
@@ -37,17 +33,18 @@ const LocationSection = ({
           value={relocationPreference} 
           onValueChange={onRelocationChange}
           className="flex flex-col space-y-2"
+          disabled={disabled}
         >
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="willing" id="r1" />
+            <RadioGroupItem value="willing" id="r1" disabled={disabled} />
             <label htmlFor="r1" className="text-sm">Open to relocation</label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="remote-only" id="r2" />
+            <RadioGroupItem value="remote-only" id="r2" disabled={disabled} />
             <label htmlFor="r2" className="text-sm">Remote only</label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="flexible" id="r3" />
+            <RadioGroupItem value="flexible" id="r3" disabled={disabled} />
             <label htmlFor="r3" className="text-sm">Flexible</label>
           </div>
         </RadioGroup>
