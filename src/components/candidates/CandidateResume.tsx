@@ -1,10 +1,11 @@
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ResumeViewer from "@/components/candidates/ResumeViewer";
 import { Button } from "@/components/ui/button";
-import { Printer, Download } from "lucide-react";
+import { Printer, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { trackDownload } from "@/utils/ipTracker";
+import EmailResumeDialog from "./EmailResumeDialog";
 
 interface CandidateResumeProps {
   resumeUrl: string;
@@ -12,6 +13,8 @@ interface CandidateResumeProps {
 }
 
 const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  
   // Handle printing by creating a new window with the content and watermark
   const handlePrint = () => {
     // Track the print action
@@ -234,16 +237,34 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
     <div className="border-t border-grey-700 pt-4 md:pt-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg md:text-xl font-semibold">Resume Preview</h2>
-        <Button 
-          onClick={handlePrint}
-          size="sm"
-          className="bg-gold text-black hover:bg-gold/90"
-        >
-          <Printer className="mr-2 h-4 w-4" />
-          Print
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setIsEmailDialogOpen(true)}
+            size="sm"
+            variant="outline"
+            className="bg-white text-gold border-gold hover:bg-gold/10"
+          >
+            <Mail className="mr-2 h-4 w-4" />
+            Email Resume
+          </Button>
+          <Button 
+            onClick={handlePrint}
+            size="sm"
+            className="bg-gold text-black hover:bg-gold/90"
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            Print
+          </Button>
+        </div>
       </div>
       <ResumeViewer fileUrl={resumeUrl} candidateId={candidateId} />
+      
+      <EmailResumeDialog 
+        open={isEmailDialogOpen} 
+        onOpenChange={setIsEmailDialogOpen}
+        candidateId={candidateId}
+        resumeUrl={resumeUrl}
+      />
     </div>
   );
 };
