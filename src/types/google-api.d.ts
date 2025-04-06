@@ -52,6 +52,29 @@ interface GoogleApiClient {
     };
   };
   drive: {
+    about: {
+      get: (options: {
+        fields?: string;
+      }) => Promise<{
+        result: {
+          user?: {
+            displayName?: string;
+            emailAddress?: string;
+            kind?: string;
+            me?: boolean;
+            permissionId?: string;
+            photoLink?: string;
+          };
+          storageQuota?: {
+            limit?: string;
+            usage?: string;
+            usageInDrive?: string;
+            usageInDriveTrash?: string;
+          };
+          [key: string]: any;
+        };
+      }>;
+    };
     files: {
       list: (options: {
         q?: string;

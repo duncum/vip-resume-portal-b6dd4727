@@ -15,9 +15,18 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     if (isAuthorized) {
       try {
         // Test with a minimal Drive API request
-        await window.gapi.client.drive.about.get({
-          fields: 'user'
-        });
+        if (window.gapi.client.drive.about && typeof window.gapi.client.drive.about.get === 'function') {
+          // The about.get endpoint is available, use it to check permissions
+          await window.gapi.client.drive.about.get({
+            fields: 'user'
+          });
+        } else {
+          // If about.get isn't available, try a simple files.list instead
+          await window.gapi.client.drive.files.list({
+            pageSize: 1,
+            fields: 'files(id, name)'
+          });
+        }
         return true;
       } catch (error: any) {
         // If we get a permission error, we don't have drive access
