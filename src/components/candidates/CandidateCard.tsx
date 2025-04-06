@@ -76,13 +76,15 @@ const CandidateCard = ({
       <CardContent className="pb-0">
         <LocationInfo location={location} />
         <NotableEmployers employers={notableEmployers} />
-        <SectorBadges sectors={sectors} />
         <CandidateSummary summary={summary} />
-        <SkillBadges tags={tags} />
       </CardContent>
       
-      <CardFooter className="pt-0 justify-center">
-        <ResumeLink resumeUrl={resumeUrl} />
+      <CardFooter className="flex-col items-start pt-0 mt-auto">
+        <SectorBadges sectors={sectors} />
+        <SkillBadges tags={tags} />
+        <div className="w-full mt-2">
+          <ResumeLink resumeUrl={resumeUrl} candidateId={id} />
+        </div>
       </CardFooter>
       
       <Link to={`/candidate/${id}`} className="absolute inset-0 z-10">
