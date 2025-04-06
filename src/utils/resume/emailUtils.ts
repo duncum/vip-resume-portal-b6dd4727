@@ -121,12 +121,17 @@ const recordResumeShareToCandidatesSheet = async (
     const timestamp = new Date().toISOString();
     
     // Update the candidate row with email tracking information
-    await window.gapi.client.sheets.spreadsheets.values.update({
+    // Using batchUpdate instead of values.update (which doesn't exist)
+    await window.gapi.client.sheets.spreadsheets.values.batchUpdate({
       spreadsheetId,
-      range: `Candidates!P${rowIndex}:Q${rowIndex}`,
-      valueInputOption: "USER_ENTERED",
       resource: {
-        values: [[recipientEmail, timestamp]]
+        valueInputOption: "USER_ENTERED",
+        data: [
+          {
+            range: `Candidates!P${rowIndex}:Q${rowIndex}`,
+            values: [[recipientEmail, timestamp]]
+          }
+        ]
       }
     });
     
