@@ -52,6 +52,20 @@ const CandidateCard = ({
     "flexible": { color: "bg-gold/10 text-gold/90 border-gold/30", text: "Flexible Location" }
   };
 
+  // Determine if we should show relocation badge
+  // Default to showing "Open to Relocation" unless explicitly specified otherwise
+  const showRelocationBadge = !relocationPreference || relocationPreference === "willing" || relocationPreference === "flexible";
+  
+  // Default relocation text for when no preference is specified
+  const relocationText = relocationPreference ? 
+    relocationBadge[relocationPreference as keyof typeof relocationBadge]?.text || relocationPreference :
+    "Open to Relocation";
+  
+  // Default relocation color when no preference is specified
+  const relocationColor = relocationPreference ?
+    relocationBadge[relocationPreference as keyof typeof relocationBadge]?.color || "bg-gold/20 text-gold border-gold/40" :
+    "bg-gold/20 text-gold border-gold/40";
+
   // Truncate summary to 100 characters for preview
   const truncatedSummary = summary && summary.length > 100 
     ? `${summary.substring(0, 100)}...` 
@@ -76,42 +90,54 @@ const CandidateCard = ({
       </div>
       
       <CardHeader className="pb-1 md:pb-2">
-        {category && (
-          <div className="mb-2">
-            <Badge 
-              className={`${categoryColors[category as keyof typeof categoryColors] || "bg-grey-800 border-grey-700"} text-black text-xs`}
-            >
-              {category}
-            </Badge>
+        <div className="flex justify-between items-start mb-2">
+          <div>
+            {category && (
+              <Badge 
+                className={`${categoryColors[category as keyof typeof categoryColors] || "bg-grey-800 border-grey-700"} text-black text-xs`}
+              >
+                {category}
+              </Badge>
+            )}
             {title && (
               <span className="text-grey-400 text-xs ml-2">
                 {title}
               </span>
             )}
           </div>
-        )}
+          
+          {/* Always show relocation badge unless remote-only */}
+          {showRelocationBadge && (
+            <Badge 
+              className={`flex items-center gap-1 ${relocationColor}`}
+            >
+              <Globe size={10} className="opacity-80" />
+              {relocationText}
+            </Badge>
+          )}
+          
+          {/* Show Remote Only badge when specified */}
+          {relocationPreference === "remote-only" && (
+            <Badge 
+              className="flex items-center gap-1 bg-grey-800 text-white/80 border-grey-700"
+            >
+              <Globe size={10} className="opacity-80" />
+              Remote Only
+            </Badge>
+          )}
+        </div>
+        
         <CardTitle className="text-lg md:text-2xl font-display text-white leading-tight line-clamp-2">
           {headline}
         </CardTitle>
       </CardHeader>
       
       <CardContent className="pb-0">
-        {/* Location and Relocation Preference - at the top of content */}
+        {/* Location */}
         {location && (
-          <div className="flex items-center justify-between text-grey-400 text-xs mb-3">
-            <div className="flex items-center">
-              <MapPin size={14} className="mr-1 text-gold/70" />
-              <span>{location}</span>
-            </div>
-            
-            {relocationPreference && (
-              <Badge 
-                className={`flex items-center gap-1 ${relocationBadge[relocationPreference as keyof typeof relocationBadge]?.color || "bg-grey-800 text-grey-300 border-grey-700"}`}
-              >
-                <Globe size={10} className="opacity-80" />
-                {relocationBadge[relocationPreference as keyof typeof relocationBadge]?.text || relocationPreference}
-              </Badge>
-            )}
+          <div className="flex items-center text-grey-400 text-xs mb-3">
+            <MapPin size={14} className="mr-1 text-gold/70" />
+            <span>{location}</span>
           </div>
         )}
         

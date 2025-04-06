@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin } from "lucide-react";
+import { ArrowLeft, MapPin, Globe } from "lucide-react";
 import { Candidate } from "@/utils/sheets";
 
 interface CandidateHeaderProps {
@@ -20,10 +20,21 @@ const categoryColors = {
 const relocationBadge = {
   "willing": { color: "bg-grey-800 text-gold border-gold/30", text: "Open to Relocation" },
   "remote-only": { color: "bg-grey-800 text-white/80 border-grey-700", text: "Remote Only" },
-  "flexible": { color: "bg-grey-800 text-gold/70 border-gold/20", text: "Flexible" }
+  "flexible": { color: "bg-grey-800 text-gold/70 border-gold/20", text: "Flexible Location" }
 };
 
 const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
+  // Determine relocation badge properties
+  const showRelocationBadge = !candidate.relocationPreference || candidate.relocationPreference === "willing" || candidate.relocationPreference === "flexible";
+  
+  const relocationText = candidate.relocationPreference ? 
+    relocationBadge[candidate.relocationPreference as keyof typeof relocationBadge]?.text || candidate.relocationPreference :
+    "Open to Relocation";
+  
+  const relocationColor = candidate.relocationPreference ?
+    relocationBadge[candidate.relocationPreference as keyof typeof relocationBadge]?.color || "bg-grey-800 text-gold border-gold/30" :
+    "bg-grey-800 text-gold border-gold/30";
+
   return (
     <div className="mb-6 md:mb-8">
       <Button variant="ghost" asChild className="mb-4">
@@ -57,20 +68,30 @@ const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
         </p>
       )}
       
-      {candidate.location && (
-        <div className="flex items-center text-grey-400 mb-4 md:mb-6">
-          <MapPin size={16} className="mr-2" />
-          <span>{candidate.location}</span>
-          
-          {candidate.relocationPreference && (
-            <Badge 
-              className={`ml-3 ${relocationBadge[candidate.relocationPreference as keyof typeof relocationBadge]?.color || ""}`}
-            >
-              {relocationBadge[candidate.relocationPreference as keyof typeof relocationBadge]?.text || candidate.relocationPreference}
-            </Badge>
-          )}
-        </div>
-      )}
+      <div className="flex flex-wrap items-center gap-3 mb-4 md:mb-6">
+        {candidate.location && (
+          <div className="flex items-center text-grey-400">
+            <MapPin size={16} className="mr-2" />
+            <span>{candidate.location}</span>
+          </div>
+        )}
+        
+        {/* Show relocation badge */}
+        {showRelocationBadge && (
+          <Badge className={`flex items-center gap-1 ${relocationColor}`}>
+            <Globe size={12} className="opacity-80" />
+            {relocationText}
+          </Badge>
+        )}
+        
+        {/* Show Remote Only badge when specified */}
+        {candidate.relocationPreference === "remote-only" && (
+          <Badge className="flex items-center gap-1 bg-grey-800 text-white/80 border-grey-700">
+            <Globe size={12} className="opacity-80" />
+            Remote Only
+          </Badge>
+        )}
+      </div>
     </div>
   );
 };
