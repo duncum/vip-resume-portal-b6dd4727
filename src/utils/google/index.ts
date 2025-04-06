@@ -19,11 +19,11 @@ export {
   initGoogleApi, 
   signInToGoogle, 
   signOutFromGoogle, 
-  isUserAuthorized 
+  isUserAuthorized,
+  getIsGapiInitialized
 } from './auth';
 
 export { 
   getCurrentUserEmail,
   getUserProfile
 } from './user';
-

@@ -4,8 +4,8 @@
 
 export { 
   initGoogleApi,
-  isGapiInitialized,
   isUserAuthorized,
   signInToGoogle, 
-  signOutFromGoogle
+  signOutFromGoogle,
+  getIsGapiInitialized
 } from './core';

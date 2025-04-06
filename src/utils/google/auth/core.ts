@@ -188,5 +188,5 @@ export const signOutFromGoogle = async (): Promise<void> => {
   toast.success('Disconnected from Google API');
 };
 
-// Export initialization state for external modules
-export { isGapiInitialized };
+// Export the initialization state function for external modules
+export const getIsGapiInitialized = (): boolean => isGapiInitialized;

@@ -22,8 +22,8 @@ export const {
 
 // Re-export for backward compatibility - these were internal in the original file
 export const isGapiLoaded = GoogleAuth.isApiLoaded;
-// Export the isGapiInitialized from the GoogleAuth module, not from direct import
-export const isGapiInitialized = GoogleAuth.isUserAuthorized;
+// Use the exported function for isGapiInitialized
+export const isGapiInitialized = GoogleAuth.getIsGapiInitialized;
 export const isAuthorized = false; // This was internal state
 
 // Import and export the printOAuthSetupInstructions for backward compatibility
