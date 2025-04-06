@@ -1,4 +1,3 @@
-
 export interface CandidateUploadFormProps {
   onSuccess?: () => void;
   candidateCount?: number;
@@ -11,33 +10,39 @@ export interface FormHeaderProps {
 
 export interface HeadlineInputProps {
   headline: string;
-  onHeadlineChange: (value: string) => void;
+  onHeadlineChange: (headline: string) => void;
+  disabled?: boolean;
 }
 
 export interface SummaryInputProps {
   summary: string;
-  onSummaryChange: (value: string) => void;
+  onSummaryChange: (summary: string) => void;
+  disabled?: boolean;
 }
 
 export interface TagsInputProps {
   tags: string;
-  onTagsChange: (value: string) => void;
+  onTagsChange: (tags: string) => void;
+  disabled?: boolean;
 }
 
 export interface LocationSectionProps {
   location: string;
-  onLocationChange: (value: string) => void;
+  onLocationChange: (location: string) => void;
   relocationPreference: string;
-  onRelocationChange: (value: string) => void;
+  onRelocationChange: (preference: string) => void;
+  disabled?: boolean;
 }
 
 export interface SubmitButtonProps {
   isUploading: boolean;
+  disabled?: boolean;
 }
 
 export interface CandidateLevelsProps {
   selectedLevels: string[];
   onLevelChange: (level: string, checked: boolean) => void;
+  disabled?: boolean;
 }
 
 export interface PositionTitlesProps {
@@ -49,33 +54,37 @@ export interface PositionTitlesProps {
   onCustomTitleChange: (category: string, index: number, value: string) => void;
   onAddCustomTitle: (category: string) => void;
   onRemoveCustomTitle: (category: string, index: number) => void;
+  disabled?: boolean;
 }
 
 export interface SkillsProps {
   selectedSkills: string[];
-  onSkillChange: (skill: string, checked: boolean) => void;
+  onSkillChange: (item: string, checked: boolean) => void;
   customSkills: string[];
   onAddCustomSkill: () => void;
   onCustomSkillChange: (index: number, value: string) => void;
   onRemoveCustomSkill: (index: number) => void;
+  disabled?: boolean;
 }
 
 export interface AssetTypesProps {
   selectedAssetTypes: string[];
-  onAssetTypeChange: (assetType: string, checked: boolean) => void;
+  onAssetTypeChange: (item: string, checked: boolean) => void;
   customAssetTypes: string[];
   onAddCustomAssetType: () => void;
   onCustomAssetTypeChange: (index: number, value: string) => void;
   onRemoveCustomAssetType: (index: number) => void;
+  disabled?: boolean;
 }
 
 export interface SectorsProps {
   selectedSectors: string[];
-  onSectorChange: (sector: string, checked: boolean) => void;
+  onSectorChange: (item: string, checked: boolean) => void;
   customSectors: string[];
   onAddCustomSector: () => void;
   onCustomSectorChange: (index: number, value: string) => void;
   onRemoveCustomSector: (index: number) => void;
+  disabled?: boolean;
 }
 
 export interface CollapsibleSectionProps {
@@ -85,7 +94,7 @@ export interface CollapsibleSectionProps {
 
 export interface ResumeUploaderProps {
   candidateId: string;
-  onCandidateIdChange?: (value: string) => void;
-  isReadOnly?: boolean;
-  onResumeUrlChange?: (url: string) => void;
+  onCandidateIdChange: (id: string) => void;
+  onResumeUrlChange: (url: string) => void;
+  disabled?: boolean;
 }
