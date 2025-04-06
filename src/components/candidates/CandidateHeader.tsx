@@ -1,7 +1,7 @@
 
 import { Star, MapPin } from "lucide-react";
 import { type Candidate } from "@/utils/sheets";
-import { RelocationBadge } from "../candidates/card";
+import { CategoryBadge, RelocationBadge } from "../candidates/card";
 
 interface CandidateHeaderProps {
   candidate: Candidate;
@@ -28,23 +28,22 @@ const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
       
       {/* Category badge */}
       <div className="mt-4 mb-3">
-        <span className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-gold/30 to-gold/10 text-gold border border-gold/30">
-          {candidate.category || "Candidate"} {candidate.title ? `• ${candidate.title}` : ""}
-        </span>
+        <CategoryBadge category={candidate.category} title={candidate.title} />
       </div>
       
       {/* Headline */}
-      <h1 className="text-2xl md:text-3xl font-display text-white mb-2 pr-20">
+      <h1 className="text-2xl md:text-3xl font-display text-white mb-2 pr-20 
+        bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-gold/90">
         {candidate.headline}
       </h1>
       
       {/* Location and relocation preference */}
       <div className="flex items-center justify-between text-grey-400 text-sm mb-4">
-        <div className="flex items-center">
+        <div className="flex items-center group">
           {candidate.location && (
             <>
-              <MapPin size={16} className="mr-1.5 text-gold/70" />
-              <span>{candidate.location}</span>
+              <MapPin size={16} className="mr-1.5 text-gold/70 group-hover:text-gold transition-colors duration-300" />
+              <span className="group-hover:text-grey-200 transition-colors duration-300">{candidate.location}</span>
             </>
           )}
         </div>
@@ -55,14 +54,17 @@ const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
       
       {/* Notable employers */}
       {candidate.notableEmployers && (
-        <div className="mb-4 text-grey-300">
-          <span className="text-gold/90 font-medium">Notable Experience:</span> {candidate.notableEmployers}
+        <div className="mb-4 flex items-start group">
+          <span className="text-gold/90 font-medium mr-2">Notable Experience:</span> 
+          <span className="text-grey-300 group-hover:text-grey-200 transition-colors duration-300">{candidate.notableEmployers}</span>
         </div>
       )}
       
       {/* Summary */}
       {candidate.summary && (
-        <div className="text-grey-300 text-sm md:text-base border-l-2 border-gold/30 pl-4 py-1 my-4">
+        <div className="text-grey-300 text-sm md:text-base border-l-2 border-gold/30 pl-4 py-1 my-4
+          bg-gradient-to-br from-grey-800/30 to-grey-800/10 rounded-r-md hover:border-gold/50
+          transition-all duration-300 hover:shadow-inner shadow-sm shadow-black/10">
           {candidate.summary}
         </div>
       )}
