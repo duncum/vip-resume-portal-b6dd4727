@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
 import { useState } from "react";
-import EmailResumeDialog from "../EmailResumeDialog";
+import SimpleEmailDialog from "../SimpleEmailDialog";
 
 interface ResumeActionsProps {
   resumeUrl: string;
@@ -24,7 +24,7 @@ const ResumeActions = ({ resumeUrl, candidateId }: ResumeActionsProps) => {
         Email Resume
       </Button>
       
-      <EmailResumeDialog 
+      <SimpleEmailDialog 
         open={isEmailDialogOpen} 
         onOpenChange={setIsEmailDialogOpen}
         candidateId={candidateId}
