@@ -11,22 +11,24 @@ import { mockCandidates } from './mock-data';
  * Fetch all candidates from Google Sheets API
  */
 export const fetchCandidates = async (): Promise<Candidate[]> => {
-  // Check if we need to use mock data (during development or when not authorized)
-  const useRealApi = await ensureAuthorization();
+  // Check if we have proper authorization
+  const isAuthorized = await ensureAuthorization();
   
-  if (!useRealApi) {
-    console.log("Using mock data for candidates");
+  if (!isAuthorized) {
+    console.log("Not authorized, using mock data for candidates");
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
     return mockCandidates;
   }
   
   try {
+    console.log("Attempting to fetch candidates from Google Sheets");
     const response = await window.gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: CANDIDATES_RANGE
     });
     
+    console.log("Response received from Google Sheets:", response);
     const rows = response.result.values;
     
     if (!rows || rows.length === 0) {
@@ -48,12 +50,12 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
  * Fetch a single candidate by ID from Google Sheets API
  */
 export const fetchCandidateById = async (id: string): Promise<Candidate> => {
-  // Check if we need to use mock data
-  const useRealApi = await ensureAuthorization();
+  // Check if we have proper authorization
+  const isAuthorized = await ensureAuthorization();
   
-  if (!useRealApi) {
+  if (!isAuthorized) {
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise(resolve => setTimeout(resolve, 500));
     const candidate = mockCandidates.find(c => c.id === id);
     
     if (!candidate) {
@@ -103,13 +105,13 @@ export const fetchCandidateById = async (id: string): Promise<Candidate> => {
  * Add a new candidate to Google Sheets
  */
 export const addCandidate = async (candidateData: any): Promise<boolean> => {
-  // Check if we need to use mock data
-  const useRealApi = await ensureAuthorization();
+  // Check if we have proper authorization
+  const isAuthorized = await ensureAuthorization();
   
-  if (!useRealApi) {
-    console.log("Mock candidate addition - would save:", candidateData);
+  if (!isAuthorized) {
+    console.log("Not authorized, mock candidate addition:", candidateData);
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
     return true;
   }
   
@@ -129,6 +131,8 @@ export const addCandidate = async (candidateData: any): Promise<boolean> => {
       candidateData.relocationPreference || 'flexible'
     ];
     
+    console.log("Attempting to append data to Google Sheet:", rowData);
+    
     // Append the data to the Google Sheet
     await window.gapi.client.sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
@@ -140,6 +144,7 @@ export const addCandidate = async (candidateData: any): Promise<boolean> => {
       }
     });
     
+    console.log("Data successfully appended to Google Sheet");
     return true;
   } catch (error) {
     console.error("Error adding candidate to Google Sheets:", error);

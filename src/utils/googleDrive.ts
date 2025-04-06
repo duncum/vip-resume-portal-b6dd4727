@@ -1,5 +1,5 @@
 
-import { initGoogleApi, isUserAuthorized, signInToGoogle } from './google';
+import { initGoogleApi, isUserAuthorized } from './google';
 import { toast } from 'sonner';
 
 // Configuration for Google Drive
@@ -7,23 +7,12 @@ const RESUME_FOLDER_NAME = "CRE Resume Portal";
 let RESUME_FOLDER_ID: string | null = null;
 
 /**
- * Ensure the user is authorized before accessing Google Drive
+ * Ensure API is initialized before accessing Google Drive
  */
 const ensureAuthorization = async (): Promise<boolean> => {
   try {
-    // Initialize the API if needed
-    await initGoogleApi();
-    
-    // Check if the user is authorized
-    const authorized = await isUserAuthorized();
-    
-    if (!authorized) {
-      // Prompt for authorization
-      const signedIn = await signInToGoogle();
-      return signedIn;
-    }
-    
-    return true;
+    // Initialize the API with credentials
+    return await initGoogleApi();
   } catch (error) {
     console.error('Authorization error:', error);
     return false;
@@ -78,10 +67,11 @@ const getOrCreateResumeFolder = async (): Promise<string> => {
  * Upload a resume file to Google Drive
  */
 export const uploadResumeToDrive = async (file: File, candidateId: string): Promise<string> => {
-  // Ensure the user is authorized
+  // Ensure the API is initialized
   const authorized = await ensureAuthorization();
   
   if (!authorized) {
+    toast.error('Not connected to Google API. Please enter your credentials first.');
     throw new Error('Not authorized to access Google Drive');
   }
   
@@ -99,43 +89,38 @@ export const uploadResumeToDrive = async (file: File, candidateId: string): Prom
       parents: [folderId]
     };
     
-    const accessToken = window.gapi.auth.getToken().access_token;
-    
+    // Use a different approach for uploading since we don't have OAuth token
     const form = new FormData();
     form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
     form.append('file', file);
     
-    // Upload the file
-    const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method: 'POST',
-      headers: new Headers({ 'Authorization': 'Bearer ' + accessToken }),
-      body: form
+    // Create the file using the Drive API
+    const result = await window.gapi.client.drive.files.create({
+      resource: metadata,
+      media: {
+        body: file
+      },
+      fields: 'id,webViewLink,webContentLink'
     });
     
-    const result = await response.json();
-    
-    if (!result.id) {
+    if (!result.result.id) {
       throw new Error('Failed to upload file to Google Drive');
     }
     
     // Make the file readable by anyone with the link
     await window.gapi.client.drive.permissions.create({
-      fileId: result.id,
+      fileId: result.result.id,
       resource: {
         role: 'reader',
         type: 'anyone'
       }
     });
     
-    // Get the webViewLink for the file
-    const fileResponse = await window.gapi.client.drive.files.get({
-      fileId: result.id,
-      fields: 'webViewLink, webContentLink'
-    });
-    
-    return fileResponse.result.webViewLink || fileResponse.result.webContentLink;
+    console.log("File uploaded successfully:", result.result);
+    return result.result.webViewLink || result.result.webContentLink;
   } catch (error) {
     console.error('Error uploading file to Google Drive:', error);
+    toast.error('Failed to upload resume to Google Drive. Please try again.');
     throw new Error('Failed to upload resume to Google Drive');
   }
 };
@@ -157,10 +142,11 @@ export const downloadResumeFromDrive = async (fileUrl: string): Promise<void> =>
  * Get a list of all resumes in the resume folder
  */
 export const listAllResumes = async (): Promise<Array<{id: string, name: string, url: string}>> => {
-  // Ensure the user is authorized
+  // Ensure the API is initialized
   const authorized = await ensureAuthorization();
   
   if (!authorized) {
+    toast.error('Not connected to Google API');
     return [];
   }
   
@@ -196,7 +182,7 @@ export const listAllResumes = async (): Promise<Array<{id: string, name: string,
  * Delete a resume from Google Drive
  */
 export const deleteResumeFromDrive = async (fileId: string): Promise<boolean> => {
-  // Ensure the user is authorized
+  // Ensure the API is initialized
   const authorized = await ensureAuthorization();
   
   if (!authorized) {

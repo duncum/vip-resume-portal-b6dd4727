@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { initGoogleApi, isUserAuthorized, signInToGoogle, signOutFromGoogle, getCurrentUserEmail } from '@/utils/google';
+import { initGoogleApi, isUserAuthorized } from '@/utils/google';
 import { CLIENT_ID, API_KEY } from '@/utils/google';
 import { SPREADSHEET_ID } from '@/utils/sheets';
 import { toast } from 'sonner';
@@ -10,7 +10,7 @@ export const useGoogleIntegration = () => {
     isInitialized: false,
     isAuthorized: false,
     isLoading: true,
-    userEmail: null as string | null
+    userEmail: 'service-account@example.com' as string | null
   });
 
   const [showCredentialsForm, setShowCredentialsForm] = useState(false);
@@ -36,6 +36,12 @@ export const useGoogleIntegration = () => {
         clientId: savedClientId || credentials.clientId,
         apiKey: savedApiKey || credentials.apiKey,
         spreadsheetId: savedSpreadsheetId || credentials.spreadsheetId
+      });
+      
+      // Set missing credentials state
+      setMissingCredentials({
+        clientId: !savedClientId && !credentials.clientId,
+        apiKey: !savedApiKey && !credentials.apiKey
       });
     }
   }, []);
@@ -66,15 +72,14 @@ export const useGoogleIntegration = () => {
         window.localStorage.setItem('google_spreadsheet_id', credentials.spreadsheetId);
       }
 
-      await initGoogleApi();
+      const apiInitialized = await initGoogleApi();
       const authorized = await isUserAuthorized();
-      const email = authorized ? getCurrentUserEmail() : 'service-account@example.com';
       
       setStatus({
-        isInitialized: true,
-        isAuthorized: true, // Always consider authorized to avoid user authentication
+        isInitialized: apiInitialized,
+        isAuthorized: authorized,
         isLoading: false,
-        userEmail: email
+        userEmail: 'service-account@example.com'
       });
     } catch (error) {
       console.error('Error checking Google API status:', error);
@@ -100,9 +105,18 @@ export const useGoogleIntegration = () => {
 
     setStatus(prev => ({ ...prev, isLoading: true }));
     try {
-      // With service account approach, we don't need the user to sign in
-      checkStatus();
-      toast.success('Successfully connected to Google API');
+      const success = await initGoogleApi();
+      if (success) {
+        setStatus({
+          isInitialized: true,
+          isAuthorized: true,
+          isLoading: false,
+          userEmail: 'service-account@example.com'
+        });
+        toast.success('Successfully connected to Google API');
+      } else {
+        throw new Error('Failed to initialize Google API');
+      }
     } catch (error) {
       console.error('Error connecting to Google API:', error);
       toast.error('Failed to connect to Google API');
@@ -110,7 +124,7 @@ export const useGoogleIntegration = () => {
     }
   };
   
-  // Add auto-connect method that bypasses the sign-in process
+  // Add auto-connect method that initializes the API
   const autoConnect = async () => {
     if (missingCredentials.clientId || missingCredentials.apiKey) {
       return;
@@ -118,13 +132,17 @@ export const useGoogleIntegration = () => {
     
     setStatus(prev => ({ ...prev, isLoading: true }));
     try {
-      await initGoogleApi();
+      const success = await initGoogleApi();
       setStatus({
-        isInitialized: true,
-        isAuthorized: true,
+        isInitialized: success,
+        isAuthorized: success,
         isLoading: false,
-        userEmail: 'service-account@example.com'
+        userEmail: success ? 'service-account@example.com' : null
       });
+      
+      if (success) {
+        toast.success('Connected to Google API');
+      }
     } catch (error) {
       console.error('Error in auto-connect:', error);
       setStatus(prev => ({ ...prev, isLoading: false }));
@@ -134,14 +152,14 @@ export const useGoogleIntegration = () => {
   const handleSignOut = async () => {
     setStatus(prev => ({ ...prev, isLoading: true }));
     try {
-      // With service account approach, signing out just resets the status
+      // Reset the initialization state
       setStatus({
         isInitialized: false,
         isAuthorized: false,
         isLoading: false,
         userEmail: null
       });
-      toast.success('Successfully disconnected from Google API');
+      toast.success('Disconnected from Google API');
     } catch (error) {
       console.error('Error disconnecting from Google API:', error);
       toast.error('Failed to disconnect from Google API');
