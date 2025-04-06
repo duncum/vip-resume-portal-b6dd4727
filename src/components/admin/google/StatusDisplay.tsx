@@ -58,9 +58,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
         <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
         <div>
           <div className="font-medium">Connected</div>
-          {userEmail && (
-            <div className="text-xs text-grey-500">{userEmail}</div>
-          )}
+          <div className="text-xs text-grey-500">Using service account (no login required)</div>
         </div>
       </div>
     );
@@ -71,7 +69,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
       <XCircle className="h-4 w-4 mr-2 text-amber-500" />
       <div>
         <div className="font-medium">Not connected</div>
-        <div className="text-xs text-grey-500">Google connection required</div>
+        <div className="text-xs text-grey-500">API connection required</div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 
-// Handles Google API authentication
+// Handles Google API authentication without requiring user sign-in
+// Modified for Memberspace integration
 
 import { toast } from "sonner";
 import { loadGoogleApi, isApiLoaded } from './loader';
@@ -10,6 +11,7 @@ let isGapiInitialized = false;
 
 /**
  * Initialize the Google API client with API key only
+ * No user sign-in required as authentication is handled by Memberspace
  */
 export const initGoogleApi = async (): Promise<boolean> => {
   if (isGapiInitialized) {
@@ -41,8 +43,6 @@ export const initGoogleApi = async (): Promise<boolean> => {
       window.gapi.load('client', async () => {
         try {
           console.log("Initializing client with API_KEY and CLIENT_ID...");
-          console.log("API_KEY:", API_KEY ? "Present" : "Missing");
-          console.log("CLIENT_ID:", CLIENT_ID ? "Present" : "Missing");
           
           await window.gapi.client.init({
             apiKey: API_KEY,
@@ -60,7 +60,7 @@ export const initGoogleApi = async (): Promise<boolean> => {
           }
           
           isGapiInitialized = true;
-          console.log("Google API initialized successfully");
+          console.log("Google API initialized successfully (service account mode)");
           resolve(true);
         } catch (error) {
           console.error('Error initializing Google API client:', error);
@@ -78,8 +78,7 @@ export const initGoogleApi = async (): Promise<boolean> => {
 };
 
 /**
- * Check if the user is currently authorized with Google
- * In our simplified approach, this just checks if the API is initialized
+ * Check if the API is initialized (we don't check user authorization)
  */
 export const isUserAuthorized = async (): Promise<boolean> => {
   if (!isGapiInitialized) {
@@ -90,7 +89,7 @@ export const isUserAuthorized = async (): Promise<boolean> => {
   return isGapiInitialized;
 };
 
-// Keeping these functions with simplified implementations to maintain API compatibility
+// Simplified implementations for Memberspace integration
 export const signInToGoogle = async (): Promise<boolean> => {
   return await initGoogleApi();
 };

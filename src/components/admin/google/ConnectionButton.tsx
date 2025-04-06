@@ -37,7 +37,7 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
   if (isAuthorized) {
     return (
       <Button size="sm" variant="outline" onClick={onSignOut} className="w-full text-xs">
-        Disconnect
+        Disconnect API
       </Button>
     );
   }
@@ -45,7 +45,7 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
   return (
     <Button size="sm" onClick={onSignIn} className="w-full text-xs bg-white border-grey-200 text-grey-800 hover:bg-grey-100">
       <GoogleIcon className="h-3 w-3 mr-2" />
-      Connect Google Account
+      Connect Google API
     </Button>
   );
 };

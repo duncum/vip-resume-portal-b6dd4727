@@ -4,10 +4,11 @@ import { initGoogleApi } from '../google';
 
 /**
  * Ensure API is initialized before accessing Google Drive
+ * This version doesn't require user sign-in as authentication is handled by Memberspace
  */
 export const ensureAuthorization = async (): Promise<boolean> => {
   try {
-    // Initialize the API with credentials
+    // Initialize the API with credentials only (no user sign-in required)
     return await initGoogleApi();
   } catch (error) {
     console.error('Authorization error:', error);
