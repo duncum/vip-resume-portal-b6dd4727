@@ -112,7 +112,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ embedUrl, onError }) =>
         </div>
       </div>
       
-      {/* PDF viewer iframe with comprehensive CSS to hide all controls */}
+      {/* PDF viewer iframe with subtle CSS to hide all controls */}
       <div className="iframe-container w-full h-[800px] relative">
         <ResumeOverlays />
         

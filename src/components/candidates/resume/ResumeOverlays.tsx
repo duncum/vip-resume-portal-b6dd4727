@@ -61,7 +61,7 @@ const ResumeOverlays: React.FC = () => {
             right: 0;
             width: 40px;
             height: 40px;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
             z-index: 1000;
             pointer-events: none;
           }
@@ -73,8 +73,8 @@ const ResumeOverlays: React.FC = () => {
             bottom: 0;
             right: 0;
             width: 100%;
-            height: 30px;
-            background: rgba(255, 255, 255, 0.6);
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
             z-index: 1000;
             pointer-events: none;
           }
@@ -84,9 +84,9 @@ const ResumeOverlays: React.FC = () => {
             position: absolute;
             top: 0;
             right: 0;
-            width: 40px; 
+            width: 20px; 
             height: 100%;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
             z-index: 1000;
             pointer-events: none;
           }
@@ -96,9 +96,9 @@ const ResumeOverlays: React.FC = () => {
             position: absolute;
             top: 0;
             right: 0;
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.6);
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
             z-index: 1001;
             pointer-events: none;
           }
@@ -108,9 +108,9 @@ const ResumeOverlays: React.FC = () => {
             position: fixed;
             top: 0;
             right: 0;
-            width: 40px;
+            width: 20px;
             height: 100vh;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
             z-index: 9999;
             pointer-events: none;
           }
@@ -121,8 +121,8 @@ const ResumeOverlays: React.FC = () => {
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 30px;
-            background: rgba(255, 255, 255, 0.6);
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
             z-index: 1000;
             pointer-events: none;
           }
@@ -137,7 +137,7 @@ const ResumeOverlays: React.FC = () => {
           /* More refined right-side coverage */
           @media screen and (min-width: 768px) {
             .right-overlay, .fixed-right-overlay {
-              width: 40px;
+              width: 20px;
             }
           }
           
@@ -151,14 +151,14 @@ const ResumeOverlays: React.FC = () => {
         `}
       </style>
       
-      {/* More subtle overlays with semi-transparency */}
-      <div className="right-overlay" style={{ position: 'absolute', right: 0, top: 0, height: '100%', width: '40px', background: 'rgba(255, 255, 255, 0.6)', zIndex: 1000 }}></div>
-      <div className="top-right-corner" style={{ position: 'absolute', right: 0, top: 0, height: '40px', width: '40px', background: 'rgba(255, 255, 255, 0.6)', zIndex: 1001 }}></div>
-      <div className="bottom-overlay" style={{ position: 'absolute', bottom: 0, left: 0, height: '30px', width: '100%', background: 'rgba(255, 255, 255, 0.6)', zIndex: 1000 }}></div>
-      <div className="fixed-right-overlay" style={{ position: 'fixed', right: 0, top: 0, height: '100vh', width: '40px', background: 'rgba(255, 255, 255, 0.6)', zIndex: 9999 }}></div>
+      {/* More subtle overlays with minimal transparency */}
+      <div className="right-overlay" style={{ position: 'absolute', right: 0, top: 0, height: '100%', width: '20px', background: 'rgba(255, 255, 255, 0.1)', zIndex: 1000 }}></div>
+      <div className="top-right-corner" style={{ position: 'absolute', right: 0, top: 0, height: '20px', width: '20px', background: 'rgba(255, 255, 255, 0.1)', zIndex: 1001 }}></div>
+      <div className="bottom-overlay" style={{ position: 'absolute', bottom: 0, left: 0, height: '20px', width: '100%', background: 'rgba(255, 255, 255, 0.1)', zIndex: 1000 }}></div>
+      <div className="fixed-right-overlay" style={{ position: 'fixed', right: 0, top: 0, height: '100vh', width: '20px', background: 'rgba(255, 255, 255, 0.1)', zIndex: 9999 }}></div>
       
-      {/* Additional protection with reduced size */}
-      <div style={{ position: 'absolute', top: '0', left: '0', width: '30px', height: '30px', background: 'rgba(255, 255, 255, 0.6)', zIndex: 1000 }}></div>
+      {/* Additional protection with minimal size */}
+      <div style={{ position: 'absolute', top: '0', left: '0', width: '20px', height: '20px', background: 'rgba(255, 255, 255, 0.1)', zIndex: 1000 }}></div>
     </>
   );
 };
