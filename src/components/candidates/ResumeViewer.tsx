@@ -12,7 +12,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   
-  // Fix Google Drive URLs for proper embedding (and remove download option)
+  // Fix Google Drive URLs for proper embedding (and completely remove download options)
   const getEmbedUrl = (url: string) => {
     // Check if it's a Google Drive URL
     if (url.includes('drive.google.com/file/d/')) {
@@ -20,8 +20,9 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
       const fileIdMatch = url.match(/\/d\/([^\/]+)/);
       if (fileIdMatch && fileIdMatch[1]) {
         const fileId = fileIdMatch[1];
-        // Return the proper embed URL for Google Drive (with nocopy parameter)
-        return `https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true`;
+        // Return the proper embed URL for Google Drive with ALL options to prevent downloads
+        // Adding nocopy, nodownload and all available restrictions
+        return `https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true&nodownload=true`;
       }
     }
     return url;
@@ -94,17 +95,32 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
               </div>
             </div>
             
-            {/* PDF viewer */}
-            <iframe
-              src={embedUrl}
-              className="w-full h-[800px] border-0"
-              title="Resume PDF"
-              onError={handleIframeError}
-              frameBorder="0"
-              allowFullScreen
-              id="resume-iframe"
-              sandbox="allow-same-origin allow-scripts allow-forms"
-            />
+            {/* PDF viewer iframe with CSS to hide controls */}
+            <div className="iframe-container w-full h-[800px] relative">
+              <style jsx>{`
+                .iframe-container::after {
+                  content: '';
+                  position: absolute;
+                  top: 0;
+                  right: 0;
+                  width: 60px;
+                  height: 60px;
+                  background: white;
+                  z-index: 100;
+                  pointer-events: none;
+                }
+              `}</style>
+              <iframe
+                src={embedUrl}
+                className="w-full h-full border-0"
+                title="Resume PDF"
+                onError={handleIframeError}
+                frameBorder="0"
+                allowFullScreen
+                id="resume-iframe"
+                sandbox="allow-same-origin allow-scripts allow-forms"
+              />
+            </div>
           </div>
         )}
       </CardContent>

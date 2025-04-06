@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { toast } from "sonner";
 import { trackDownload } from "@/utils/ipTracker";
-import { useEffect, useRef } from "react";
 
 interface CandidateResumeProps {
   resumeUrl: string;
@@ -76,6 +75,18 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
               border: none;
               display: block;
             }
+            /* Hide Google Drive UI elements */
+            .iframe-container::after {
+              content: '';
+              position: absolute;
+              top: 0;
+              right: 0;
+              width: 60px;
+              height: 60px;
+              background: white;
+              z-index: 100;
+            }
+            
             @media print {
               .watermark-container {
                 position: fixed;
@@ -103,11 +114,13 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
             </div>
           </div>
           
-          <!-- Direct link to PDF -->
-          ${isGoogleDriveUrl ? 
-            `<iframe src="https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true"></iframe>` : 
-            `<iframe src="${resumeUrl}"></iframe>`
-          }
+          <!-- Direct link to PDF with all download options removed -->
+          <div class="iframe-container" style="position:relative;">
+            ${isGoogleDriveUrl ? 
+              `<iframe src="https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true&nodownload=true"></iframe>` : 
+              `<iframe src="${resumeUrl}"></iframe>`
+            }
+          </div>
           
           <script>
             // Auto-print when loaded
