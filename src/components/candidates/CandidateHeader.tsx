@@ -1,7 +1,7 @@
 
 import { Star, MapPin } from "lucide-react";
 import { type Candidate } from "@/utils/sheets";
-import { CategoryBadge, RelocationBadge } from "../candidates/card";
+import { CategoryBadge, LocationInfo, RelocationBadge } from "../candidates/card";
 
 interface CandidateHeaderProps {
   candidate: Candidate;
@@ -37,20 +37,11 @@ const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
         {candidate.headline}
       </h1>
       
-      {/* Location and relocation preference */}
-      <div className="flex items-center justify-between text-grey-400 text-sm mb-4">
-        <div className="flex items-center group">
-          {candidate.location && (
-            <>
-              <MapPin size={16} className="mr-1.5 text-gold/70 group-hover:text-gold transition-colors duration-300" />
-              <span className="group-hover:text-grey-200 transition-colors duration-300">{candidate.location}</span>
-            </>
-          )}
-        </div>
-        {candidate.relocationPreference && (
-          <RelocationBadge relocationPreference={candidate.relocationPreference} />
-        )}
-      </div>
+      {/* Location and relocation preference - Using the LocationInfo component from the card */}
+      <LocationInfo 
+        location={candidate.location} 
+        relocationPreference={candidate.relocationPreference}
+      />
       
       {/* Notable employers */}
       {candidate.notableEmployers && (
