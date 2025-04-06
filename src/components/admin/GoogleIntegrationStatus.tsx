@@ -7,6 +7,9 @@ import CredentialsToggle from './google/CredentialsToggle';
 import ConnectionButton from './google/ConnectionButton';
 import { useGoogleIntegration } from './google/useGoogleIntegration';
 import { AlertCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const GoogleIntegrationStatus = () => {
   const hasAutoConnected = useRef(false);
@@ -42,6 +45,38 @@ const GoogleIntegrationStatus = () => {
   // Check if we're in API key only mode
   const isApiKeyOnly = !credentials.clientId && credentials.apiKey;
 
+  // Quick API key entry form
+  const handleQuickApiKeySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const apiKeyInput = form.elements.namedItem('apiKey') as HTMLInputElement;
+    const spreadsheetIdInput = form.elements.namedItem('spreadsheetId') as HTMLInputElement;
+    
+    if (apiKeyInput.value) {
+      localStorage.setItem('google_api_key', apiKeyInput.value);
+      
+      if (spreadsheetIdInput.value) {
+        localStorage.setItem('google_spreadsheet_id', spreadsheetIdInput.value);
+      }
+      
+      setCredentials({
+        ...credentials,
+        apiKey: apiKeyInput.value,
+        spreadsheetId: spreadsheetIdInput.value || credentials.spreadsheetId
+      });
+      
+      toast.success("API Key saved! Connecting...");
+      
+      // Reset form
+      form.reset();
+      
+      // Attempt to connect with new credentials after a short delay
+      setTimeout(() => {
+        autoConnect();
+      }, 500);
+    }
+  };
+
   return (
     <Card className="border-dashed">
       <CardHeader className="pb-3">
@@ -64,6 +99,36 @@ const GoogleIntegrationStatus = () => {
           showSetupInstructions={showSetupInstructions}
           switchToApiKeyOnlyMode={switchToApiKeyOnlyMode}
         />
+        
+        {/* Quick API Key Entry Form */}
+        {!status.isAuthorized && missingCredentials.apiKey && (
+          <form onSubmit={handleQuickApiKeySubmit} className="mt-3 p-3 bg-gray-50 rounded-md space-y-3">
+            <h3 className="text-sm font-medium">Quick Setup (API Key Only Mode)</h3>
+            <div className="space-y-2">
+              <label className="text-xs">Google API Key:</label>
+              <Input 
+                name="apiKey" 
+                placeholder="Enter your Google API Key" 
+                className="h-8 text-xs" 
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs">Spreadsheet ID (optional):</label>
+              <Input 
+                name="spreadsheetId" 
+                placeholder="Your Google Sheet ID" 
+                className="h-8 text-xs"
+              />
+            </div>
+            <Button type="submit" size="sm" className="w-full text-xs h-8">
+              Connect with API Key
+            </Button>
+            <p className="text-xs text-gray-500 italic">
+              API Key only mode allows read access to view candidates
+            </p>
+          </form>
+        )}
         
         {/* Show API key only mode notice */}
         {status.isAuthorized && isApiKeyOnly && (

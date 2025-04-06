@@ -32,7 +32,17 @@ export const ensureAuthorization = async (): Promise<boolean> => {
       }
       
       try {
-        // Try a test request to see if we have write permissions
+        // Check if the sheets API is available
+        if (!window.gapi.client.sheets) {
+          console.log('Sheets API not loaded yet, attempting to load it');
+          await window.gapi.client.load('sheets', 'v4');
+          
+          if (!window.gapi.client.sheets) {
+            throw new Error('Could not load Sheets API');
+          }
+        }
+        
+        // Try a test request to see if we have permissions
         await window.gapi.client.sheets.spreadsheets.values.get({
           spreadsheetId: localStorage.getItem('google_spreadsheet_id') || '',
           range: 'A1'
