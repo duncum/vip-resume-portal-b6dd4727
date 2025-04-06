@@ -14,7 +14,9 @@ const relocationBadge = {
 };
 
 const RelocationBadge = ({ relocationPreference }: RelocationBadgeProps) => {
-  // Default to showing "Open to Relocation" unless specified as remote-only
+  if (!relocationPreference) return null;
+  
+  // For remote-only
   if (relocationPreference === "remote-only") {
     return (
       <Badge className="flex items-center gap-1 bg-grey-800 text-white/80 border-grey-700">
@@ -24,24 +26,16 @@ const RelocationBadge = ({ relocationPreference }: RelocationBadgeProps) => {
     );
   }
   
-  // For willing, flexible, or unspecified - show appropriate badge
-  const showRelocationBadge = !relocationPreference || relocationPreference === "willing" || relocationPreference === "flexible";
-  
-  if (!showRelocationBadge) return null;
-  
-  // Default text and color when no preference is specified
-  const relocationText = relocationPreference ? 
-    relocationBadge[relocationPreference as keyof typeof relocationBadge]?.text || relocationPreference :
-    "Open to Relocation";
-  
-  const relocationColor = relocationPreference ?
-    relocationBadge[relocationPreference as keyof typeof relocationBadge]?.color || "bg-gold/20 text-gold border-gold/40" :
-    "bg-gold/20 text-gold border-gold/40";
+  // For willing, flexible, or other values
+  const badgeInfo = relocationBadge[relocationPreference as keyof typeof relocationBadge] || {
+    color: "bg-gold/20 text-gold border-gold/40",
+    text: relocationPreference
+  };
     
   return (
-    <Badge className={`flex items-center gap-1 ${relocationColor}`}>
+    <Badge className={`flex items-center gap-1 ${badgeInfo.color}`}>
       <Globe size={10} className="opacity-80" />
-      {relocationText}
+      {badgeInfo.text}
     </Badge>
   );
 };

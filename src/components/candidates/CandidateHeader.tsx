@@ -1,105 +1,75 @@
 
-import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Globe, Briefcase } from "lucide-react";
-import { Candidate } from "@/utils/sheets";
+import { Star, MapPin } from "lucide-react";
+import { type Candidate } from "@/utils/sheets";
+import { RelocationBadge } from "../candidates/card";
 
 interface CandidateHeaderProps {
   candidate: Candidate;
 }
 
-const categoryColors = {
-  "Executive": "bg-gold/80 border-gold/60",
-  "Director": "bg-gold/60 border-gold/40",
-  "Mid-Senior level": "bg-gold/40 border-gold/30",
-  "Emerging Executives": "bg-gold/30 border-gold/20",
-  "One Man Army": "bg-gold border-gold/80"
-};
-
-const relocationBadge = {
-  "willing": { color: "bg-grey-800 text-gold border-gold/30", text: "Open to Relocation" },
-  "remote-only": { color: "bg-grey-800 text-white/80 border-grey-700", text: "Remote Only" },
-  "flexible": { color: "bg-grey-800 text-gold/70 border-gold/20", text: "Flexible Location" }
-};
-
 const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
-  // Determine relocation badge properties
-  const showRelocationBadge = !candidate.relocationPreference || candidate.relocationPreference === "willing" || candidate.relocationPreference === "flexible";
+  const isOneManArmy = candidate.category === "One Man Army";
   
-  const relocationText = candidate.relocationPreference ? 
-    relocationBadge[candidate.relocationPreference as keyof typeof relocationBadge]?.text || candidate.relocationPreference :
-    "Open to Relocation";
-  
-  const relocationColor = candidate.relocationPreference ?
-    relocationBadge[candidate.relocationPreference as keyof typeof relocationBadge]?.color || "bg-grey-800 text-gold border-gold/30" :
-    "bg-grey-800 text-gold border-gold/30";
-
   return (
-    <div className="mb-6 md:mb-8">
-      <Button variant="ghost" asChild className="mb-4">
-        <Link to="/candidates" className="flex items-center text-grey-600 hover:text-gold">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Candidates
-        </Link>
-      </Button>
+    <div className="mb-6 relative">
+      {/* Gold gradient line */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold/40 via-gold to-gold/40"></div>
       
-      {candidate.category && (
-        <div className="mb-4">
-          <Badge 
-            className={`${categoryColors[candidate.category as keyof typeof categoryColors] || "bg-grey-800 border-grey-700"} text-black mr-2`}
-          >
-            {candidate.category}
-          </Badge>
-          {candidate.title && (
-            <span className="text-grey-500">
-              {candidate.title}
-            </span>
-          )}
+      {/* One Man Army badge */}
+      {isOneManArmy && (
+        <div className="absolute top-2 right-0">
+          <img 
+            src="/lovable-uploads/e1ac2dc5-b6bf-42e4-a501-cf37986c19ee.png" 
+            alt="One Man Army" 
+            className="h-16 w-auto"
+          />
         </div>
       )}
       
-      <h1 className="text-2xl md:text-3xl font-bold font-display mb-4">
+      {/* Category badge */}
+      <div className="mt-4 mb-3">
+        <span className="px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-gold/30 to-gold/10 text-gold border border-gold/30">
+          {candidate.category || "Candidate"} {candidate.title ? `• ${candidate.title}` : ""}
+        </span>
+      </div>
+      
+      {/* Headline */}
+      <h1 className="text-2xl md:text-3xl font-display text-white mb-2 pr-20">
         {candidate.headline}
       </h1>
       
-      {candidate.summary && (
-        <p className="text-grey-300 mb-4 md:mb-6">
-          {candidate.summary}
-        </p>
-      )}
-      
-      <div className="flex flex-wrap items-center gap-3 mb-4 md:mb-6">
-        {candidate.location && (
-          <div className="flex items-center text-grey-400">
-            <MapPin size={16} className="mr-2" />
-            <span>{candidate.location}</span>
-          </div>
-        )}
-        
-        {/* Show relocation badge */}
-        {showRelocationBadge && (
-          <Badge className={`flex items-center gap-1 ${relocationColor}`}>
-            <Globe size={12} className="opacity-80" />
-            {relocationText}
-          </Badge>
-        )}
-        
-        {/* Show Remote Only badge when specified */}
-        {candidate.relocationPreference === "remote-only" && (
-          <Badge className="flex items-center gap-1 bg-grey-800 text-white/80 border-grey-700">
-            <Globe size={12} className="opacity-80" />
-            Remote Only
-          </Badge>
+      {/* Location and relocation preference */}
+      <div className="flex items-center justify-between text-grey-400 text-sm mb-4">
+        <div className="flex items-center">
+          {candidate.location && (
+            <>
+              <MapPin size={16} className="mr-1.5 text-gold/70" />
+              <span>{candidate.location}</span>
+            </>
+          )}
+        </div>
+        {candidate.relocationPreference && (
+          <RelocationBadge relocationPreference={candidate.relocationPreference} />
         )}
       </div>
       
+      {/* Notable employers */}
       {candidate.notableEmployers && (
-        <div className="flex items-center text-grey-400 mb-4">
-          <Briefcase size={16} className="mr-2 text-gold/70" />
-          <span className="font-medium text-grey-300">Notable employers:</span>
-          <span className="ml-2">{candidate.notableEmployers}</span>
+        <div className="mb-4 text-grey-300">
+          <span className="text-gold/90 font-medium">Notable Experience:</span> {candidate.notableEmployers}
         </div>
       )}
+      
+      {/* Summary */}
+      {candidate.summary && (
+        <div className="text-grey-300 text-sm md:text-base border-l-2 border-gold/30 pl-4 py-1 my-4">
+          {candidate.summary}
+        </div>
+      )}
+      
+      <div className="absolute bottom-2 left-0 text-gold/40">
+        <Star size={40} strokeWidth={1} className="opacity-20" />
+      </div>
     </div>
   );
 };
