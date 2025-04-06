@@ -67,12 +67,15 @@ export const updateCells = async (
       return false;
     }
     
-    // Update the cells
-    await window.gapi.client.sheets.spreadsheets.values.update({
-      spreadsheetId,
-      range,
-      valueInputOption: "USER_ENTERED",
-      resource: {
+    // Update the cells using the correct method
+    // The API is accessed differently than before
+    await window.gapi.client.request({
+      path: `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}`,
+      method: 'PUT',
+      params: {
+        valueInputOption: 'USER_ENTERED'
+      },
+      body: {
         values
       }
     });
