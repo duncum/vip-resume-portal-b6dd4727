@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackIpAddress } from "@/utils/ipTracker";
-import { FileText, Printer, AlertCircle, Download } from "lucide-react";
+import { Printer, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
   Tooltip,
