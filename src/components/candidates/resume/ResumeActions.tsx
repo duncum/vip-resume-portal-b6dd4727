@@ -1,8 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Printer, Mail } from "lucide-react";
 import { useState } from "react";
-import { printResume } from "@/utils/printUtils";
+import { printResume } from "@/utils/print/printResume";
 import EmailResumeDialog from "../EmailResumeDialog";
 
 interface ResumeActionsProps {
