@@ -1,43 +1,53 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Card, 
+  CardContent, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
-const ContractAgreement = () => {
+interface ContractAgreementProps {
+  onAgreementComplete?: () => void;
+}
+
+const ContractAgreement = ({ onAgreementComplete }: ContractAgreementProps) => {
   const [name, setName] = useState("");
-  const [agreed, setAgreed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!name.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter your full name to proceed",
-        variant: "destructive",
-      });
+      toast.error("Please enter your name to proceed");
       return;
     }
-
-    // Save agreement in localStorage
+    
+    setIsSubmitting(true);
+    
+    // Save agreement to local storage
     localStorage.setItem("contract-agreed", "true");
-    localStorage.setItem("contract-name", name);
-    localStorage.setItem("contract-timestamp", new Date().toISOString());
+    localStorage.setItem("contract-agreed-name", name);
+    localStorage.setItem("contract-agreed-date", new Date().toISOString());
     
-    // Show success toast
-    toast({
-      title: "Agreement Accepted",
-      description: "Thank you for accepting the terms.",
-    });
-    
-    // Redirect to main portal
-    navigate("/candidates");
-    setAgreed(true);
+    // Delay for better UX
+    setTimeout(() => {
+      setIsSubmitting(false);
+      toast.success("Thank you for agreeing to our terms");
+      
+      // Call the callback if provided
+      if (onAgreementComplete) {
+        onAgreementComplete();
+      } else {
+        navigate("/candidates");
+      }
+    }, 1000);
   };
 
   return (
@@ -59,16 +69,16 @@ const ContractAgreement = () => {
               </p>
               
               <ol className="list-decimal pl-5 space-y-2">
-                <li>You will not share access credentials with any unauthorized individuals.</li>
-                <li>You will not distribute, copy, or reproduce any information found on this portal without explicit written permission.</li>
-                <li>You will maintain the confidentiality of all candidate information presented to you.</li>
-                <li>You acknowledge that all candidate information is provided for your exclusive consideration.</li>
-                <li>Any unauthorized use of this information may result in legal action.</li>
+                <li>All candidate information is provided for your confidential review only.</li>
+                <li>You will not share access to this portal or distribute any candidate information to unauthorized third parties.</li>
+                <li>You will use the information solely for legitimate recruitment and hiring purposes.</li>
+                <li>You agree to maintain the confidentiality of all candidate data shared through this platform.</li>
+                <li>You will not contact candidates directly without prior authorization from our team.</li>
+                <li>You acknowledge that unauthorized use of this information may result in termination of access privileges and potential legal action.</li>
               </ol>
               
-              <p className="font-medium mt-4">
-                Please type your full legal name below to indicate your agreement with these terms.
-                Your typed name will serve as your electronic signature.
+              <p className="font-medium">
+                This agreement is effective upon accessing the portal and remains in effect for all subsequent uses.
               </p>
             </div>
 
@@ -88,10 +98,11 @@ const ContractAgreement = () => {
             </div>
           </CardContent>
           
-          <CardFooter className="flex flex-col space-y-4 mt-4 border-t border-gold/10 pt-6">
+          <CardFooter className="flex flex-col space-y-4">
             <Button 
-              type="submit" 
-              className="w-full bg-gold hover:bg-gold-dark text-black font-medium"
+              type="submit"
+              className="w-full bg-gold hover:bg-gold-dark text-black font-semibold"
+              disabled={isSubmitting}
             >
               I Agree to These Terms
             </Button>
