@@ -41,18 +41,18 @@ const ContractAgreement = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-3xl border border-gold/20 bg-black/80 backdrop-blur-sm text-white">
         <CardHeader className="space-y-1 text-center border-b border-gold/10 pb-6 mb-4">
           <CardTitle className="text-3xl font-display font-bold text-gold">Confidentiality Agreement</CardTitle>
-          <p className="text-grey-400">
+          <p className="text-gray-400">
             Please read and accept the terms below to access the VIP Employer Portal.
           </p>
         </CardHeader>
         
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4 text-left">
-            <div className="text-grey-300 space-y-6 mb-6">
+            <div className="text-gray-300 space-y-6 mb-6">
               <p className="leading-relaxed">
                 The candidate profiles and resume information contained in this portal are strictly confidential 
                 and proprietary. By accessing this portal, you agree to the following terms:
@@ -73,7 +73,7 @@ const ContractAgreement = () => {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="fullName" className="text-sm font-medium text-grey-300">
+              <label htmlFor="fullName" className="text-sm font-medium text-gray-300">
                 Full Name <span className="text-gold">*</span>
               </label>
               <Input
@@ -82,7 +82,7 @@ const ContractAgreement = () => {
                 placeholder="Enter your full legal name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="bg-black/50 border-gold/30 text-white placeholder:text-grey-500 focus-visible:ring-gold"
+                className="bg-black/50 border-gold/30 text-white placeholder:text-gray-500 focus-visible:ring-gold"
                 required
               />
             </div>
@@ -95,7 +95,7 @@ const ContractAgreement = () => {
             >
               I Agree to These Terms
             </Button>
-            <p className="text-xs text-grey-500 text-center">
+            <p className="text-xs text-gray-500 text-center">
               By clicking "I Agree", you confirm that you have read, understood, and agree to the
               terms outlined above.
             </p>
