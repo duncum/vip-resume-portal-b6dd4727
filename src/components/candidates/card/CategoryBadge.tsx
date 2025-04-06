@@ -41,7 +41,7 @@ const CategoryBadge = ({ category, title }: CategoryBadgeProps) => {
       </div>
       
       {title && (
-        <span className="text-grey-400 text-xs">
+        <span className="text-white text-sm font-medium hover:text-white transition-colors">
           {title}
         </span>
       )}
