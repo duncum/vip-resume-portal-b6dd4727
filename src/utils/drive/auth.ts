@@ -1,10 +1,9 @@
 
-import { toast } from 'sonner';
+// Helper functions for managing Google authentication for Drive API
 import { signInToGoogle } from '../google';
 
 /**
- * Ensure API is initialized before accessing Google Drive
- * This version doesn't require user sign-in as authentication is handled by Memberspace
+ * Ensure API is initialized for accessing Google Drive
  */
 export const ensureAuthorization = async (): Promise<boolean> => {
   try {
@@ -12,7 +11,6 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     return await signInToGoogle();
   } catch (error) {
     console.error('Drive authorization error:', error);
-    toast.error('Not connected to Google API. Please enter your credentials first.');
     return false;
   }
 };
