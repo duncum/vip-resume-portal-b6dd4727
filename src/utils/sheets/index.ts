@@ -9,3 +9,5 @@ export { mockCandidates } from './mock-data';
 export { ensureAuthorization } from './auth-helper';
 export { rowToCandidate } from './data-mapper';
 export { fetchCandidates, fetchCandidateById, addCandidate } from './api';
+export { findRowByValue, updateCells, appendValues } from './operations';
+

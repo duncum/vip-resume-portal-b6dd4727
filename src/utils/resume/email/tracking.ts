@@ -1,5 +1,6 @@
 
 import { trackDownload } from "@/utils/ipTracker";
+import { findRowByValue, updateCells, SPREADSHEET_ID } from "@/utils/sheets";
 
 /**
  * Record resume share activity in the Candidates sheet
@@ -21,29 +22,20 @@ export const recordResumeShareToCandidatesSheet = async (
     // Get spreadsheet ID from local storage or config
     const spreadsheetId = 
       localStorage.getItem('google_spreadsheet_id') || 
-      import('@/utils/sheets').then(module => module.SPREADSHEET_ID);
+      SPREADSHEET_ID;
     
     if (!spreadsheetId) {
       console.warn("No spreadsheet ID available, skipping share tracking");
       return false;
     }
     
-    // First, get the candidate row by searching for the ID in the Candidates sheet
-    const response = await window.gapi.client.sheets.spreadsheets.values.get({
+    // Find the candidate row by ID
+    const rowIndex = await findRowByValue(
       spreadsheetId,
-      range: "Candidates!A:A", // Search in first column where IDs are stored
-    });
-    
-    const values = response.result.values || [];
-    let rowIndex = -1;
-    
-    // Find the row with the matching candidate ID
-    for (let i = 0; i < values.length; i++) {
-      if (values[i][0] === candidateId) {
-        rowIndex = i + 1; // Sheets rows are 1-indexed
-        break;
-      }
-    }
+      "Candidates",
+      "A:A", // Search in first column where IDs are stored
+      candidateId
+    );
     
     if (rowIndex === -1) {
       console.warn(`Candidate with ID ${candidateId} not found in sheet`);
@@ -56,19 +48,17 @@ export const recordResumeShareToCandidatesSheet = async (
     const timestamp = new Date().toISOString();
     
     // Update the candidate row with email tracking information
-    // Using the append method which is available in the API
-    await window.gapi.client.sheets.spreadsheets.values.append({
+    const success = await updateCells(
       spreadsheetId,
-      range: `Candidates!P${rowIndex}:Q${rowIndex}`,
-      valueInputOption: "USER_ENTERED",
-      insertDataOption: "OVERWRITE",
-      resource: {
-        values: [[recipientEmail, timestamp]]
-      }
-    });
+      `Candidates!P${rowIndex}:Q${rowIndex}`,
+      [[recipientEmail, timestamp]]
+    );
     
-    console.log(`Resume share recorded for candidate ${candidateId}`);
-    return true;
+    if (success) {
+      console.log(`Resume share recorded for candidate ${candidateId}`);
+    }
+    
+    return success;
   } catch (error) {
     console.error("Error recording resume share in Google Sheets:", error);
     // Don't throw here - this is a non-critical operation
