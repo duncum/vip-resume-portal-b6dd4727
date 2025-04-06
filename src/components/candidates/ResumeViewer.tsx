@@ -56,23 +56,21 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
   };
 
   const handlePrint = () => {
-    toast.info("Preparing watermarked PDF for printing...");
+    toast.info("Preparing document for printing...");
     
     // Focus the iframe first
     const iframe = document.querySelector('iframe');
     if (iframe) {
       iframe.focus();
-      // Print the iframe content which includes the watermark
+      // Print the iframe content
       iframe.contentWindow?.print();
       
-      toast.success("Print dialog opened", {
-        description: "The watermarked PDF is ready to print",
-      });
+      toast.success("Print dialog opened");
     } else {
       // Fallback to window print if iframe not found
       window.print();
       toast.error("Could not focus on document", {
-        description: "Using fallback print method, watermarks may not be preserved",
+        description: "Using fallback print method",
       });
     }
   };
@@ -94,14 +92,14 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <h3 className="text-lg font-medium text-grey-700">Unable to display resume</h3>
-              <p className="mt-2 text-grey-500">The resume might be unavailable or in an unsupported format. Please try printing this page to maintain confidentiality.</p>
+              <p className="mt-2 text-grey-500">The resume might be unavailable or in an unsupported format. Please try printing this page.</p>
               <div className="flex flex-col sm:flex-row gap-3 mt-4">
                 <Button 
                   onClick={handlePrint}
                   className="bg-gold text-black hover:bg-gold/90"
                 >
                   <Printer className="mr-2 h-4 w-4" />
-                  Print with Watermark
+                  Print
                 </Button>
               </div>
             </div>
@@ -154,20 +152,14 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
                       className="bg-gold text-black hover:bg-gold/90"
                     >
                       <Printer className="mr-2 h-4 w-4" />
-                      Print with Watermark
+                      Print
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Print with watermarks preserved in a flattened PDF</p>
+                    <p>Print the document</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            </div>
-
-            {/* Watermark notice */}
-            <div className="absolute top-2 left-2 z-20 bg-black/70 text-white px-3 py-1 rounded-md text-xs flex items-center">
-              <AlertCircle size={12} className="mr-1" />
-              Confidential - All printed/saved content preserves watermarks
             </div>
           </div>
         )}
