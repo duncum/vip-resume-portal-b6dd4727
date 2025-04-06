@@ -56,44 +56,24 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
   };
 
   const handlePrint = () => {
+    toast.info("Preparing watermarked PDF for printing...");
+    
     // Focus the iframe first
     const iframe = document.querySelector('iframe');
     if (iframe) {
       iframe.focus();
       // Print the iframe content which includes the watermark
       iframe.contentWindow?.print();
+      
+      toast.success("Print dialog opened", {
+        description: "The watermarked PDF is ready to print",
+      });
     } else {
       // Fallback to window print if iframe not found
       window.print();
-    }
-  };
-  
-  // Function to take a screenshot of the resume with watermark
-  const captureAndDownload = async () => {
-    try {
-      const iframe = document.querySelector('iframe');
-      if (!iframe) {
-        toast.error("Could not capture resume content");
-        return;
-      }
-      
-      // Get the resume container that includes watermarks
-      const resumeContainer = document.querySelector('.resume-container');
-      if (!resumeContainer) {
-        toast.error("Could not find resume container");
-        return;
-      }
-      
-      toast.info("Preparing watermarked PDF for download...");
-      
-      // For now, direct to print as the most reliable way to preserve watermarks
-      handlePrint();
-      toast("Print dialog opened", {
-        description: "Use the print to PDF option to save with watermarks",
+      toast.error("Could not focus on document", {
+        description: "Using fallback print method, watermarks may not be preserved",
       });
-    } catch (error) {
-      console.error("Error capturing resume:", error);
-      toast.error("Failed to capture resume with watermark");
     }
   };
 
@@ -164,7 +144,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
               allowFullScreen
             />
             
-            {/* Print/Download Options */}
+            {/* Print Options */}
             <div className="absolute bottom-4 right-4 flex gap-2 z-20">
               <TooltipProvider>
                 <Tooltip>
@@ -178,7 +158,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Save as PDF or print with watermarks preserved</p>
+                    <p>Print with watermarks preserved in a flattened PDF</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
