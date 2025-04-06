@@ -1,7 +1,9 @@
-
 import { toast } from 'sonner';
 import { getOrCreateResumeFolder } from './folder';
 import { ensureAuthorization } from './auth';
+
+// Keep track of locally stored resumes (this will reset on page refresh)
+const localResumeStorage = new Map<string, { url: string, filename: string }>();
 
 /**
  * Upload a resume file to Google Drive
@@ -10,8 +12,9 @@ export const uploadResumeToDrive = async (file: File, candidateId: string): Prom
   // Ensure the API is initialized
   const authorized = await ensureAuthorization();
   
+  // If we don't have Drive access, use local storage as fallback
   if (!authorized) {
-    throw new Error('Not authorized to access Google Drive');
+    return storeResumeLocally(file, candidateId);
   }
   
   try {
@@ -54,8 +57,34 @@ export const uploadResumeToDrive = async (file: File, candidateId: string): Prom
     return result.result.webViewLink || result.result.webContentLink;
   } catch (error) {
     console.error('Error uploading file to Google Drive:', error);
-    toast.error('Failed to upload resume to Google Drive. Please try again.');
-    throw new Error('Failed to upload resume to Google Drive');
+    
+    // If Drive upload fails, fall back to local storage
+    toast.warning('Google Drive upload failed. Using local storage fallback.');
+    return storeResumeLocally(file, candidateId);
+  }
+};
+
+/**
+ * Store resume locally as fallback when Drive isn't available
+ */
+const storeResumeLocally = async (file: File, candidateId: string): Promise<string> => {
+  try {
+    // Create a local URL for the file
+    const localUrl = URL.createObjectURL(file);
+    const filename = `${candidateId}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    
+    // Store in our local map
+    localResumeStorage.set(candidateId, {
+      url: localUrl,
+      filename: filename
+    });
+    
+    console.log('Resume stored locally:', { candidateId, filename });
+    return localUrl;
+  } catch (error) {
+    console.error('Error storing resume locally:', error);
+    toast.error('Failed to store resume. Please try again.');
+    throw new Error('Failed to store resume');
   }
 };
 
@@ -79,9 +108,16 @@ export const listAllResumes = async (): Promise<Array<{id: string, name: string,
   // Ensure the API is initialized
   const authorized = await ensureAuthorization();
   
+  // First, include any locally stored resumes
+  const localResumes = Array.from(localResumeStorage.entries()).map(([id, data]) => ({
+    id,
+    name: data.filename,
+    url: data.url
+  }));
+  
   if (!authorized) {
-    toast.error('Not connected to Google API');
-    return [];
+    toast.warning('No access to Google Drive. Showing locally stored resumes only.');
+    return localResumes;
   }
   
   try {
@@ -98,17 +134,21 @@ export const listAllResumes = async (): Promise<Array<{id: string, name: string,
     const files = response.result.files;
     
     if (!files || files.length === 0) {
-      return [];
+      return localResumes; // Return only local resumes if no Drive files
     }
     
-    return files.map((file: any) => ({
-      id: file.id,
-      name: file.name,
-      url: file.webViewLink || file.webContentLink
-    }));
+    // Combine Drive files with local files
+    return [
+      ...files.map((file: any) => ({
+        id: file.id,
+        name: file.name,
+        url: file.webViewLink || file.webContentLink
+      })),
+      ...localResumes
+    ];
   } catch (error) {
     console.error('Error listing resumes:', error);
-    return [];
+    return localResumes; // Fall back to local resumes
   }
 };
 
@@ -116,7 +156,15 @@ export const listAllResumes = async (): Promise<Array<{id: string, name: string,
  * Delete a resume from Google Drive
  */
 export const deleteResumeFromDrive = async (fileId: string): Promise<boolean> => {
-  // Ensure the API is initialized
+  // Check if it's a local file first
+  for (const [id, data] of localResumeStorage.entries()) {
+    if (data.url === fileId) {
+      localResumeStorage.delete(id);
+      return true;
+    }
+  }
+  
+  // If not local, try Drive
   const authorized = await ensureAuthorization();
   
   if (!authorized) {

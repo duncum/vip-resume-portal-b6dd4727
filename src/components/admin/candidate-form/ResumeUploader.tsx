@@ -1,10 +1,10 @@
 
 import React, { useState, useRef } from "react";
-import { Upload, FileText } from "lucide-react";
+import { Upload, FileText, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { uploadResumeToDrive } from "@/utils/drive"; // Updated import path
+import { uploadResumeToDrive } from "@/utils/drive";
 import { Button } from "@/components/ui/button";
 
 interface ResumeUploaderProps {
@@ -109,50 +109,23 @@ const ResumeUploader = ({
               onChange={(e) => onCandidateIdChange?.(e.target.value)}
               placeholder="Enter candidate ID"
               className="font-mono text-sm"
+              required
             />
           )}
         </div>
       </div>
       
       <div 
-        className="border-2 border-dashed border-grey-300 rounded-md p-6 flex flex-col items-center justify-center"
+        className={`border-2 border-dashed ${uploadedUrl ? 'border-green-300 bg-green-50' : 'border-grey-300'} rounded-md p-6 flex flex-col items-center justify-center`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
-        onClick={triggerFileInput}
+        onClick={uploadedUrl ? undefined : triggerFileInput}
       >
-        <Upload className="h-10 w-10 text-grey-400 mb-2" />
-        <p className="text-sm text-grey-600 mb-1">
-          {selectedFile 
-            ? `Selected: ${selectedFile.name}` 
-            : "Drag and drop or click to upload PDF resume"}
-        </p>
-        <p className="text-xs text-grey-500 mb-4">
-          Max file size: 10MB
-        </p>
-        <Input 
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-        
-        {selectedFile && !uploadedUrl && (
-          <Button 
-            type="button" 
-            onClick={(e) => {
-              e.stopPropagation();
-              handleUpload();
-            }}
-            disabled={isUploading}
-            className="mt-2"
-          >
-            {isUploading ? "Uploading..." : "Upload Resume"}
-          </Button>
-        )}
-        
-        {uploadedUrl && (
-          <div className="mt-2 text-center">
+        {uploadedUrl ? (
+          <div className="text-center">
+            <div className="flex items-center justify-center mb-2">
+              <Check className="h-10 w-10 text-green-500" />
+            </div>
             <p className="text-sm text-green-600 mb-1">Resume uploaded successfully!</p>
             <a 
               href={uploadedUrl} 
@@ -164,6 +137,39 @@ const ResumeUploader = ({
               View uploaded resume
             </a>
           </div>
+        ) : (
+          <>
+            <Upload className="h-10 w-10 text-grey-400 mb-2" />
+            <p className="text-sm text-grey-600 mb-1">
+              {selectedFile 
+                ? `Selected: ${selectedFile.name}` 
+                : "Drag and drop or click to upload PDF resume"}
+            </p>
+            <p className="text-xs text-grey-500 mb-4">
+              Max file size: 10MB
+            </p>
+            <Input 
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            
+            {selectedFile && !uploadedUrl && (
+              <Button 
+                type="button" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUpload();
+                }}
+                disabled={isUploading}
+                className="mt-2"
+              >
+                {isUploading ? "Uploading..." : "Upload Resume"}
+              </Button>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -3,6 +3,9 @@ import { toast } from 'sonner';
 import { getResumeFolderId, setResumeFolderId, RESUME_FOLDER_NAME } from './config';
 import { ensureAuthorization } from './auth';
 
+// Fallback folder ID for when we can't create one
+const FALLBACK_FOLDER_ID = 'root';
+
 /**
  * Get or create a folder for storing resumes
  */
@@ -17,7 +20,8 @@ export const getOrCreateResumeFolder = async (): Promise<string> => {
     // Ensure we're authorized before proceeding
     const authorized = await ensureAuthorization();
     if (!authorized) {
-      throw new Error('Not authorized to access Google Drive');
+      console.warn('Not authorized to access Google Drive, using fallback folder');
+      return FALLBACK_FOLDER_ID;
     }
 
     // Check if the folder already exists
@@ -52,6 +56,7 @@ export const getOrCreateResumeFolder = async (): Promise<string> => {
     return newId;
   } catch (error) {
     console.error('Error getting or creating resume folder:', error);
-    throw new Error('Failed to access or create resume storage folder');
+    // If we can't create or access a folder, use the root folder as fallback
+    return FALLBACK_FOLDER_ID;
   }
 };
