@@ -15,6 +15,7 @@ export interface Candidate {
   summary?: string;
   location?: string;
   relocationPreference?: string;
+  notableEmployers?: string;
 }
 
 /**
