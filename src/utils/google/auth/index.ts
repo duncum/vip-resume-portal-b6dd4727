@@ -9,4 +9,3 @@ export {
   signInToGoogle, 
   signOutFromGoogle
 } from './core';
-

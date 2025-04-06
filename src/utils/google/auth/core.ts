@@ -106,7 +106,8 @@ const initializeClient = async (): Promise<boolean> => {
         // Use setTimeout to prevent long synchronous operations
         setTimeout(async () => {
           try {
-            await window.gapi.client.init(initConfig);
+            // Need to assert type to handle the optional properties
+            await window.gapi.client.init(initConfig as any);
             
             // Simple check to see if API is initialized
             if (!window.gapi.client) {
@@ -189,4 +190,3 @@ export const signOutFromGoogle = async (): Promise<void> => {
 
 // Export initialization state for external modules
 export { isGapiInitialized };
-

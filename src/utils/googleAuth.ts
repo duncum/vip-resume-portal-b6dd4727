@@ -4,7 +4,6 @@
 
 import { toast } from "sonner";
 import * as GoogleAuth from './google';
-import { isGapiInitialized } from './google/auth/core';
 
 // Re-export everything for backward compatibility
 export const {
@@ -23,10 +22,10 @@ export const {
 
 // Re-export for backward compatibility - these were internal in the original file
 export const isGapiLoaded = GoogleAuth.isApiLoaded;
-export const isGapiInitialized = isGapiInitialized;
+// Export the isGapiInitialized from the GoogleAuth module, not from direct import
+export const isGapiInitialized = GoogleAuth.isUserAuthorized;
 export const isAuthorized = false; // This was internal state
 
 // Import and export the printOAuthSetupInstructions for backward compatibility
 import { printOAuthSetupInstructions } from './google/config';
 export { printOAuthSetupInstructions };
-

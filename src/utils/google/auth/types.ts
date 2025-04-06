@@ -18,4 +18,3 @@ export interface InitResult {
   success: boolean;
   error?: string;
 }
-
