@@ -2,8 +2,7 @@
 import React from "react";
 import { SkillsProps } from "./types";
 import { highLevelSkills } from "./form-data";
-import CheckboxList from "./CheckboxList";
-import CustomItems from "./CustomItems";
+import SelectionSection from "./SelectionSection";
 
 const SkillsSection = ({
   selectedSkills,
@@ -14,23 +13,17 @@ const SkillsSection = ({
   onRemoveCustomSkill
 }: SkillsProps) => {
   return (
-    <>
-      <p className="text-xs text-grey-600 mb-2">Select relevant skills:</p>
-      <CheckboxList 
-        items={highLevelSkills}
-        selectedItems={selectedSkills}
-        onChange={onSkillChange}
-        columns={3}
-      />
-      
-      <CustomItems
-        items={customSkills}
-        onAdd={onAddCustomSkill}
-        onChange={onCustomSkillChange}
-        onRemove={onRemoveCustomSkill}
-        placeholder="Enter custom skill"
-      />
-    </>
+    <SelectionSection
+      title="Select relevant skills:"
+      items={highLevelSkills}
+      selectedItems={selectedSkills}
+      onItemChange={onSkillChange}
+      customItems={customSkills}
+      onAddCustomItem={onAddCustomSkill}
+      onCustomItemChange={onCustomSkillChange}
+      onRemoveCustomItem={onRemoveCustomSkill}
+      placeholder="Enter custom skill"
+    />
   );
 };
 

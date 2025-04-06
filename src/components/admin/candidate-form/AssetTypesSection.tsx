@@ -2,8 +2,7 @@
 import React from "react";
 import { AssetTypesProps } from "./types";
 import { assetTypes } from "./form-data";
-import CheckboxList from "./CheckboxList";
-import CustomItems from "./CustomItems";
+import SelectionSection from "./SelectionSection";
 
 const AssetTypesSection = ({
   selectedAssetTypes,
@@ -14,23 +13,17 @@ const AssetTypesSection = ({
   onRemoveCustomAssetType
 }: AssetTypesProps) => {
   return (
-    <>
-      <p className="text-xs text-grey-600 mb-2">Select relevant asset types:</p>
-      <CheckboxList 
-        items={assetTypes}
-        selectedItems={selectedAssetTypes}
-        onChange={onAssetTypeChange}
-        columns={3}
-      />
-      
-      <CustomItems
-        items={customAssetTypes}
-        onAdd={onAddCustomAssetType}
-        onChange={onCustomAssetTypeChange}
-        onRemove={onRemoveCustomAssetType}
-        placeholder="Enter custom asset type"
-      />
-    </>
+    <SelectionSection
+      title="Select relevant asset types:"
+      items={assetTypes}
+      selectedItems={selectedAssetTypes}
+      onItemChange={onAssetTypeChange}
+      customItems={customAssetTypes}
+      onAddCustomItem={onAddCustomAssetType}
+      onCustomItemChange={onCustomAssetTypeChange}
+      onRemoveCustomItem={onRemoveCustomAssetType}
+      placeholder="Enter custom asset type"
+    />
   );
 };
 

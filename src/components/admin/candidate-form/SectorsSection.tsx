@@ -2,8 +2,7 @@
 import React from "react";
 import { SectorsProps } from "./types";
 import { sectorExperience } from "./form-data";
-import CheckboxList from "./CheckboxList";
-import CustomItems from "./CustomItems";
+import SelectionSection from "./SelectionSection";
 
 const SectorsSection = ({
   selectedSectors,
@@ -14,23 +13,17 @@ const SectorsSection = ({
   onRemoveCustomSector
 }: SectorsProps) => {
   return (
-    <>
-      <p className="text-xs text-grey-600 mb-2">Select relevant sectors:</p>
-      <CheckboxList 
-        items={sectorExperience}
-        selectedItems={selectedSectors}
-        onChange={onSectorChange}
-        columns={3}
-      />
-      
-      <CustomItems
-        items={customSectors}
-        onAdd={onAddCustomSector}
-        onChange={onCustomSectorChange}
-        onRemove={onRemoveCustomSector}
-        placeholder="Enter custom sector"
-      />
-    </>
+    <SelectionSection
+      title="Select relevant sectors:"
+      items={sectorExperience}
+      selectedItems={selectedSectors}
+      onItemChange={onSectorChange}
+      customItems={customSectors}
+      onAddCustomItem={onAddCustomSector}
+      onCustomItemChange={onCustomSectorChange}
+      onRemoveCustomItem={onRemoveCustomSector}
+      placeholder="Enter custom sector"
+    />
   );
 };
 
