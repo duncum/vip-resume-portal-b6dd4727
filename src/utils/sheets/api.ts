@@ -1,4 +1,3 @@
-
 // Core API functions for interacting with Google Sheets
 import { toast } from "sonner";
 import { Candidate } from './types';
@@ -110,8 +109,20 @@ export const addCandidate = async (candidateData: any): Promise<boolean> => {
   
   if (!isAuthorized) {
     console.log("Not authorized, mock candidate addition:", candidateData);
-    // Simulate API call delay
+    
+    // If we don't have Client ID set, show an informative message
+    if (!localStorage.getItem('google_client_id') || localStorage.getItem('google_client_id') === '') {
+      toast.error("OAuth access required to save to Google Sheets. Please add a Client ID in Google Integration settings.", {
+        duration: 8000
+      });
+      return false;
+    }
+    
+    // Otherwise simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 500));
+    toast.warning("Using local storage for candidate data due to limited Google access.", {
+      duration: 4000
+    });
     return true;
   }
   
@@ -146,9 +157,18 @@ export const addCandidate = async (candidateData: any): Promise<boolean> => {
     
     console.log("Data successfully appended to Google Sheet");
     return true;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error adding candidate to Google Sheets:", error);
-    toast.error("Failed to add candidate to Google Sheets");
+    
+    // Check if it's an authentication issue
+    if (error.result?.error?.code === 401) {
+      toast.error("OAuth authentication required for adding candidates. Please check your Google settings.", {
+        duration: 6000
+      });
+    } else {
+      toast.error("Failed to add candidate to Google Sheets: " + (error.result?.error?.message || "Unknown error"));
+    }
+    
     return false;
   }
 };

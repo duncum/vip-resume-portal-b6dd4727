@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CheckCircle, XCircle, RefreshCw, Info, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -81,12 +80,23 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   }
   
   if (isAuthorized) {
+    const isOAuthMode = localStorage.getItem('google_client_id') && localStorage.getItem('google_client_id') !== '';
+    
     return (
       <div className="flex items-center text-sm">
         <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
         <div>
           <div className="font-medium">Connected</div>
-          <div className="text-xs text-grey-500">Using service account (no login required)</div>
+          <div className="text-xs text-grey-500">
+            {isOAuthMode 
+              ? (userEmail ? `Signed in as ${userEmail}` : "Using OAuth authentication") 
+              : "Using API key only (limited access)"}
+          </div>
+          {!isOAuthMode && (
+            <div className="text-xs text-amber-500 mt-1">
+              Note: Client ID needed for full access
+            </div>
+          )}
         </div>
       </div>
     );

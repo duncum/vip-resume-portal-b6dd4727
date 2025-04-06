@@ -30,9 +30,19 @@ export const ensureAuthorization = async (): Promise<boolean> => {
         return true;
       } catch (error: any) {
         // If we get a permission error, we don't have drive access
-        if (error.result?.error?.code === 403) {
+        if (error.result?.error?.code === 403 || error.result?.error?.code === 401) {
           console.warn('Drive API access is not available with current authentication');
-          toast.warning('Google Drive access is limited. Resume storage will use local fallback.');
+          
+          // Check if we're in API key only mode
+          if (!localStorage.getItem('google_client_id') || localStorage.getItem('google_client_id') === '') {
+            toast.error('OAuth authentication required for Drive access. Please add a Client ID in settings.', {
+              duration: 5000
+            });
+          } else {
+            toast.warning('Google Drive access is limited. Resume storage will use local fallback.', {
+              duration: 5000
+            });
+          }
           return false;
         }
         
