@@ -26,8 +26,8 @@ const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
         </div>
       )}
       
-      {/* Category badge */}
-      <div className="mt-4 mb-3">
+      {/* Category badge - increased top margin to prevent overlap with gold line */}
+      <div className="mt-6 mb-3">
         <CategoryBadge category={candidate.category} title={candidate.title} />
       </div>
       
