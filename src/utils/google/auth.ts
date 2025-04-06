@@ -1,3 +1,4 @@
+
 // Handles Google API authentication
 
 import { toast } from "sonner";
@@ -39,11 +40,13 @@ export const initGoogleApi = async (): Promise<boolean> => {
     return new Promise((resolve) => {
       window.gapi.load('client', async () => {
         try {
-          console.log("Initializing client with API_KEY...");
+          console.log("Initializing client with API_KEY and CLIENT_ID...");
           
           await window.gapi.client.init({
             apiKey: API_KEY,
+            clientId: CLIENT_ID,
             discoveryDocs: DISCOVERY_DOCS,
+            scope: SCOPES
           });
           
           // Simple check to see if API is initialized
