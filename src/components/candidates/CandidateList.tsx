@@ -2,14 +2,7 @@
 import CandidateCard from "@/components/candidates/CandidateCard";
 import PaginatedResults from "@/components/candidates/PaginatedResults";
 import { Skeleton } from "@/components/ui/skeleton";
-
-interface Candidate {
-  id: string;
-  headline: string;
-  sectors: string[];
-  tags: string[];
-  category?: string;
-}
+import { Candidate } from "@/utils/sheets/types";
 
 interface CandidateListProps {
   candidates: Candidate[];
@@ -54,6 +47,11 @@ const CandidateList = ({
               sectors={candidate.sectors}
               tags={candidate.tags}
               category={candidate.category}
+              title={candidate.title}
+              summary={candidate.summary}
+              location={candidate.location}
+              relocationPreference={candidate.relocationPreference}
+              resumeUrl={candidate.resumeUrl}
             />
           ))}
         </div>

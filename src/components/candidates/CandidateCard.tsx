@@ -2,9 +2,10 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, FileText } from "lucide-react";
+import { Star, MapPin, FileText, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface CandidateCardProps {
   id: string;
@@ -33,6 +34,7 @@ const CandidateCard = ({
 }: CandidateCardProps) => {
   const isOneManArmy = category === "One Man Army";
   const isMobile = useIsMobile();
+  const [showFullSummary, setShowFullSummary] = useState(false);
 
   // Category to color mapping - updated to be more cohesive with site theme
   const categoryColors = {
@@ -49,6 +51,11 @@ const CandidateCard = ({
     "remote-only": { color: "bg-grey-800 text-white/80 border-grey-700", text: "Remote Only" },
     "flexible": { color: "bg-grey-800 text-gold/70 border-gold/20", text: "Flexible" }
   };
+
+  // Truncate summary to 100 characters for preview
+  const truncatedSummary = summary && summary.length > 100 
+    ? `${summary.substring(0, 100)}...` 
+    : summary;
 
   return (
     <Card className="h-full card-hover border border-gold/20 bg-gradient-to-b from-grey-900/90 to-grey-800/70 backdrop-blur-sm relative min-h-[280px] md:min-h-[320px] overflow-hidden transition-all duration-300 hover:shadow-[0_10px_40px_-15px_rgba(171,135,85,0.3)]">
@@ -89,17 +96,10 @@ const CandidateCard = ({
       </CardHeader>
       
       <CardContent className="pb-0">
-        {summary && (
-          <div className="mb-3 bg-grey-800/40 p-2 rounded-md border border-grey-700/40">
-            <p className="text-grey-300 text-sm line-clamp-2">
-              {summary}
-            </p>
-          </div>
-        )}
-        
+        {/* Location and Relocation Preference */}
         {location && (
           <div className="flex items-center text-grey-400 text-xs mb-3">
-            <MapPin size={14} className="mr-1" />
+            <MapPin size={14} className="mr-1 text-gold/70" />
             <span>{location}</span>
             
             {relocationPreference && (
@@ -109,6 +109,28 @@ const CandidateCard = ({
                 {relocationBadge[relocationPreference as keyof typeof relocationBadge]?.text || relocationPreference}
               </Badge>
             )}
+          </div>
+        )}
+        
+        {/* Summary with Read More option */}
+        {summary && (
+          <div className="mb-3 bg-grey-800/40 p-2 rounded-md border border-grey-700/40">
+            <p className="text-grey-300 text-sm">
+              {showFullSummary ? summary : truncatedSummary}
+              {summary.length > 100 && (
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowFullSummary(!showFullSummary);
+                  }}
+                  className="inline-flex items-center ml-1 text-gold hover:underline text-xs"
+                >
+                  {showFullSummary ? "Show less" : "Read more"}
+                  <ChevronRight size={12} className={`ml-0.5 transition-transform ${showFullSummary ? "rotate-90" : ""}`} />
+                </button>
+              )}
+            </p>
           </div>
         )}
         
@@ -128,7 +150,12 @@ const CandidateCard = ({
         {resumeUrl && (
           <div className="mb-3">
             <a 
-              href={`/candidate/${id}`} 
+              href={resumeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
               className="inline-flex items-center text-xs px-3 py-1.5 rounded bg-gold/10 hover:bg-gold/20 text-gold border border-gold/20 transition-colors"
             >
               <FileText size={14} className="mr-1.5" />
