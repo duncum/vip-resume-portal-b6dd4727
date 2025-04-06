@@ -11,14 +11,28 @@ interface CandidateResumeProps {
 }
 
 const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
-  // Handle printing by creating a new window with the content and watermark
+  // Handle printing by directly opening the document in a new tab optimized for printing
   const handlePrint = () => {
     // Track the print action
     trackDownload(candidateId);
     toast.info("Preparing document for printing...");
     
     try {
-      // Create a new window with embedded content
+      // Extract file details
+      const isGoogleDriveUrl = resumeUrl.includes('drive.google.com');
+      let fileId = '';
+      let printUrl = resumeUrl;
+      
+      if (isGoogleDriveUrl) {
+        const fileIdMatch = resumeUrl.match(/\/d\/([^\/]+)/);
+        if (fileIdMatch && fileIdMatch[1]) {
+          fileId = fileIdMatch[1];
+          // For Google Drive, use the direct export link which works better for printing
+          printUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        }
+      }
+      
+      // Create a new window with the optimized printing approach
       const printWindow = window.open('', '_blank');
       
       if (!printWindow) {
@@ -26,25 +40,23 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
         return;
       }
       
-      // Get file extension to determine if we need special handling
-      const isGoogleDriveUrl = resumeUrl.includes('drive.google.com');
-      let fileId = '';
-      
-      if (isGoogleDriveUrl) {
-        const fileIdMatch = resumeUrl.match(/\/d\/([^\/]+)/);
-        if (fileIdMatch && fileIdMatch[1]) {
-          fileId = fileIdMatch[1];
-        }
-      }
-      
-      // Add necessary content to the window
+      // Write HTML that's optimized for printing
       printWindow.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
           <title>Resume Print</title>
           <style>
-            body { margin: 0; padding: 0; }
+            @page {
+              size: auto;
+              margin: 0mm;
+            }
+            body {
+              margin: 0;
+              padding: 0;
+              height: 100vh;
+              overflow: auto;
+            }
             
             /* Watermark styles */
             .watermark-container {
@@ -55,6 +67,7 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
               height: 100%;
               z-index: 1000;
               pointer-events: none;
+              opacity: 0.3;
             }
             .watermark-grid {
               display: flex;
@@ -65,26 +78,25 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
             }
             .watermark {
               transform: rotate(-45deg);
-              opacity: 0.3;
               margin: 50px;
               width: 200px;
             }
-            iframe {
+            
+            /* PDF container */
+            .pdf-container {
               width: 100%;
               height: 100vh;
-              border: none;
-              display: block;
+              overflow: auto;
+              display: flex;
+              flex-direction: column;
             }
-            /* Hide Google Drive UI elements */
-            .iframe-container::after {
-              content: '';
-              position: absolute;
-              top: 0;
-              right: 0;
-              width: 60px;
-              height: 60px;
-              background: white;
-              z-index: 100;
+            
+            /* When direct embedding, use iframe for Google and object for others */
+            iframe, object {
+              width: 100%;
+              height: 100%;
+              border: none;
+              flex: 1;
             }
             
             @media print {
@@ -92,13 +104,27 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
                 position: fixed;
                 display: block !important;
                 z-index: 9999;
+                opacity: 0.4 !important;
               }
-              .watermark { opacity: 0.4 !important; }
               
               /* Force background printing */
               html, body { 
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                height: auto !important;
+                overflow: visible !important;
+              }
+              
+              .pdf-container {
+                height: auto !important;
+                overflow: visible !important;
+              }
+              
+              /* Make sure content doesn't get cut off */
+              iframe, object {
+                height: auto !important;
+                min-height: 100vh;
+                page-break-inside: avoid !important;
               }
             }
           </style>
@@ -114,20 +140,25 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
             </div>
           </div>
           
-          <!-- Direct link to PDF with all download options removed -->
-          <div class="iframe-container" style="position:relative;">
+          <div class="pdf-container">
             ${isGoogleDriveUrl ? 
-              `<iframe src="https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true&nodownload=true"></iframe>` : 
-              `<iframe src="${resumeUrl}"></iframe>`
+              `<object data="${printUrl}" type="application/pdf" width="100%" height="100%">
+                <iframe src="https://drive.google.com/file/d/${fileId}/preview?usp=sharing" width="100%" height="100%"></iframe>
+               </object>` : 
+              `<object data="${printUrl}" type="application/pdf" width="100%" height="100%">
+                <p>It appears you don't have a PDF plugin for this browser. 
+                You can <a href="${printUrl}">click here to download the PDF file.</a></p>
+               </object>`
             }
           </div>
           
           <script>
             // Auto-print when loaded
             window.onload = function() {
+              // Wait a bit to ensure document is fully loaded
               setTimeout(function() {
                 window.print();
-              }, 1500);
+              }, 2000);
             };
           </script>
         </body>
