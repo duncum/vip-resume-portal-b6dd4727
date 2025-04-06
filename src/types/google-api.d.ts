@@ -29,6 +29,12 @@ interface GoogleApiClient {
     scope: string;
   }) => Promise<void>;
   load: (api: string, version: string) => Promise<void>;
+  request: (options: {
+    path: string;
+    method: string;
+    params?: Record<string, any>;
+    body?: any;
+  }) => Promise<any>;
   sheets: {
     spreadsheets: {
       values: {
