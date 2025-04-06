@@ -1,205 +1,39 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { initGoogleApi, isUserAuthorized } from '@/utils/google';
-import { CLIENT_ID, API_KEY } from '@/utils/google';
-import { SPREADSHEET_ID } from '@/utils/sheets';
-import { toast } from 'sonner';
+import { useEffect } from 'react';
+import { useGoogleCredentials } from '@/hooks/google/useGoogleCredentials';
+import { useGoogleConnection } from '@/hooks/google/useGoogleConnection';
 
 export const useGoogleIntegration = () => {
-  const [status, setStatus] = useState({
-    isInitialized: false,
-    isAuthorized: false,
-    isLoading: true,
-    userEmail: 'service-account@example.com' as string | null
-  });
+  const {
+    credentials,
+    setCredentials,
+    missingCredentials,
+    showCredentialsForm,
+    setShowCredentialsForm,
+    handleCredentialSubmit,
+    showSetupInstructions
+  } = useGoogleCredentials();
 
-  const [showCredentialsForm, setShowCredentialsForm] = useState(false);
-  const [credentials, setCredentials] = useState({
-    clientId: '',
-    apiKey: '',
-    spreadsheetId: ''
-  });
+  const {
+    status,
+    checkStatus,
+    handleSignIn,
+    handleSignOut,
+    autoConnect
+  } = useGoogleConnection(missingCredentials);
 
-  const [missingCredentials, setMissingCredentials] = useState({
-    clientId: true,
-    apiKey: true
-  });
-
-  // Load saved credentials from localStorage
-  useEffect(() => {
-    const savedClientId = localStorage.getItem('google_client_id');
-    const savedApiKey = localStorage.getItem('google_api_key');
-    const savedSpreadsheetId = localStorage.getItem('google_spreadsheet_id');
-    
-    if (savedClientId || savedApiKey || savedSpreadsheetId) {
-      setCredentials({
-        clientId: savedClientId || '',
-        apiKey: savedApiKey || '',
-        spreadsheetId: savedSpreadsheetId || ''
-      });
-      
-      // Set missing credentials state
-      setMissingCredentials({
-        clientId: !savedClientId,
-        apiKey: !savedApiKey
-      });
-    }
-  }, []);
-
-  const checkStatus = useCallback(async () => {
-    setStatus(prev => ({ ...prev, isLoading: true }));
-    
-    try {
-      // Check if credentials are missing
-      const savedClientId = localStorage.getItem('google_client_id');
-      const savedApiKey = localStorage.getItem('google_api_key');
-      
-      if (!savedClientId || !savedApiKey) {
-        setMissingCredentials({
-          clientId: !savedClientId,
-          apiKey: !savedApiKey
-        });
-        setStatus({
-          isInitialized: false,
-          isAuthorized: false,
-          isLoading: false,
-          userEmail: null
-        });
-        return;
-      }
-
-      // Use the most up-to-date credentials (from localStorage)
-      window.localStorage.setItem('google_client_id', savedClientId);
-      window.localStorage.setItem('google_api_key', savedApiKey);
-      
-      const apiInitialized = await initGoogleApi();
-      const authorized = await isUserAuthorized();
-      
-      setStatus({
-        isInitialized: apiInitialized,
-        isAuthorized: authorized,
-        isLoading: false,
-        userEmail: 'service-account@example.com'
-      });
-    } catch (error) {
-      console.error('Error checking Google API status:', error);
-      toast.error('Failed to initialize Google API');
-      setStatus({
-        isInitialized: false,
-        isAuthorized: false,
-        isLoading: false,
-        userEmail: null
-      });
-    }
-  }, []);
-
+  // Perform credential change side effects
   useEffect(() => {
     checkStatus();
   }, [checkStatus]);
 
-  const handleSignIn = async () => {
-    if (missingCredentials.clientId || missingCredentials.apiKey) {
-      toast.error('Google API credentials are missing. Please set them up first.');
-      return;
+  // Wrap the credential submit handler to also check status
+  const handleCredentialSubmitWithStatusCheck = (e: React.FormEvent) => {
+    const result = handleCredentialSubmit(e);
+    if (result) {
+      checkStatus();
     }
-
-    setStatus(prev => ({ ...prev, isLoading: true }));
-    try {
-      const success = await initGoogleApi();
-      if (success) {
-        setStatus({
-          isInitialized: true,
-          isAuthorized: true,
-          isLoading: false,
-          userEmail: 'service-account@example.com'
-        });
-        toast.success('Successfully connected to Google API');
-      } else {
-        throw new Error('Failed to initialize Google API');
-      }
-    } catch (error) {
-      console.error('Error connecting to Google API:', error);
-      toast.error('Failed to connect to Google API');
-      setStatus(prev => ({ ...prev, isLoading: false }));
-    }
-  };
-  
-  // Add auto-connect method that initializes the API
-  const autoConnect = async () => {
-    if (missingCredentials.clientId || missingCredentials.apiKey) {
-      return;
-    }
-    
-    setStatus(prev => ({ ...prev, isLoading: true }));
-    try {
-      const success = await initGoogleApi();
-      setStatus({
-        isInitialized: success,
-        isAuthorized: success,
-        isLoading: false,
-        userEmail: success ? 'service-account@example.com' : null
-      });
-      
-      if (success) {
-        toast.success('Connected to Google API');
-      }
-    } catch (error) {
-      console.error('Error in auto-connect:', error);
-      setStatus(prev => ({ ...prev, isLoading: false }));
-    }
-  };
-
-  const handleSignOut = async () => {
-    setStatus(prev => ({ ...prev, isLoading: true }));
-    try {
-      // Reset the initialization state
-      setStatus({
-        isInitialized: false,
-        isAuthorized: false,
-        isLoading: false,
-        userEmail: null
-      });
-      toast.success('Disconnected from Google API');
-    } catch (error) {
-      console.error('Error disconnecting from Google API:', error);
-      toast.error('Failed to disconnect from Google API');
-      setStatus(prev => ({ ...prev, isLoading: false }));
-    }
-  };
-
-  const handleCredentialSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Store credentials in localStorage
-    if (credentials.clientId) {
-      localStorage.setItem('google_client_id', credentials.clientId);
-    }
-    if (credentials.apiKey) {
-      localStorage.setItem('google_api_key', credentials.apiKey);
-    }
-    if (credentials.spreadsheetId) {
-      localStorage.setItem('google_spreadsheet_id', credentials.spreadsheetId);
-    }
-    
-    setMissingCredentials({
-      clientId: !credentials.clientId,
-      apiKey: !credentials.apiKey
-    });
-    
-    checkStatus();
-    setShowCredentialsForm(false);
-    toast.success('Credentials saved');
-  };
-
-  const showSetupInstructions = () => {
-    toast.info(
-      'You need to set up your Google API credentials. Open the browser console (F12) to see detailed instructions.',
-      { duration: 8000 }
-    );
-    // This will trigger the detailed instructions to be printed in the console
-    import('@/utils/google/config').then(module => {
-      module.printOAuthSetupInstructions();
-    });
+    return result;
   };
 
   return {
@@ -211,7 +45,7 @@ export const useGoogleIntegration = () => {
     setShowCredentialsForm,
     handleSignIn,
     handleSignOut,
-    handleCredentialSubmit,
+    handleCredentialSubmit: handleCredentialSubmitWithStatusCheck,
     showSetupInstructions,
     autoConnect
   };
