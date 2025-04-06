@@ -1,10 +1,10 @@
 
+import { useEffect, useRef } from "react";
 import ResumeViewer from "@/components/candidates/ResumeViewer";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { toast } from "sonner";
 import { trackDownload } from "@/utils/ipTracker";
-import { useEffect, useRef } from "react";
 
 interface CandidateResumeProps {
   resumeUrl: string;
@@ -56,6 +56,7 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
               height: 100%;
               z-index: 1000;
               pointer-events: none;
+              overflow: hidden;
             }
             .watermark-grid {
               display: flex;
@@ -114,6 +115,16 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
             window.onload = function() {
               setTimeout(function() {
                 window.print();
+                
+                // Remove any download buttons after load
+                try {
+                  const downloadButtons = document.querySelectorAll('[role="button"], .ndfHFb-c4YZDc-Wrql6b');
+                  downloadButtons.forEach(function(button) {
+                    button.style.display = 'none';
+                  });
+                } catch(e) {
+                  console.log("Note: Unable to modify iframe content");
+                }
               }, 1500);
             };
           </script>

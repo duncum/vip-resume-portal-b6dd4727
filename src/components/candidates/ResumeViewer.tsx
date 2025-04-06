@@ -1,5 +1,4 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackIpAddress } from "@/utils/ipTracker";
 
@@ -11,6 +10,7 @@ interface ResumeViewerProps {
 const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   
   // Fix Google Drive URLs for proper embedding (and remove download option)
   const getEmbedUrl = (url: string) => {
@@ -24,6 +24,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
         return `https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true`;
       }
     }
+    // For other document types, return as is
     return url;
   };
 
@@ -36,14 +37,56 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
     // Simulate PDF loading
     const timer = setTimeout(() => {
       setIsLoading(false);
+      
+      // After loading, ensure download buttons are removed and scrollbars are styled properly
+      const cleanupTimer = setTimeout(() => {
+        // Only run if iframe exists and has loaded successfully
+        if (iframeRef.current && !isError) {
+          try {
+            // Try to access the iframe's document to remove UI elements that enable downloads
+            const iframeDocument = iframeRef.current.contentDocument || 
+                                 (iframeRef.current.contentWindow?.document);
+            
+            if (iframeDocument) {
+              // For Google Drive embeds - hide download buttons & print buttons
+              const downloadButtons = iframeDocument.querySelectorAll('[role="button"], .ndfHFb-c4YZDc-Wrql6b');
+              downloadButtons.forEach((button: Element) => {
+                if (button instanceof HTMLElement) {
+                  button.style.display = 'none';
+                }
+              });
+              
+              // Style scrollbars if needed
+              const scrollElements = iframeDocument.querySelectorAll('.goog-inline-block');
+              scrollElements.forEach((element: Element) => {
+                if (element instanceof HTMLElement) {
+                  element.style.scrollbarWidth = 'thin';
+                  element.style.scrollbarColor = '#888 #f1f1f1';
+                }
+              });
+            }
+          } catch (e) {
+            // Silent catch - security restrictions prevent modifying cross-origin iframes
+            console.log("Note: Unable to modify iframe content due to security restrictions");
+          }
+        }
+      }, 1000);
+      
+      return () => clearTimeout(cleanupTimer);
     }, 1500);
     
     return () => clearTimeout(timer);
-  }, [candidateId]);
+  }, [candidateId, isError]);
 
   const handleIframeError = () => {
     setIsError(true);
     setIsLoading(false);
+    console.error("Failed to load document:", embedUrl);
+  };
+
+  const handleIframeLoad = () => {
+    // Keep the loading state for a moment to ensure document is fully rendered
+    setTimeout(() => setIsLoading(false), 500);
   };
 
   return (
@@ -96,10 +139,12 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
             
             {/* PDF viewer */}
             <iframe
+              ref={iframeRef}
               src={embedUrl}
               className="w-full h-[800px] border-0"
               title="Resume PDF"
               onError={handleIframeError}
+              onLoad={handleIframeLoad}
               frameBorder="0"
               allowFullScreen
               id="resume-iframe"
