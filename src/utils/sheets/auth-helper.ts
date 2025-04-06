@@ -36,18 +36,12 @@ export const ensureAuthorization = async (): Promise<boolean> => {
         if (!window.gapi.client.sheets) {
           console.log('Sheets API not loaded yet, attempting to load it');
           
-          // Use the correct overload for gapi.load that matches our type definition
+          // Use the simplified approach with a direct callback function
           await new Promise<void>((resolve, reject) => {
-            // Using the overload that takes a string and options object
-            window.gapi.load('client:auth2', {
-              callback: function() {
-                window.gapi.client.load('sheets', 'v4')
-                  .then(() => resolve())
-                  .catch(err => reject(err));
-              },
-              onerror: function(error) {
-                reject(error);
-              }
+            window.gapi.load('client:auth2', () => {
+              window.gapi.client.load('sheets', 'v4')
+                .then(() => resolve())
+                .catch(err => reject(err));
             });
           });
           

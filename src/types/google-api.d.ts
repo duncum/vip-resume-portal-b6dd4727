@@ -145,10 +145,6 @@ interface GoogleApiClient {
 interface Window {
   gapi: {
     load: (libraries: string, callback: () => void) => void;
-    load: (libraries: string, options: {
-      callback: () => void;
-      onerror: (error: Error) => void;
-    }) => void;
     client: GoogleApiClient;
     auth: {
       getToken: () => {
