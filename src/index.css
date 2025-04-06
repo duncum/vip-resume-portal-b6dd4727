@@ -1,268 +1,123 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+ 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    --card: 0 0% 3%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+ 
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+ 
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+ 
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+ 
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --popover: 0 0% 3%;
-    --popover-foreground: 0 0% 100%;
-
-    --primary: 39 34% 50%; /* Gold color */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 70%;
-
-    --accent: 39 34% 50%; /* Gold color */
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 15%;
-    --input: 0 0% 20%;
-    --ring: 39 34% 50%; /* Gold color */
-
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+ 
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 39 34% 50%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 39 34% 50%;
   }
-
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: hsl(212.7, 26.8%, 83.9);
+  }
+}
+ 
+@layer base {
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-black text-white;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-  
-  /* Improved smooth scrolling */
-  html {
-    @apply scroll-smooth;
-  }
-  
-  /* Landing page specific styling */
-  .landing-page {
-    @apply overflow-x-hidden;
-  }
-
-  /* Enable perspective for 3D effects */
-  .perspective-1000 {
-    perspective: 1000px;
-  }
-
-  /* For 3D rotation effects */
-  .preserve-3d {
-    transform-style: preserve-3d;
-  }
-
-  /* Backface visibility for card flips */
-  .backface-hidden {
-    backface-visibility: hidden;
+    @apply bg-background text-foreground;
   }
 }
 
-@layer components {
-  .gold-gradient {
-    @apply bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black;
-  }
-  
-  .gold-border {
-    @apply border-2 border-gold;
-  }
-  
-  .card-hover {
-    @apply transition-all duration-300 hover:shadow-xl hover:shadow-gold/10 hover:border-gold/40;
-  }
-  
-  .watermark {
-    @apply absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none transform -rotate-45 text-gold text-6xl font-bold;
-  }
-  
-  .elegant-card {
-    @apply border-gold/20 bg-grey-900/80 backdrop-blur-sm;
-  }
-
-  /* Animation classes for fade in and other effects */
-  .animate-fade-in {
-    animation: fadeIn 0.8s ease-out forwards;
-  }
-
-  .animate-fade-up {
-    animation: fadeUp 0.8s ease-out forwards;
-  }
-
-  .animate-fade-down {
-    animation: fadeDown 0.8s ease-out forwards;
-  }
-
-  .animate-fade-left {
-    animation: fadeLeft 0.8s ease-out forwards;
-  }
-
-  .animate-fade-right {
-    animation: fadeRight 0.8s ease-out forwards;
-  }
-
-  .animate-scale {
-    animation: scale 0.7s ease-out forwards;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse 3s ease-in-out infinite;
-  }
-  
-  /* Enhanced premium animations */
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  .animate-slide-up {
-    animation: slideUp 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  }
-  
-  /* New luxury animations */
-  .animate-glow-pulse {
-    animation: glowPulse 4s ease-in-out infinite;
-  }
-  
-  .animate-shimmer {
-    animation: shimmer 8s linear infinite;
-    background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
-    background-size: 200% 100%;
-  }
-  
-  .animate-rotate-slow {
-    animation: rotateSlow 20s linear infinite;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeLeft {
-    from { opacity: 0; transform: translateX(-30px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  @keyframes fadeRight {
-    from { opacity: 0; transform: translateX(30px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  @keyframes scale {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-  }
-
-  @keyframes pulse {
-    0% { opacity: 0.5; }
-    50% { opacity: 0.8; }
-    100% { opacity: 0.5; }
-  }
-  
-  @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-15px); }
-    100% { transform: translateY(0px); }
-  }
-  
-  @keyframes slideUp {
-    0% { transform: translateY(100%); opacity: 0; }
-    100% { transform: translateY(0%); opacity: 1; }
-  }
-  
-  /* New luxury keyframe animations */
-  @keyframes glowPulse {
-    0% { box-shadow: 0 0 5px rgba(171,135,85,0.3); }
-    50% { box-shadow: 0 0 20px rgba(171,135,85,0.6); }
-    100% { box-shadow: 0 0 5px rgba(171,135,85,0.3); }
-  }
-  
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-  
-  @keyframes rotateSlow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-
-  /* Watermark patterns - updated for luxury */
-  .watermark-grid {
-    @apply grid grid-cols-3 gap-24 opacity-20;
-  }
-  
-  .watermark-row {
-    @apply flex justify-between py-24;
-  }
-  
-  .watermark-item {
-    @apply transform -rotate-45;
-  }
-  
-  .watermark-image {
-    @apply w-52;
-  }
-  
-  /* Premium glass effect */
-  .glass-effect {
-    @apply backdrop-blur-md bg-black/30 border border-white/10;
-  }
-  
-  /* Luxury card effect */
-  .luxury-card {
-    @apply border border-gold/30 bg-black/70 backdrop-blur-md shadow-xl;
-  }
-  
-  /* Gold accent */
-  .gold-accent {
-    @apply border-b-2 border-gold/50;
-  }
+/* Custom variables */
+:root {
+  --color-gold: #AB8755;
+  --color-gold-dark: #8A6D43;
+  --color-gold-light: #C9A876;
 }
 
-/* Executive theme enhancements */
-.font-display {
-  font-family: 'Playfair Display', serif;
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* Enhanced text gradient effects */
-.text-gradient-gold {
-  background: linear-gradient(to right, #ab8755, #e2cba8, #ab8755);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 1s ease forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulse 4s ease-in-out infinite;
+}
+
+/* Add other custom styles here */
+.landing-page {
+  @apply bg-black text-white;
+}
+

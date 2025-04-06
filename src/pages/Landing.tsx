@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import SearchInput from "@/components/candidates/SearchInput"; 
 import Footer from "@/components/layout/Footer";
+import Header from "@/components/layout/Header";
 
 const Landing = () => {
   useEffect(() => {
@@ -29,6 +30,8 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
+      <Header />
+      
       {/* Hero Section */}
       <section className="relative flex flex-col items-center justify-center min-h-screen px-4 py-16 md:py-20 overflow-hidden">
         {/* Background with subtle pattern */}
@@ -202,7 +205,6 @@ const Landing = () => {
         </div>
       </section>
       
-      {/* Footer */}
       <Footer />
     </div>
   );
