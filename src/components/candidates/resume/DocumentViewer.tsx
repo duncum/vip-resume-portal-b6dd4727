@@ -89,11 +89,15 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ embedUrl, onError }) =>
         const removeDownloadButtons = () => {
           const elements = iframeDoc.querySelectorAll('button, a');
           elements.forEach(el => {
-            if (el.textContent?.toLowerCase().includes('download') || 
-                el.getAttribute('aria-label')?.toLowerCase().includes('download')) {
-              el.style.display = 'none';
-              el.style.visibility = 'hidden';
-              el.style.pointerEvents = 'none';
+            if (
+              el.textContent?.toLowerCase().includes('download') || 
+              el.getAttribute('aria-label')?.toLowerCase().includes('download')
+            ) {
+              // Cast the Element to HTMLElement to access style property
+              const htmlEl = el as HTMLElement;
+              htmlEl.style.display = 'none';
+              htmlEl.style.visibility = 'hidden';
+              htmlEl.style.pointerEvents = 'none';
             }
           });
         };
