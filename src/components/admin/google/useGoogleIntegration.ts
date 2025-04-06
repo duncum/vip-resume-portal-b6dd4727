@@ -22,16 +22,24 @@ export const useGoogleIntegration = () => {
     autoConnect
   } = useGoogleConnection(missingCredentials);
 
-  // Perform credential change side effects
+  // Debounce credential changes to prevent excessive status checks
   useEffect(() => {
-    checkStatus();
-  }, [checkStatus]);
+    // Use a timeout to delay the status check after credential changes
+    const timeoutId = setTimeout(() => {
+      checkStatus();
+    }, 500);
+    
+    return () => clearTimeout(timeoutId);
+  }, [missingCredentials, checkStatus]);
 
   // Wrap the credential submit handler to also check status
   const handleCredentialSubmitWithStatusCheck = (e: React.FormEvent) => {
     const result = handleCredentialSubmit(e);
     if (result) {
-      checkStatus();
+      // Delay status check to allow localStorage to update
+      setTimeout(() => {
+        checkStatus();
+      }, 300);
     }
     return result;
   };
