@@ -72,7 +72,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
         ) : (
           <div className="relative resume-container">
             {/* Watermark pattern overlay - consistent grid with alternating rows */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-10 print:block">
               <div className="absolute inset-0 flex flex-col">
                 {/* Generate multiple rows to ensure coverage for any document length */}
                 {[...Array(20)].map((_, rowIndex) => (
@@ -83,7 +83,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
                     {[...Array(3)].map((_, colIndex) => (
                       <div 
                         key={`watermark-${rowIndex}-${colIndex}`} 
-                        className="transform -rotate-45 opacity-20"
+                        className="transform -rotate-45 opacity-20 print:opacity-30"
                       >
                         <img 
                           src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" 
