@@ -1,11 +1,17 @@
 
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, FileText, ChevronRight, Globe } from "lucide-react";
+import { Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import {
+  CategoryBadge,
+  RelocationBadge,
+  LocationInfo,
+  SectorBadges,
+  CandidateSummary,
+  SkillBadges,
+  ResumeLink
+} from "./card";
 
 interface CandidateCardProps {
   id: string;
@@ -34,42 +40,6 @@ const CandidateCard = ({
 }: CandidateCardProps) => {
   const isOneManArmy = category === "One Man Army";
   const isMobile = useIsMobile();
-  const [showFullSummary, setShowFullSummary] = useState(false);
-
-  // Category to color mapping - updated to be more cohesive with site theme
-  const categoryColors = {
-    "Executive": "bg-gold/80 border-gold/60",
-    "Director": "bg-gold/60 border-gold/40",
-    "Mid-Senior level": "bg-gold/40 border-gold/30",
-    "Emerging Executives": "bg-gold/30 border-gold/20",
-    "One Man Army": "bg-gold border-gold/80"
-  };
-
-  // Relocation badge color and text - enhanced for better visual appeal
-  const relocationBadge = {
-    "willing": { color: "bg-gold/20 text-gold border-gold/40", text: "Open to Relocation" },
-    "remote-only": { color: "bg-grey-800 text-white/80 border-grey-700", text: "Remote Only" },
-    "flexible": { color: "bg-gold/10 text-gold/90 border-gold/30", text: "Flexible Location" }
-  };
-
-  // Determine if we should show relocation badge
-  // Default to showing "Open to Relocation" unless explicitly specified otherwise
-  const showRelocationBadge = !relocationPreference || relocationPreference === "willing" || relocationPreference === "flexible";
-  
-  // Default relocation text for when no preference is specified
-  const relocationText = relocationPreference ? 
-    relocationBadge[relocationPreference as keyof typeof relocationBadge]?.text || relocationPreference :
-    "Open to Relocation";
-  
-  // Default relocation color when no preference is specified
-  const relocationColor = relocationPreference ?
-    relocationBadge[relocationPreference as keyof typeof relocationBadge]?.color || "bg-gold/20 text-gold border-gold/40" :
-    "bg-gold/20 text-gold border-gold/40";
-
-  // Truncate summary to 100 characters for preview
-  const truncatedSummary = summary && summary.length > 100 
-    ? `${summary.substring(0, 100)}...` 
-    : summary;
 
   return (
     <Card className="h-full card-hover border border-gold/20 bg-gradient-to-b from-grey-900/90 to-grey-800/70 backdrop-blur-sm relative min-h-[280px] md:min-h-[320px] overflow-hidden transition-all duration-300 hover:shadow-[0_10px_40px_-15px_rgba(171,135,85,0.3)]">
@@ -91,40 +61,8 @@ const CandidateCard = ({
       
       <CardHeader className="pb-1 md:pb-2">
         <div className="flex justify-between items-start mb-2">
-          <div>
-            {category && (
-              <Badge 
-                className={`${categoryColors[category as keyof typeof categoryColors] || "bg-grey-800 border-grey-700"} text-black text-xs`}
-              >
-                {category}
-              </Badge>
-            )}
-            {title && (
-              <span className="text-grey-400 text-xs ml-2">
-                {title}
-              </span>
-            )}
-          </div>
-          
-          {/* Always show relocation badge unless remote-only */}
-          {showRelocationBadge && (
-            <Badge 
-              className={`flex items-center gap-1 ${relocationColor}`}
-            >
-              <Globe size={10} className="opacity-80" />
-              {relocationText}
-            </Badge>
-          )}
-          
-          {/* Show Remote Only badge when specified */}
-          {relocationPreference === "remote-only" && (
-            <Badge 
-              className="flex items-center gap-1 bg-grey-800 text-white/80 border-grey-700"
-            >
-              <Globe size={10} className="opacity-80" />
-              Remote Only
-            </Badge>
-          )}
+          <CategoryBadge category={category} title={title} />
+          <RelocationBadge relocationPreference={relocationPreference} />
         </div>
         
         <CardTitle className="text-lg md:text-2xl font-display text-white leading-tight line-clamp-2">
@@ -133,83 +71,14 @@ const CandidateCard = ({
       </CardHeader>
       
       <CardContent className="pb-0">
-        {/* Location */}
-        {location && (
-          <div className="flex items-center text-grey-400 text-xs mb-3">
-            <MapPin size={14} className="mr-1 text-gold/70" />
-            <span>{location}</span>
-          </div>
-        )}
-        
-        {/* Sectors/Industries */}
-        <div className="flex flex-wrap gap-1 md:gap-2 mb-3">
-          {sectors.map((sector, index) => (
-            <Badge 
-              key={index} 
-              variant="outline" 
-              className="bg-grey-800/70 text-grey-200 border-grey-700 backdrop-blur-sm shadow-sm text-xs whitespace-nowrap"
-            >
-              {sector}
-            </Badge>
-          ))}
-        </div>
-        
-        {/* Summary with Read More option */}
-        {summary && (
-          <div className="mb-4 bg-grey-800/40 p-2 rounded-md border border-grey-700/40">
-            <p className="text-grey-300 text-sm">
-              {showFullSummary ? summary : truncatedSummary}
-              {summary.length > 100 && (
-                <button 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setShowFullSummary(!showFullSummary);
-                  }}
-                  className="inline-flex items-center ml-1 text-gold hover:underline text-xs"
-                >
-                  {showFullSummary ? "Show less" : "Read more"}
-                  <ChevronRight size={12} className={`ml-0.5 transition-transform ${showFullSummary ? "rotate-90" : ""}`} />
-                </button>
-              )}
-            </p>
-          </div>
-        )}
-        
-        {/* Skills/Tags with more vibrant colors */}
-        <div className="flex flex-wrap gap-1.5 md:gap-2 mb-4">
-          {tags.slice(0, isMobile ? 3 : 5).map((tag, index) => (
-            <Badge 
-              key={index} 
-              className="bg-gold/10 hover:bg-gold/20 text-gold border-gold/20 transition-colors text-xs whitespace-nowrap"
-            >
-              {tag}
-            </Badge>
-          ))}
-          {tags.length > (isMobile ? 3 : 5) && (
-            <Badge className="bg-grey-800/50 text-grey-400 border-grey-700 text-xs">
-              +{tags.length - (isMobile ? 3 : 5)} more
-            </Badge>
-          )}
-        </div>
+        <LocationInfo location={location} />
+        <SectorBadges sectors={sectors} />
+        <CandidateSummary summary={summary} />
+        <SkillBadges tags={tags} />
       </CardContent>
       
       <CardFooter className="pt-0 justify-center">
-        {/* View Resume Button - moved to the bottom */}
-        {resumeUrl && (
-          <a 
-            href={resumeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className="w-full text-center inline-flex items-center justify-center text-xs px-3 py-2 rounded bg-grey-800 hover:bg-grey-700 text-gold border border-gold/30 transition-all hover:shadow-[0_0_15px_rgba(171,135,85,0.2)] mt-2"
-          >
-            <FileText size={14} className="mr-1.5" />
-            View Confidential Resume
-          </a>
-        )}
+        <ResumeLink resumeUrl={resumeUrl} />
       </CardFooter>
       
       <Link to={`/candidate/${id}`} className="absolute inset-0 z-10">
