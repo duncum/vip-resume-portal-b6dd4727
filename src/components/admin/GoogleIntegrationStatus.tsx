@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import GoogleIcon from './google/GoogleIcon';
 import StatusDisplay from './google/StatusDisplay';
@@ -18,8 +18,16 @@ const GoogleIntegrationStatus = () => {
     handleSignIn,
     handleSignOut,
     handleCredentialSubmit,
-    showSetupInstructions
+    showSetupInstructions,
+    autoConnect
   } = useGoogleIntegration();
+
+  // Auto-connect to Google when the component mounts if credentials are available
+  useEffect(() => {
+    if (!status.isAuthorized && !missingCredentials.clientId && !missingCredentials.apiKey) {
+      autoConnect();
+    }
+  }, [status.isAuthorized, missingCredentials, autoConnect]);
 
   return (
     <Card className="border-dashed">

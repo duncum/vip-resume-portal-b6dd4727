@@ -65,7 +65,6 @@ export const fetchCandidateById = async (id: string): Promise<Candidate> => {
   
   try {
     // Get all candidates and filter by ID
-    // A more efficient approach would be to use a query with a filter if your sheet is large
     const response = await window.gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
       range: CANDIDATES_RANGE
