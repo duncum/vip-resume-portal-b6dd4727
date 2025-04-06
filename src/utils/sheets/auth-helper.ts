@@ -35,7 +35,17 @@ export const ensureAuthorization = async (): Promise<boolean> => {
         // Check if the sheets API is available
         if (!window.gapi.client.sheets) {
           console.log('Sheets API not loaded yet, attempting to load it');
-          await window.gapi.client.load('sheets', 'v4');
+          // Use the load method on the gapi object, not on client
+          await new Promise<void>((resolve, reject) => {
+            window.gapi.load('client:auth2', {
+              callback: () => {
+                window.gapi.client.load('sheets', 'v4')
+                  .then(() => resolve())
+                  .catch(err => reject(err));
+              },
+              onerror: reject
+            });
+          });
           
           if (!window.gapi.client.sheets) {
             throw new Error('Could not load Sheets API');
