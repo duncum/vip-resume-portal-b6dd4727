@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
-import { trackDownload } from "@/utils/ipTracker";
+import { sendResumeEmail } from "@/utils/resume/emailUtils";
 
 interface EmailResumeDialogProps {
   open: boolean;
@@ -40,21 +40,20 @@ const EmailResumeDialog = ({
     setIsLoading(true);
     
     try {
-      // Track the download/email action
-      trackDownload(candidateId);
-      
-      // Simulate email sending (in a real app, this would call an API endpoint)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success("Resume sent to your email", {
-        description: "Please check your inbox shortly"
+      // Use our email utility to send the resume
+      const success = await sendResumeEmail({
+        recipientEmail: email,
+        candidateId,
+        resumeUrl
       });
       
-      // Close the dialog and reset form
-      onOpenChange(false);
-      setEmail("");
+      if (success) {
+        // Close the dialog and reset form
+        onOpenChange(false);
+        setEmail("");
+      }
     } catch (error) {
-      console.error("Error sending email:", error);
+      console.error("Error in email submission handler:", error);
       toast.error("Failed to send resume", {
         description: "Please try again later"
       });
