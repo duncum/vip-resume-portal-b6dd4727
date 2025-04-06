@@ -2,14 +2,8 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackIpAddress } from "@/utils/ipTracker";
-import { Printer, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 
 interface ResumeViewerProps {
@@ -55,26 +49,6 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
     setIsLoading(false);
   };
 
-  const handlePrint = () => {
-    toast.info("Preparing document for printing...");
-    
-    // Focus the iframe first
-    const iframe = document.querySelector('iframe');
-    if (iframe) {
-      iframe.focus();
-      // Print the iframe content
-      iframe.contentWindow?.print();
-      
-      toast.success("Print dialog opened");
-    } else {
-      // Fallback to window print if iframe not found
-      window.print();
-      toast.error("Could not focus on document", {
-        description: "Using fallback print method",
-      });
-    }
-  };
-
   return (
     <Card className="w-full border border-grey-200 bg-white">
       <CardContent className="p-0 relative">
@@ -92,16 +66,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <h3 className="text-lg font-medium text-grey-700">Unable to display resume</h3>
-              <p className="mt-2 text-grey-500">The resume might be unavailable or in an unsupported format. Please try printing this page.</p>
-              <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                <Button 
-                  onClick={handlePrint}
-                  className="bg-gold text-black hover:bg-gold/90"
-                >
-                  <Printer className="mr-2 h-4 w-4" />
-                  Print
-                </Button>
-              </div>
+              <p className="mt-2 text-grey-500">The resume might be unavailable or in an unsupported format.</p>
             </div>
           </div>
         ) : (
@@ -141,8 +106,6 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
               frameBorder="0"
               allowFullScreen
             />
-            
-            {/* Print Options - Removed */}
           </div>
         )}
       </CardContent>
