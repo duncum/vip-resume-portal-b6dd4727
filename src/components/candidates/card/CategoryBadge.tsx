@@ -32,7 +32,7 @@ const CategoryBadge = ({ category, title }: CategoryBadgeProps) => {
           return (
             <Badge 
               key={index}
-              className={`${baseColor} text-xs font-medium px-3 py-1 rounded-full shadow-sm transition-all duration-200`}
+              className={`${baseColor} text-xs font-medium px-3 py-1 rounded-full shadow-sm transition-all duration-200 backdrop-blur-sm`}
             >
               {singleCategory}
             </Badge>
@@ -41,7 +41,7 @@ const CategoryBadge = ({ category, title }: CategoryBadgeProps) => {
       </div>
       
       {title && (
-        <span className="text-white text-sm font-medium hover:text-white transition-colors">
+        <span className="text-white text-sm font-medium hover:text-gold/90 transition-colors">
           {title}
         </span>
       )}

@@ -13,9 +13,9 @@ const LocationInfo = ({ location, relocationPreference }: LocationInfoProps) => 
   return (
     <div className="flex items-center gap-2 text-grey-400 text-xs mb-3">
       {location && (
-        <div className="flex items-center">
-          <MapPin size={14} className="mr-1 text-gold/70" />
-          <span>{location}</span>
+        <div className="flex items-center group">
+          <MapPin size={14} className="mr-1 text-gold/70 group-hover:text-gold transition-colors" />
+          <span className="group-hover:text-grey-300 transition-colors">{location}</span>
         </div>
       )}
       {relocationPreference && (

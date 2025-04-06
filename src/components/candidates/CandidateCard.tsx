@@ -48,12 +48,12 @@ const CandidateCard = ({
       bg-gradient-to-b from-grey-900 via-grey-900/95 to-grey-800/90 
       backdrop-blur-sm 
       transition-all duration-300 
-      hover:border-gold/30
-      hover:shadow-[0_10px_30px_-15px_rgba(171,135,85,0.25)]
+      hover:border-gold/40
+      hover:shadow-[0_10px_40px_-15px_rgba(171,135,85,0.3)]
       hover:translate-y-[-4px] 
       group">
-      {/* Top accent line instead of full gradient bar */}
-      <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-gold/60 via-gold/80 to-gold/60"></div>
+      {/* Top accent line with animated gradient on hover */}
+      <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-gold/60 via-gold/80 to-gold/60 group-hover:animate-shimmer"></div>
       
       {/* One Man Army badge - positioned better */}
       {isOneManArmy && (
@@ -72,7 +72,7 @@ const CandidateCard = ({
         </div>
         
         <CardTitle className="text-lg md:text-xl font-display text-white leading-tight line-clamp-2 
-          group-hover:text-gold/90 transition-colors duration-300 mt-1">
+          group-hover:text-gradient-gold transition-colors duration-300 mt-1">
           {headline}
         </CardTitle>
       </CardHeader>
@@ -94,8 +94,10 @@ const CandidateCard = ({
         </div>
       </CardFooter>
       
-      {/* Subtle background glow effect on hover */}
-      <div className="absolute inset-0 bg-gold/0 opacity-0 group-hover:opacity-5 group-hover:bg-gold/5 transition-all duration-300 pointer-events-none"></div>
+      {/* Enhanced subtle background glow effect on hover */}
+      <div className="absolute inset-0 bg-gradient-to-b from-gold/0 to-gold/0 opacity-0 
+        group-hover:opacity-5 group-hover:from-gold/5 group-hover:to-gold/10 
+        transition-all duration-500 pointer-events-none"></div>
       
       <Link to={`/candidate/${id}`} className="absolute inset-0 z-10">
         <span className="sr-only">View candidate details</span>
