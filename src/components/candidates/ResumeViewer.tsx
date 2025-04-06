@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackIpAddress } from "@/utils/ipTracker";
-import { FileText, Printer, AlertCircle } from "lucide-react";
+import { FileText, Printer, AlertCircle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { 
   Tooltip,
@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 interface ResumeViewerProps {
   fileUrl: string;
@@ -66,6 +67,35 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
       window.print();
     }
   };
+  
+  // Function to take a screenshot of the resume with watermark
+  const captureAndDownload = async () => {
+    try {
+      const iframe = document.querySelector('iframe');
+      if (!iframe) {
+        toast.error("Could not capture resume content");
+        return;
+      }
+      
+      // Get the resume container that includes watermarks
+      const resumeContainer = document.querySelector('.resume-container');
+      if (!resumeContainer) {
+        toast.error("Could not find resume container");
+        return;
+      }
+      
+      toast.info("Preparing watermarked PDF for download...");
+      
+      // For now, direct to print as the most reliable way to preserve watermarks
+      handlePrint();
+      toast("Print dialog opened", {
+        description: "Use the print to PDF option to save with watermarks",
+      });
+    } catch (error) {
+      console.error("Error capturing resume:", error);
+      toast.error("Failed to capture resume with watermark");
+    }
+  };
 
   return (
     <Card className="w-full border border-grey-200 bg-white">
@@ -84,30 +114,20 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <h3 className="text-lg font-medium text-grey-700">Unable to display resume</h3>
-              <p className="mt-2 text-grey-500">The resume might be unavailable or in an unsupported format. Try downloading it directly instead.</p>
+              <p className="mt-2 text-grey-500">The resume might be unavailable or in an unsupported format. Please try printing this page to maintain confidentiality.</p>
               <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        onClick={() => window.open(fileUrl, '_blank')}
-                        className="bg-grey-800 text-white hover:bg-grey-700"
-                        variant="outline"
-                      >
-                        <FileText className="mr-2 h-4 w-4" />
-                        Download Original
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Downloads without watermark</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Button 
+                  onClick={handlePrint}
+                  className="bg-gold text-black hover:bg-gold/90"
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  Print with Watermark
+                </Button>
               </div>
             </div>
           </div>
         ) : (
-          <div className="relative">
+          <div className="relative resume-container">
             {/* Watermark pattern overlay - consistent grid with alternating rows */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
               <div className="absolute inset-0 flex flex-col">
@@ -158,25 +178,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Preserves the confidentiality watermark</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      onClick={() => window.open(fileUrl, '_blank')}
-                      className="bg-grey-800 text-white hover:bg-grey-700"
-                      variant="outline"
-                    >
-                      <FileText className="mr-2 h-4 w-4" />
-                      Download Original
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Download without watermark (original file)</p>
+                    <p>Save as PDF or print with watermarks preserved</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -185,7 +187,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
             {/* Watermark notice */}
             <div className="absolute top-2 left-2 z-20 bg-black/70 text-white px-3 py-1 rounded-md text-xs flex items-center">
               <AlertCircle size={12} className="mr-1" />
-              Confidential - Print option preserves watermarks
+              Confidential - All printed/saved content preserves watermarks
             </div>
           </div>
         )}

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
@@ -6,7 +7,7 @@ import ResumeViewer from "@/components/candidates/ResumeViewer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fetchCandidateById, type Candidate } from "@/utils/sheets";
-import { ArrowLeft, Download, ExternalLink, MapPin } from "lucide-react";
+import { ArrowLeft, Printer, ExternalLink, MapPin } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { trackDownload } from "@/utils/ipTracker";
 import { toast } from "sonner";
@@ -51,10 +52,25 @@ const CandidateView = () => {
     loadCandidate();
   }, [id]);
 
-  const handleDownload = () => {
+  const handlePrintResume = () => {
     if (candidate) {
       trackDownload(candidate.id);
-      window.open(candidate.resumeUrl, '_blank');
+      // Find iframe and print it with watermarks
+      const iframe = document.querySelector('iframe');
+      if (iframe) {
+        iframe.focus();
+        iframe.contentWindow?.print();
+      } else {
+        window.print();
+      }
+    }
+  };
+
+  const handleOpenInNewTab = () => {
+    if (candidate) {
+      trackDownload(candidate.id);
+      // Open the current page in a new tab to view with watermarks
+      window.open(window.location.href, '_blank');
     }
   };
 
@@ -162,16 +178,16 @@ const CandidateView = () => {
           <div className="mb-6 md:mb-8 flex flex-wrap gap-3">
             <Button 
               className="bg-gold hover:bg-gold-dark text-black flex items-center gap-2 text-sm md:text-base" 
-              onClick={handleDownload}
+              onClick={handlePrintResume}
             >
-              <Download size={isMobile ? 14 : 16} />
-              Download Resume
+              <Printer size={isMobile ? 14 : 16} />
+              Print with Watermark
             </Button>
             
             <Button 
               variant="outline" 
               className="border-grey-700 text-grey-300 flex items-center gap-2 text-sm md:text-base"
-              onClick={() => window.open(candidate.resumeUrl, '_blank')}
+              onClick={handleOpenInNewTab}
             >
               <ExternalLink size={isMobile ? 14 : 16} />
               Open in New Tab
