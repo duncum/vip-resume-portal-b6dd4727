@@ -1,73 +1,22 @@
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import SearchInput from "@/components/candidates/SearchInput"; 
 import Footer from "@/components/layout/Footer";
-import Header from "@/components/layout/Header";
-import { 
-  HeroBackground, 
-  HeroLogo, 
-  HeroHeadline, 
-  HeroProposition, 
-  HeroCTA,
-  HeroScrollIndicator
-} from "@/components/landing/hero";
 
 const Landing = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [hasLoaded, setHasLoaded] = useState(false);
-  const [scrollOpacity, setScrollOpacity] = useState(1);
-  const [isHeroVisible, setIsHeroVisible] = useState(true);
-  const heroRef = useRef<HTMLDivElement>(null);
-
-  // Handle mouse movement for 3D effect
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5; // -0.5 to 0.5
-    const y = (e.clientY - rect.top) / rect.height - 0.5; // -0.5 to 0.5
-    setMousePosition({ x, y });
-  };
-
-  // Handle scroll to fade out scroll indicator and apply other effects
-  const handleScroll = () => {
-    const scrollY = window.scrollY;
-    
-    // Fade out scroll indicator
-    if (scrollY > 50) {
-      setScrollOpacity(0);
-    } else {
-      setScrollOpacity(1);
-    }
-    
-    // Check if hero section is still visible
-    if (heroRef.current) {
-      const rect = heroRef.current.getBoundingClientRect();
-      setIsHeroVisible(rect.bottom > 0);
-    }
-  };
-  
-  // Set up scroll and reset mouse position events
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    
-    // Reset mouse position when mouse leaves the container
-    const resetMousePosition = () => setMousePosition({ x: 0, y: 0 });
-    document.addEventListener('mouseleave', resetMousePosition);
-    
-    // Trigger animations after component mounts
-    const timer = setTimeout(() => setHasLoaded(true), 100);
-    
-    // Apply landing page styles
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+
     document.body.classList.add('landing-page');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('mouseleave', resetMousePosition);
       document.body.classList.remove('landing-page');
-      clearTimeout(timer);
     };
   }, []);
 
@@ -80,45 +29,85 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
-      <Header />
-      
       {/* Hero Section */}
-      <section 
-        ref={heroRef}
-        className="relative flex flex-col items-center justify-center min-h-screen px-4 py-16 md:py-20 overflow-hidden"
-        onMouseMove={handleMouseMove}
-      >
-        {/* Dynamic Background */}
-        <HeroBackground mousePosition={mousePosition} />
+      <section className="relative flex flex-col items-center justify-center min-h-screen px-4 py-16 md:py-20 overflow-hidden">
+        {/* Background with subtle pattern */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-black z-0"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-black via-black to-gray-900 opacity-80"></div>
+          <div className="absolute inset-0 bg-[url('/lovable-uploads/2c5dda64-7e25-4ca1-93ab-0de9e1d5fb16.png')] bg-center opacity-5"></div>
+          
+          {/* Elegant grid overlay */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="h-full w-full grid grid-cols-12 md:grid-cols-24">
+              {Array.from({ length: 24 }).map((_, i) => (
+                <div key={i} className="border-r border-gold/10 h-full"></div>
+              ))}
+            </div>
+            <div className="h-full w-full grid grid-rows-12">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="border-b border-gold/10 w-full"></div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Premium radial gradient */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(171,135,85,0.08)_0%,transparent_60%)]"></div>
+        </div>
         
         {/* Content Container */}
         <div className="container mx-auto text-center relative z-10 mt-8 flex flex-col items-center">
           {/* Logo */}
-          <HeroLogo mousePosition={mousePosition} hasLoaded={hasLoaded} />
+          <img 
+            src="/lovable-uploads/2c5dda64-7e25-4ca1-93ab-0de9e1d5fb16.png" 
+            alt="Executive Connect Logo" 
+            className="h-16 md:h-20 mb-6 md:mb-10 animate-fade-in"
+          />
           
-          {/* Headline & Value Proposition */}
-          <HeroHeadline hasLoaded={hasLoaded} isVisible={isHeroVisible} />
+          {/* Headline */}
+          <div className="mb-8 md:mb-12">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight leading-tight">
+              <span className="animate-fade-in">Exclusive Access to</span>
+              <span className="block mt-2 md:mt-4 bg-gradient-to-r from-gold-dark via-gold to-gold-light bg-clip-text text-transparent animate-fade-in" style={{ animationDelay: "0.2s" }}>
+                Private Executive Network
+              </span>
+            </h1>
+          </div>
           
-          {/* Value proposition with interactive hover effect */}
-          <HeroProposition mousePosition={mousePosition} hasLoaded={hasLoaded} />
+          {/* Description */}
+          <p className="text-grey-300 text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto mb-10 md:mb-14 leading-relaxed animate-fade-in" style={{ animationDelay: "0.4s" }}>
+            Direct connections to <span className="text-gold">exceptional executives</span> who aren't actively seeking, but are <span className="text-white font-medium">privately receptive</span> to transformative opportunities.
+          </p>
           
           {/* Search Component */}
-          <div 
-            className={`w-full max-w-2xl mx-auto mb-10 md:mb-16 opacity-0 ${hasLoaded ? 'animate-fade-in' : ''}`}
-            style={{ 
-              animationDelay: "2.0s", 
-              animationFillMode: "forwards"
-            }}
-          >
+          <div className="w-full max-w-2xl mx-auto mb-10 md:mb-16 animate-fade-in" style={{ animationDelay: "0.6s" }}>
             <SearchInput onSearch={handleSearch} />
             <p className="text-sm text-grey-400 mt-2">Search our confidential network of top executives</p>
           </div>
           
           {/* CTA Buttons */}
-          <HeroCTA hasLoaded={hasLoaded} />
-          
-          {/* Scroll indicator */}
-          <HeroScrollIndicator scrollOpacity={scrollOpacity} hasLoaded={hasLoaded} />
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 justify-center px-4 animate-fade-in" style={{ animationDelay: "0.8s" }}>
+            <Button 
+              className="bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-medium text-base md:text-lg px-8 md:px-10 py-7 h-auto shadow-lg hover:shadow-xl hover:shadow-gold/20 transition-all duration-300 group relative overflow-hidden" 
+              asChild
+            >
+              <Link to="/agreement">
+                <span className="relative z-10">Access Executive Network</span>
+                <ArrowRight className="ml-2 relative z-10 transition-transform group-hover:translate-x-2" />
+                <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+              </Link>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="border-gold/50 text-gold hover:bg-gold/5 text-base md:text-lg px-8 md:px-10 py-7 h-auto shadow-lg hover:shadow-xl hover:shadow-gold/10 transition-all duration-300" 
+              asChild
+            >
+              <Link to="/agreement">
+                <span>Exclusive Partnership</span>
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
       
@@ -213,6 +202,7 @@ const Landing = () => {
         </div>
       </section>
       
+      {/* Footer */}
       <Footer />
     </div>
   );

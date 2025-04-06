@@ -1,92 +1,79 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { Search, Menu } from "lucide-react";
+import { useState } from "react";
 
 const Header = () => {
-  const [scrolled, setScrolled] = useState(false);
-  const [hasAgreed, setHasAgreed] = useState(false);
-  
-  useEffect(() => {
-    // Check if user has agreed to the contract
-    const agreed = localStorage.getItem("contract-agreed") === "true";
-    setHasAgreed(agreed);
-    
-    // Add scroll event listener to detect when header should change appearance
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
-    
-    window.addEventListener("scroll", handleScroll);
-    
-    // Check scroll position immediately
-    handleScroll();
-    
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 px-6 ${
-        scrolled ? "bg-black/90 backdrop-blur-md shadow-md" : "bg-transparent"
-      }`}
-    >
-      <div className="container mx-auto">
-        <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center">
-            <img 
-              src="/lovable-uploads/2c5dda64-7e25-4ca1-93ab-0de9e1d5fb16.png" 
-              alt="Executive Connect Logo" 
-              className="h-10"
-            />
+    <header className="w-full bg-black/90 backdrop-blur-sm border-b border-gold/20 py-3">
+      <div className="container mx-auto flex justify-between items-center px-4">
+        <Link to="/" className="flex items-center gap-2">
+          <img 
+            src="/lovable-uploads/2c5dda64-7e25-4ca1-93ab-0de9e1d5fb16.png" 
+            alt="VIP Employers Logo" 
+            className="h-8 md:h-10" // Adjusted logo size here
+          />
+        </Link>
+        
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-6">
+          <Link to="/candidates" className="text-grey-300 font-medium hover:text-gold transition-colors">
+            Candidates
           </Link>
-          
-          <nav className="hidden md:flex space-x-6 items-center">
-            <Link to="/" className="text-grey-300 hover:text-gold transition-colors">
-              Home
+          <Link to="/admin" className="text-grey-300 font-medium hover:text-gold transition-colors">
+            Admin
+          </Link>
+          <Button variant="ghost" className="flex items-center gap-1 text-grey-300 hover:text-gold" asChild>
+            <Link to="/candidates">
+              <Search size={18} />
+              Search
             </Link>
-            {hasAgreed && (
-              <>
-                <Link to="/candidates" className="text-grey-300 hover:text-gold transition-colors">
-                  Candidates
-                </Link>
-                <Link to="/admin" className="text-grey-300 hover:text-gold transition-colors">
-                  Admin
-                </Link>
-              </>
-            )}
-            
-            <Button 
-              variant="outline" 
-              className="border-gold text-gold hover:bg-gold/10 ml-4" 
-              asChild
+          </Button>
+        </div>
+        
+        {/* Mobile Menu Button */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="md:hidden text-grey-300" 
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          <Menu />
+        </Button>
+      </div>
+      
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-black/95 border-b border-gold/10 animate-fade-in">
+          <div className="container mx-auto px-4 py-4 flex flex-col space-y-3">
+            <Link 
+              to="/candidates" 
+              className="text-grey-300 py-2 hover:text-gold transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
             >
-              <Link to={hasAgreed ? "/candidates" : "/agreement"}>
-                {hasAgreed ? "View Candidates" : "Get Access"}
-              </Link>
-            </Button>
-          </nav>
-          
-          {/* Mobile menu button (only shown on smaller screens) */}
-          <div className="md:hidden">
-            <Button 
-              variant="outline" 
-              className="border-gold/70 text-gold hover:bg-gold/10" 
-              asChild
+              Candidates
+            </Link>
+            <Link 
+              to="/admin" 
+              className="text-grey-300 py-2 hover:text-gold transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
             >
-              <Link to={hasAgreed ? "/candidates" : "/agreement"}>
-                {hasAgreed ? "View Candidates" : "Get Access"}
-              </Link>
-            </Button>
+              Admin
+            </Link>
+            <Link 
+              to="/candidates" 
+              className="text-grey-300 py-2 hover:text-gold transition-colors flex items-center gap-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Search size={18} />
+              Search
+            </Link>
           </div>
         </div>
-      </div>
+      )}
     </header>
   );
 };

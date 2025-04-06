@@ -35,11 +35,11 @@ const PaginatedResults = <T,>({
   }
 
   return (
-    <div className="w-full">
+    <div>
       {renderItems(currentItems)}
       
-      {/* Pagination controls - always show if there are items and more than one page */}
-      {items.length > 0 && totalPages > 1 && (
+      {/* Pagination controls */}
+      {totalPages > 1 && (
         <Pagination className="mt-8">
           <PaginationContent>
             <PaginationItem>
