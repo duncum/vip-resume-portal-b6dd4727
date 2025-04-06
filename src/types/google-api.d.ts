@@ -80,6 +80,9 @@ interface GoogleApiClient {
         q?: string;
         spaces?: string;
         fields?: string;
+        pageSize?: number;
+        orderBy?: string;
+        pageToken?: string;
       }) => Promise<{
         result: {
           files: {
@@ -89,6 +92,7 @@ interface GoogleApiClient {
             webContentLink?: string;
             [key: string]: any;
           }[];
+          nextPageToken?: string;
         };
       }>;
       create: (options: {
