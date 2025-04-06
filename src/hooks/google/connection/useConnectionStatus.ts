@@ -7,6 +7,7 @@ import { ConnectionStatus } from './types';
  */
 export const useConnectionStatus = () => {
   const [status, setStatus] = useState<ConnectionStatus>({
+    isInitialized: false,
     isAuthorized: false,
     userEmail: null,
     isLoading: false,
@@ -41,6 +42,7 @@ export const useConnectionStatus = () => {
         ...prev, 
         isAuthorized, 
         userEmail,
+        isInitialized: true, // Mark as initialized when authorization is confirmed
         isLoading: false, // Always clear loading state when auth state changes
         error: null // Clear any errors when auth state changes
       };
@@ -49,6 +51,7 @@ export const useConnectionStatus = () => {
   
   const resetStatus = useCallback(() => {
     setStatus({
+      isInitialized: false,
       isAuthorized: false,
       userEmail: null,
       isLoading: false,
