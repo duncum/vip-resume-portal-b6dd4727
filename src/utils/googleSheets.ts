@@ -9,5 +9,6 @@ export {
   CANDIDATES_RANGE,
   mockCandidates,
   fetchCandidates,
-  fetchCandidateById
+  fetchCandidateById,
+  addCandidate
 } from './sheets';

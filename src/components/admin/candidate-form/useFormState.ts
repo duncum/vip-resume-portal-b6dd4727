@@ -1,8 +1,9 @@
-
 import { useState } from "react";
 import { toast } from "sonner";
 import { ensureAuthorization } from "@/utils/sheets/auth-helper";
 import { SPREADSHEET_ID, CANDIDATES_RANGE } from "@/utils/sheets/config";
+import { addCandidate } from "@/utils/sheets";
+import { uploadResumeToDrive } from "@/utils/googleDrive";
 
 export const useFormState = (onSuccess?: () => void) => {
   const [isUploading, setIsUploading] = useState(false);
@@ -12,13 +13,11 @@ export const useFormState = (onSuccess?: () => void) => {
   const [summary, setSummary] = useState("");
   const [location, setLocation] = useState("");
   
-  // Multiple selections
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [selectedTitleCategories, setSelectedTitleCategories] = useState<string[]>([]);
   const [selectedTitles, setSelectedTitles] = useState<Record<string, string[]>>({});
   const [customTitles, setCustomTitles] = useState<Record<string, string[]>>({});
   
-  // Skills and experiences
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [customSkills, setCustomSkills] = useState<string[]>([]);
   
@@ -28,12 +27,10 @@ export const useFormState = (onSuccess?: () => void) => {
   const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
   const [customSectors, setCustomSectors] = useState<string[]>([]);
   
-  // Tags (used for searchable keywords)
   const [tags, setTags] = useState("");
   
   const [relocationPreference, setRelocationPreference] = useState("flexible");
 
-  // Handle candidate level selection/deselection
   const handleLevelChange = (level: string, checked: boolean) => {
     if (checked) {
       setSelectedLevels(prev => [...prev, level]);
@@ -42,7 +39,6 @@ export const useFormState = (onSuccess?: () => void) => {
     }
   };
   
-  // Handle title category selection/deselection
   const handleTitleCategoryChange = (category: string, checked: boolean) => {
     if (checked) {
       setSelectedTitleCategories(prev => [...prev, category]);
@@ -62,7 +58,6 @@ export const useFormState = (onSuccess?: () => void) => {
     }
   };
   
-  // Handle title selection/deselection
   const handleTitleChange = (category: string, title: string, checked: boolean) => {
     if (checked) {
       setSelectedTitles(prev => ({
@@ -91,7 +86,6 @@ export const useFormState = (onSuccess?: () => void) => {
     }
   };
   
-  // Update custom title
   const handleCustomTitleChange = (category: string, index: number, value: string) => {
     setCustomTitles(prev => {
       const updatedCustomTitles = [...(prev[category] || [])];
@@ -103,7 +97,6 @@ export const useFormState = (onSuccess?: () => void) => {
     });
   };
   
-  // Add another "Other" option
   const addAnotherCustomTitle = (category: string) => {
     if (!selectedTitles[category]?.includes("Other")) {
       setSelectedTitles(prev => ({
@@ -118,7 +111,6 @@ export const useFormState = (onSuccess?: () => void) => {
     }));
   };
   
-  // Remove a specific custom title
   const removeCustomTitle = (category: string, index: number) => {
     setCustomTitles(prev => {
       const updatedCustomTitles = [...(prev[category] || [])];
@@ -138,7 +130,6 @@ export const useFormState = (onSuccess?: () => void) => {
     });
   };
   
-  // Handle skill selection
   const handleSkillChange = (skill: string, checked: boolean) => {
     if (checked) {
       setSelectedSkills(prev => [...prev, skill]);
@@ -147,12 +138,10 @@ export const useFormState = (onSuccess?: () => void) => {
     }
   };
   
-  // Add custom skill
   const addCustomSkill = () => {
     setCustomSkills(prev => [...prev, ""]);
   };
   
-  // Update custom skill
   const handleCustomSkillChange = (index: number, value: string) => {
     setCustomSkills(prev => {
       const updated = [...prev];
@@ -161,12 +150,10 @@ export const useFormState = (onSuccess?: () => void) => {
     });
   };
   
-  // Remove custom skill
   const removeCustomSkill = (index: number) => {
     setCustomSkills(prev => prev.filter((_, i) => i !== index));
   };
   
-  // Handle asset type selection
   const handleAssetTypeChange = (assetType: string, checked: boolean) => {
     if (checked) {
       setSelectedAssetTypes(prev => [...prev, assetType]);
@@ -175,12 +162,10 @@ export const useFormState = (onSuccess?: () => void) => {
     }
   };
   
-  // Add custom asset type
   const addCustomAssetType = () => {
     setCustomAssetTypes(prev => [...prev, ""]);
   };
   
-  // Update custom asset type
   const handleCustomAssetTypeChange = (index: number, value: string) => {
     setCustomAssetTypes(prev => {
       const updated = [...prev];
@@ -189,12 +174,10 @@ export const useFormState = (onSuccess?: () => void) => {
     });
   };
   
-  // Remove custom asset type
   const removeCustomAssetType = (index: number) => {
     setCustomAssetTypes(prev => prev.filter((_, i) => i !== index));
   };
   
-  // Handle sector selection
   const handleSectorChange = (sector: string, checked: boolean) => {
     if (checked) {
       setSelectedSectors(prev => [...prev, sector]);
@@ -203,12 +186,10 @@ export const useFormState = (onSuccess?: () => void) => {
     }
   };
   
-  // Add custom sector
   const addCustomSector = () => {
     setCustomSectors(prev => [...prev, ""]);
   };
   
-  // Update custom sector
   const handleCustomSectorChange = (index: number, value: string) => {
     setCustomSectors(prev => {
       const updated = [...prev];
@@ -217,14 +198,12 @@ export const useFormState = (onSuccess?: () => void) => {
     });
   };
   
-  // Remove custom sector
   const removeCustomSector = (index: number) => {
     setCustomSectors(prev => prev.filter((_, i) => i !== index));
   };
 
   const saveToGoogleSheets = async (candidateData: any) => {
     try {
-      // Check if we're authorized to use Google Sheets
       const authorized = await ensureAuthorization();
       
       if (!authorized) {
@@ -232,22 +211,19 @@ export const useFormState = (onSuccess?: () => void) => {
         return false;
       }
       
-      // Format the data for Google Sheets
-      // This structure should match the expected column order in your sheet
       const rowData = [
-        candidateData.id,                                               // ID
-        candidateData.headline,                                         // Headline
-        candidateData.sectors.join(', '),                                // Sectors
-        candidateData.tags.join(', '),                                   // Tags
-        candidateData.resumeUrl,                                         // Resume URL
-        candidateData.titleCategories[0] || '',                          // Primary Category
-        candidateData.titles[candidateData.titleCategories[0]]?.[0] || '', // Primary Title
-        candidateData.summary,                                           // Summary
-        candidateData.location,                                          // Location
-        candidateData.relocationPreference                               // Relocation Preference
+        candidateData.id,
+        candidateData.headline,
+        candidateData.sectors.join(', '),
+        candidateData.tags.join(', '),
+        candidateData.resumeUrl,
+        candidateData.titleCategories[0] || '',
+        candidateData.titles[candidateData.titleCategories[0]]?.[0] || '',
+        candidateData.summary,
+        candidateData.location,
+        candidateData.relocationPreference
       ];
       
-      // Append the data to the Google Sheet
       await window.gapi.client.sheets.spreadsheets.values.append({
         spreadsheetId: SPREADSHEET_ID,
         range: CANDIDATES_RANGE,
@@ -289,13 +265,11 @@ export const useFormState = (onSuccess?: () => void) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate candidateId exists
     if (!candidateId.trim()) {
       toast.error("Please enter a Candidate ID");
       return;
     }
     
-    // Validate that a resume URL exists
     if (!resumeUrl) {
       toast.error("Please upload a resume first");
       return;
@@ -351,8 +325,7 @@ export const useFormState = (onSuccess?: () => void) => {
     console.log("Candidate data:", candidateData);
     
     try {
-      // Attempt to save to Google Sheets
-      const saved = await saveToGoogleSheets(candidateData);
+      const saved = await addCandidate(candidateData);
       
       if (saved) {
         toast.success("Resume uploaded and data saved to Google Sheets");
@@ -361,7 +334,6 @@ export const useFormState = (onSuccess?: () => void) => {
           onSuccess();
         }
         
-        // Reset form fields
         resetForm();
       }
     } catch (error) {
@@ -373,7 +345,6 @@ export const useFormState = (onSuccess?: () => void) => {
   };
 
   return {
-    // Form states
     isUploading,
     candidateId,
     setCandidateId,
@@ -390,11 +361,9 @@ export const useFormState = (onSuccess?: () => void) => {
     relocationPreference,
     setRelocationPreference,
     
-    // Levels
     selectedLevels,
     handleLevelChange,
     
-    // Titles
     selectedTitleCategories,
     handleTitleCategoryChange,
     selectedTitles,
@@ -404,7 +373,6 @@ export const useFormState = (onSuccess?: () => void) => {
     addAnotherCustomTitle,
     removeCustomTitle,
     
-    // Skills
     selectedSkills,
     handleSkillChange,
     customSkills,
@@ -412,7 +380,6 @@ export const useFormState = (onSuccess?: () => void) => {
     handleCustomSkillChange,
     removeCustomSkill,
     
-    // Asset Types
     selectedAssetTypes,
     handleAssetTypeChange,
     customAssetTypes,
@@ -420,7 +387,6 @@ export const useFormState = (onSuccess?: () => void) => {
     handleCustomAssetTypeChange,
     removeCustomAssetType,
     
-    // Sectors
     selectedSectors,
     handleSectorChange,
     customSectors,
@@ -428,7 +394,6 @@ export const useFormState = (onSuccess?: () => void) => {
     handleCustomSectorChange,
     removeCustomSector,
     
-    // Form submission
     handleSubmit
   };
 };
