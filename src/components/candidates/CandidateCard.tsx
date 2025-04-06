@@ -96,7 +96,7 @@ const CandidateCard = ({
       </CardHeader>
       
       <CardContent className="pb-0">
-        {/* Location and Relocation Preference */}
+        {/* Location and Relocation Preference - moved higher in the layout */}
         {location && (
           <div className="flex items-center text-grey-400 text-xs mb-3">
             <MapPin size={14} className="mr-1 text-gold/70" />
@@ -111,6 +111,19 @@ const CandidateCard = ({
             )}
           </div>
         )}
+        
+        {/* Sectors/Industries - moved up as it's more important context */}
+        <div className="flex flex-wrap gap-1 md:gap-2 mb-3">
+          {sectors.map((sector, index) => (
+            <Badge 
+              key={index} 
+              variant="outline" 
+              className="bg-grey-800/70 text-grey-200 border-grey-700 backdrop-blur-sm shadow-sm text-xs whitespace-nowrap"
+            >
+              {sector}
+            </Badge>
+          ))}
+        </div>
         
         {/* Summary with Read More option */}
         {summary && (
@@ -133,18 +146,6 @@ const CandidateCard = ({
             </p>
           </div>
         )}
-        
-        <div className="flex flex-wrap gap-1 md:gap-2 mb-4">
-          {sectors.map((sector, index) => (
-            <Badge 
-              key={index} 
-              variant="outline" 
-              className="bg-grey-800/70 text-grey-200 border-grey-700 backdrop-blur-sm shadow-sm text-xs whitespace-nowrap"
-            >
-              {sector}
-            </Badge>
-          ))}
-        </div>
         
         {/* View Resume Button */}
         {resumeUrl && (
