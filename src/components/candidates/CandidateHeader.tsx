@@ -15,9 +15,12 @@ const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
       {/* Gold gradient line */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold/40 via-gold to-gold/40"></div>
       
-      {/* One Man Army badge */}
+      {/* Padding div to create space between the line and content */}
+      <div className="h-4"></div>
+      
+      {/* One Man Army badge - moved down a bit */}
       {isOneManArmy && (
-        <div className="absolute top-2 right-0">
+        <div className="absolute top-5 right-0">
           <img 
             src="/lovable-uploads/e1ac2dc5-b6bf-42e4-a501-cf37986c19ee.png" 
             alt="One Man Army" 
@@ -26,8 +29,8 @@ const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
         </div>
       )}
       
-      {/* Category badge - increased top margin to prevent overlap with gold line */}
-      <div className="mt-6 mb-3">
+      {/* Category badge - with increased spacing from the top */}
+      <div className="mt-8 mb-3">
         <CategoryBadge category={candidate.category} title={candidate.title} />
       </div>
       
@@ -37,7 +40,7 @@ const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
         {candidate.headline}
       </h1>
       
-      {/* Location and relocation preference - Using the LocationInfo component from the card */}
+      {/* Location and relocation preference */}
       <LocationInfo 
         location={candidate.location} 
         relocationPreference={candidate.relocationPreference}
