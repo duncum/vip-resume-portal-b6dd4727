@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { initGoogleApi, signInToGoogle, signOutFromGoogle, isUserAuthorized } from '@/utils/google';
 import { toast } from 'sonner';
 import { MissingCredentials } from './useGoogleCredentials';
@@ -56,6 +56,24 @@ export const useGoogleConnection = (missingCredentials: MissingCredentials) => {
       });
     }
   }, []);
+
+  // Auto-check status when component mounts
+  useEffect(() => {
+    checkStatus();
+    
+    // Add a timeout to ensure loading state doesn't get stuck
+    const timeoutId = setTimeout(() => {
+      setStatus(prev => {
+        if (prev.isLoading) {
+          console.log('Status check timeout reached, resetting loading state');
+          return { ...prev, isLoading: false };
+        }
+        return prev;
+      });
+    }, 5000); // 5 second timeout
+    
+    return () => clearTimeout(timeoutId);
+  }, [checkStatus]);
 
   const handleSignIn = async () => {
     if (missingCredentials.apiKey) {

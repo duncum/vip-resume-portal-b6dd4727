@@ -9,6 +9,7 @@ type ConnectionButtonProps = {
     apiKey: boolean;
   };
   isAuthorized: boolean;
+  isLoading: boolean;
   onShowCredentials: () => void;
   onSignOut: () => void;
   onSignIn: () => void;
@@ -17,6 +18,7 @@ type ConnectionButtonProps = {
 const ConnectionButton: React.FC<ConnectionButtonProps> = ({
   missingCredentials,
   isAuthorized,
+  isLoading,
   onShowCredentials,
   onSignOut,
   onSignIn
@@ -36,8 +38,21 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
   
   if (isAuthorized) {
     return (
-      <Button size="sm" variant="outline" onClick={onSignOut} className="w-full text-xs">
-        Disconnect API
+      <Button 
+        size="sm" 
+        variant="outline" 
+        onClick={onSignOut} 
+        disabled={isLoading}
+        className="w-full text-xs"
+      >
+        {isLoading ? (
+          <>
+            <div className="h-3 w-3 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+            Disconnecting...
+          </>
+        ) : (
+          "Disconnect API"
+        )}
       </Button>
     );
   }
@@ -46,10 +61,20 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
     <Button 
       size="sm" 
       onClick={onSignIn} 
+      disabled={isLoading}
       className="w-full text-xs bg-white border border-gray-200 text-gray-800 hover:bg-gray-100"
     >
-      <GoogleIcon className="h-3 w-3 mr-2" />
-      Connect Google API
+      {isLoading ? (
+        <>
+          <div className="h-3 w-3 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+          Connecting...
+        </>
+      ) : (
+        <>
+          <GoogleIcon className="h-3 w-3 mr-2" />
+          Connect Google API
+        </>
+      )}
     </Button>
   );
 };

@@ -63,6 +63,7 @@ const GoogleIntegrationStatus = () => {
         <ConnectionButton 
           missingCredentials={missingCredentials}
           isAuthorized={status.isAuthorized}
+          isLoading={status.isLoading}
           onShowCredentials={() => setShowCredentialsForm(true)}
           onSignOut={handleSignOut}
           onSignIn={handleSignIn}
