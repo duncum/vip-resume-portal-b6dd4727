@@ -11,7 +11,7 @@ const LocationInfo = ({ location, relocationPreference }: LocationInfoProps) => 
   if (!location && !relocationPreference) return null;
   
   return (
-    <div className="flex items-center justify-between text-grey-400 text-xs mb-3">
+    <div className="flex flex-wrap items-center gap-2 text-grey-400 text-xs mb-3">
       <div className="flex items-center">
         {location && (
           <>

@@ -30,7 +30,7 @@ const ResumeLink = ({ resumeUrl, candidateId }: ResumeLinkProps) => {
         group"
     >
       <FileText size={14} className="mr-1.5 group-hover:scale-110 transition-transform duration-300" />
-      View Resume
+      View Confidential Resume
     </button>
   );
 };

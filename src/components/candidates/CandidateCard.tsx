@@ -1,11 +1,9 @@
 
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Star } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   CategoryBadge,
-  RelocationBadge,
   LocationInfo,
   SectorBadges,
   CandidateSummary,
@@ -68,13 +66,8 @@ const CandidateCard = ({
         </div>
       )}
       
-      {/* Star decoration */}
-      <div className="absolute bottom-2 md:bottom-3 left-2 md:left-3 text-gold/20 transition-opacity duration-300 group-hover:opacity-30">
-        <Star size={isMobile ? 30 : 40} strokeWidth={1} />
-      </div>
-      
       <CardHeader className="pb-1 pt-4 px-4 md:px-5 relative z-10">
-        <div className="flex justify-between items-start mb-1.5">
+        <div className="mb-1.5">
           <CategoryBadge category={category} title={title} />
         </div>
         

@@ -22,7 +22,7 @@ const CategoryBadge = ({ category, title }: CategoryBadgeProps) => {
   const baseColor = categoryColors[category as keyof typeof categoryColors] || "bg-gradient-to-r from-grey-800 to-grey-700 text-white border-grey-600 hover:bg-grey-700 hover:shadow-md hover:shadow-grey-700/20";
   
   return (
-    <div className="flex flex-col space-y-2">
+    <div className="flex flex-col space-y-1">
       <Badge 
         className={`${baseColor} text-xs font-medium px-3 py-1 rounded-full shadow-sm transition-all duration-200`}
       >
@@ -30,7 +30,7 @@ const CategoryBadge = ({ category, title }: CategoryBadgeProps) => {
       </Badge>
       
       {title && (
-        <span className="text-grey-400 text-xs mt-1">
+        <span className="text-grey-400 text-xs">
           {title}
         </span>
       )}

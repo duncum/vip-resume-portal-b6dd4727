@@ -11,17 +11,17 @@ const CandidateSummary = ({ summary }: CandidateSummaryProps) => {
   
   if (!summary) return null;
 
-  // Truncate summary to 100 characters for preview
-  const truncatedSummary = summary.length > 100 
-    ? `${summary.substring(0, 100)}...` 
+  // Truncate summary to approximately 4 lines (around 200 characters)
+  const truncatedSummary = summary.length > 200 
+    ? `${summary.substring(0, 200)}...` 
     : summary;
 
   return (
     <div className="mb-4 bg-gradient-to-br from-grey-800/40 to-grey-800/30 
       p-2 rounded-md border border-grey-700/40 hover:border-grey-700/60 transition-colors">
-      <p className="text-grey-300 text-sm">
+      <p className="text-grey-300 text-sm leading-relaxed min-h-[5rem]">
         {showFullSummary ? summary : truncatedSummary}
-        {summary.length > 100 && (
+        {summary.length > 200 && (
           <button 
             onClick={(e) => {
               e.preventDefault();

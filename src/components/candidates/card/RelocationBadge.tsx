@@ -10,7 +10,7 @@ interface RelocationBadgeProps {
 const relocationBadge = {
   "willing": { 
     color: "bg-gold/20 text-gold border-gold/40 hover:bg-gold/30", 
-    text: "Open to Relocation" 
+    text: "Open to Relocate" 
   },
   "remote-only": { 
     color: "bg-grey-800 text-white/80 border-grey-700 hover:bg-grey-700", 
