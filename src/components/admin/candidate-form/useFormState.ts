@@ -58,7 +58,8 @@ export const useFormState = (onSuccess?: () => void) => {
       assetTypes: assetTypes.getAllItems(),
       sectors: sectors.getAllItems(),
       tags: basicInfo.tags.split(",").map(t => t.trim()).filter(t => t !== ""),
-      resumeUrl: basicInfo.resumeUrl
+      resumeUrl: basicInfo.resumeUrl,
+      notableEmployers: basicInfo.notableEmployers
     };
     
     await formSubmission.submitForm(formData);
@@ -80,6 +81,8 @@ export const useFormState = (onSuccess?: () => void) => {
     setTags: basicInfo.setTags,
     relocationPreference: basicInfo.relocationPreference,
     setRelocationPreference: basicInfo.setRelocationPreference,
+    notableEmployers: basicInfo.notableEmployers,
+    setNotableEmployers: basicInfo.setNotableEmployers,
     
     // From levels
     selectedLevels: levels.selectedLevels,

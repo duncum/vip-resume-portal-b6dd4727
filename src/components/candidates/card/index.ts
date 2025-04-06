@@ -6,3 +6,4 @@ export { default as SectorBadges } from './SectorBadges';
 export { default as CandidateSummary } from './CandidateSummary';
 export { default as SkillBadges } from './SkillBadges';
 export { default as ResumeLink } from './ResumeLink';
+export { default as NotableEmployers } from './NotableEmployers';

@@ -13,6 +13,7 @@ import HeadlineInput from "./HeadlineInput";
 import SummaryInput from "./SummaryInput";
 import TagsInput from "./TagsInput";
 import LocationSection from "./LocationSection";
+import NotableEmployersInput from "./NotableEmployersInput";
 import SubmitButton from "./SubmitButton";
 import { CandidateUploadFormProps } from "./types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -45,6 +46,8 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
     setTags,
     relocationPreference,
     setRelocationPreference,
+    notableEmployers,
+    setNotableEmployers,
     
     // Levels
     selectedLevels,
@@ -133,6 +136,12 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
           disabled={isApiKeyOnly}
         />
       </CollapsibleSection>
+      
+      <NotableEmployersInput 
+        notableEmployers={notableEmployers}
+        onNotableEmployersChange={setNotableEmployers}
+        disabled={isApiKeyOnly}
+      />
       
       <CollapsibleSection title="High-Level Skills">
         <SkillsSection 

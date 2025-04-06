@@ -1,32 +1,34 @@
 
 import { useState } from "react";
 
-export function useBasicInfoState() {
-  const [candidateId, setCandidateId] = useState("");
-  const [resumeUrl, setResumeUrl] = useState("");
-  const [headline, setHeadline] = useState("");
-  const [summary, setSummary] = useState("");
-  const [location, setLocation] = useState("");
-  const [tags, setTags] = useState("");
-  const [relocationPreference, setRelocationPreference] = useState("flexible");
+export const useBasicInfoState = () => {
+  const [candidateId, setCandidateId] = useState<string>("");
+  const [headline, setHeadline] = useState<string>("");
+  const [resumeUrl, setResumeUrl] = useState<string>("");
+  const [summary, setSummary] = useState<string>("");
+  const [location, setLocation] = useState<string>("");
+  const [tags, setTags] = useState<string>("");
+  const [relocationPreference, setRelocationPreference] = useState<string>("flexible");
+  const [notableEmployers, setNotableEmployers] = useState<string>("");
 
   const resetBasicInfo = () => {
     setCandidateId("");
     setHeadline("");
+    setResumeUrl("");
     setSummary("");
     setLocation("");
     setTags("");
     setRelocationPreference("flexible");
-    setResumeUrl("");
+    setNotableEmployers("");
   };
 
   return {
     candidateId,
     setCandidateId,
-    resumeUrl,
-    setResumeUrl,
     headline,
     setHeadline,
+    resumeUrl,
+    setResumeUrl,
     summary,
     setSummary,
     location,
@@ -35,6 +37,8 @@ export function useBasicInfoState() {
     setTags,
     relocationPreference,
     setRelocationPreference,
+    notableEmployers,
+    setNotableEmployers,
     resetBasicInfo
   };
-}
+};

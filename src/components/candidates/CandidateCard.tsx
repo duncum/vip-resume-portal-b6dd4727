@@ -10,7 +10,8 @@ import {
   SectorBadges,
   CandidateSummary,
   SkillBadges,
-  ResumeLink
+  ResumeLink,
+  NotableEmployers
 } from "./card";
 
 interface CandidateCardProps {
@@ -24,6 +25,7 @@ interface CandidateCardProps {
   location?: string;
   relocationPreference?: string;
   resumeUrl?: string;
+  notableEmployers?: string;
 }
 
 const CandidateCard = ({ 
@@ -36,7 +38,8 @@ const CandidateCard = ({
   summary,
   location,
   relocationPreference,
-  resumeUrl
+  resumeUrl,
+  notableEmployers
 }: CandidateCardProps) => {
   const isOneManArmy = category === "One Man Army";
   const isMobile = useIsMobile();
@@ -72,6 +75,7 @@ const CandidateCard = ({
       
       <CardContent className="pb-0">
         <LocationInfo location={location} />
+        <NotableEmployers employers={notableEmployers} />
         <SectorBadges sectors={sectors} />
         <CandidateSummary summary={summary} />
         <SkillBadges tags={tags} />

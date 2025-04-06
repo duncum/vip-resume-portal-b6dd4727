@@ -18,6 +18,7 @@ export type FormData = {
   sectors: string[];
   tags: string[];
   resumeUrl: string;
+  notableEmployers: string;
 };
 
 type UseFormSubmissionParams = {

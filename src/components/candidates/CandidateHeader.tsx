@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MapPin, Globe } from "lucide-react";
+import { ArrowLeft, MapPin, Globe, Briefcase } from "lucide-react";
 import { Candidate } from "@/utils/sheets";
 
 interface CandidateHeaderProps {
@@ -92,6 +92,14 @@ const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
           </Badge>
         )}
       </div>
+      
+      {candidate.notableEmployers && (
+        <div className="flex items-center text-grey-400 mb-4">
+          <Briefcase size={16} className="mr-2 text-gold/70" />
+          <span className="font-medium text-grey-300">Notable employers:</span>
+          <span className="ml-2">{candidate.notableEmployers}</span>
+        </div>
+      )}
     </div>
   );
 };

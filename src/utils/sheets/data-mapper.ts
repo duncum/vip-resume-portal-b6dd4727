@@ -17,6 +17,7 @@ export const rowToCandidate = (row: any[]): Candidate => {
     title: row[6] || "",
     summary: row[7] || "",
     location: row[8] || "",
-    relocationPreference: row[9] || "flexible"
+    relocationPreference: row[9] || "flexible",
+    notableEmployers: row[10] || ""
   };
 };
