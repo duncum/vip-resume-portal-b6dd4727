@@ -2,9 +2,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackIpAddress } from "@/utils/ipTracker";
-import { AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 interface ResumeViewerProps {
   fileUrl: string;
@@ -15,7 +12,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   
-  // Fix Google Drive URLs for proper embedding
+  // Fix Google Drive URLs for proper embedding (and remove download option)
   const getEmbedUrl = (url: string) => {
     // Check if it's a Google Drive URL
     if (url.includes('drive.google.com/file/d/')) {
@@ -23,8 +20,8 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
       const fileIdMatch = url.match(/\/d\/([^\/]+)/);
       if (fileIdMatch && fileIdMatch[1]) {
         const fileId = fileIdMatch[1];
-        // Return the proper embed URL for Google Drive
-        return `https://drive.google.com/file/d/${fileId}/preview`;
+        // Return the proper embed URL for Google Drive (with nocopy parameter)
+        return `https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true`;
       }
     }
     return url;

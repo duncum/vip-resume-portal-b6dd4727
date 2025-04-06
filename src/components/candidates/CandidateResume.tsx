@@ -27,6 +27,17 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
         return;
       }
       
+      // Get file extension to determine if we need special handling
+      const isGoogleDriveUrl = resumeUrl.includes('drive.google.com');
+      let fileId = '';
+      
+      if (isGoogleDriveUrl) {
+        const fileIdMatch = resumeUrl.match(/\/d\/([^\/]+)/);
+        if (fileIdMatch && fileIdMatch[1]) {
+          fileId = fileIdMatch[1];
+        }
+      }
+      
       // Add necessary content to the window
       printWindow.document.write(`
         <!DOCTYPE html>
@@ -35,7 +46,6 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
           <title>Resume Print</title>
           <style>
             body { margin: 0; padding: 0; }
-            iframe { width: 100%; height: 100vh; border: none; }
             
             /* Watermark styles */
             .watermark-container {
@@ -59,6 +69,12 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
               opacity: 0.3;
               margin: 50px;
               width: 200px;
+            }
+            iframe {
+              width: 100%;
+              height: 100vh;
+              border: none;
+              display: block;
             }
             @media print {
               .watermark-container {
@@ -87,15 +103,18 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
             </div>
           </div>
           
-          <!-- Direct link to PDF instead of iframe to avoid cross-origin issues -->
-          <iframe src="${resumeUrl}"></iframe>
+          <!-- Direct link to PDF -->
+          ${isGoogleDriveUrl ? 
+            `<iframe src="https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true"></iframe>` : 
+            `<iframe src="${resumeUrl}"></iframe>`
+          }
           
           <script>
             // Auto-print when loaded
             window.onload = function() {
               setTimeout(function() {
                 window.print();
-              }, 1000);
+              }, 1500);
             };
           </script>
         </body>
