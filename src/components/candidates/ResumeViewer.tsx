@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackIpAddress } from "@/utils/ipTracker";
@@ -21,7 +22,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
       if (fileIdMatch && fileIdMatch[1]) {
         const fileId = fileIdMatch[1];
         // Return the proper embed URL for Google Drive (with nocopy parameter)
-        return `https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true`;
+        return `https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true&embedded=true&rm=minimal`;
       }
     }
     // For other document types, return as is
@@ -50,7 +51,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
             if (iframeDocument) {
               // For Google Drive embeds - hide download buttons & print buttons
               const downloadButtons = iframeDocument.querySelectorAll('[role="button"], .ndfHFb-c4YZDc-Wrql6b');
-              downloadButtons.forEach((button: Element) => {
+              downloadButtons.forEach((button) => {
                 if (button instanceof HTMLElement) {
                   button.style.display = 'none';
                 }
@@ -58,7 +59,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
               
               // Style scrollbars if needed
               const scrollElements = iframeDocument.querySelectorAll('.goog-inline-block');
-              scrollElements.forEach((element: Element) => {
+              scrollElements.forEach((element) => {
                 if (element instanceof HTMLElement) {
                   element.style.scrollbarWidth = 'thin';
                   element.style.scrollbarColor = '#888 #f1f1f1';
@@ -141,7 +142,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
             <iframe
               ref={iframeRef}
               src={embedUrl}
-              className="w-full h-[800px] border-0"
+              className="w-full h-[800px] border-0 print:h-auto print:min-h-screen"
               title="Resume PDF"
               onError={handleIframeError}
               onLoad={handleIframeLoad}

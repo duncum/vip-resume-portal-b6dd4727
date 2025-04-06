@@ -45,7 +45,10 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
         <head>
           <title>Resume Print</title>
           <style>
-            body { margin: 0; padding: 0; }
+            body { 
+              margin: 0; 
+              padding: 0; 
+            }
             
             /* Watermark styles */
             .watermark-container {
@@ -61,15 +64,19 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
             .watermark-grid {
               display: flex;
               flex-wrap: wrap;
-              justify-content: space-around;
+              justify-content: center;
+              align-items: center;
               width: 100%;
               height: 100%;
+              transform: rotate(-45deg);
+              position: fixed;
+              top: 0;
+              left: 0;
             }
             .watermark {
-              transform: rotate(-45deg);
-              opacity: 0.3;
-              margin: 50px;
-              width: 200px;
+              opacity: 0.2;
+              margin: 30px;
+              width: 150px;
             }
             iframe {
               width: 100%;
@@ -78,17 +85,35 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
               display: block;
             }
             @media print {
+              @page {
+                size: auto;
+                margin: 0mm;
+              }
+              html, body {
+                height: 100%;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+              }
               .watermark-container {
                 position: fixed;
                 display: block !important;
                 z-index: 9999;
               }
-              .watermark { opacity: 0.4 !important; }
+              .watermark { 
+                opacity: 0.3 !important; 
+              }
               
               /* Force background printing */
               html, body { 
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                color-adjust: exact !important;
+              }
+              
+              iframe {
+                height: auto !important;
+                min-height: 100vh !important;
               }
             }
           </style>
@@ -96,7 +121,7 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
         <body>
           <div class="watermark-container">
             <div class="watermark-grid">
-              ${Array(20).fill(0).map(() => `
+              ${Array(30).fill(0).map(() => `
                 <div class="watermark">
                   <img src="/lovable-uploads/2b0b5215-0006-407b-97e0-707e78f84b1d.png" alt="CRE Confidential" width="100%">
                 </div>
@@ -104,28 +129,38 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
             </div>
           </div>
           
-          <!-- Direct link to PDF -->
           ${isGoogleDriveUrl ? 
-            `<iframe src="https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true"></iframe>` : 
+            `<iframe src="https://drive.google.com/file/d/${fileId}/preview?usp=sharing&nocopy=true&embedded=true&rm=minimal"></iframe>` : 
             `<iframe src="${resumeUrl}"></iframe>`
           }
           
           <script>
             // Auto-print when loaded
             window.onload = function() {
-              setTimeout(function() {
-                window.print();
-                
-                // Remove any download buttons after load
-                try {
-                  const downloadButtons = document.querySelectorAll('[role="button"], .ndfHFb-c4YZDc-Wrql6b');
-                  downloadButtons.forEach(function(button) {
-                    button.style.display = 'none';
-                  });
-                } catch(e) {
-                  console.log("Note: Unable to modify iframe content");
-                }
-              }, 1500);
+              // Wait for iframe to load
+              const iframe = document.querySelector('iframe');
+              iframe.onload = function() {
+                setTimeout(function() {
+                  // Try to access iframe contents to remove download buttons
+                  try {
+                    const iframeDocument = iframe.contentDocument || 
+                                         (iframe.contentWindow && iframe.contentWindow.document);
+                    
+                    if (iframeDocument) {
+                      // Hide any download/print buttons
+                      const buttons = iframeDocument.querySelectorAll('[role="button"], .ndfHFb-c4YZDc-Wrql6b, .goog-inline-block');
+                      buttons.forEach(function(button) {
+                        button.style.display = 'none';
+                      });
+                    }
+                  } catch(e) {
+                    console.log("Note: Unable to modify iframe content due to security restrictions");
+                  }
+                  
+                  // Trigger print
+                  window.print();
+                }, 1500);
+              };
             };
           </script>
         </body>
