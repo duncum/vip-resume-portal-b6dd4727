@@ -1,7 +1,7 @@
 
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ContractAgreement } from "@/components/auth/ContractAgreement";
+import ContractAgreement from "@/components/auth/ContractAgreement";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -44,7 +44,7 @@ const Agreement = () => {
           </h1>
           
           <div className="bg-black/60 border border-gold/20 p-6 md:p-8 rounded-lg shadow-lg">
-            <ContractAgreement onAgree={handleAgreement} />
+            <ContractAgreement onAgreementComplete={handleAgreement} />
           </div>
         </div>
       </main>
