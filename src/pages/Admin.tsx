@@ -9,6 +9,7 @@ import ManageCandidates from "@/components/admin/ManageCandidates";
 import Analytics from "@/components/admin/Analytics";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchCandidates, type Candidate } from "@/utils/sheets"; // Updated import with type
+import GoogleIntegrationStatus from "@/components/admin/GoogleIntegrationStatus"; // Added import
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("upload");
@@ -54,6 +55,11 @@ const Admin = () => {
           <p className="text-grey-600 max-w-2xl mx-auto">
             Manage your candidates and resumes from this central admin panel.
           </p>
+        </div>
+        
+        {/* Added Google Integration Status card */}
+        <div className="max-w-4xl mx-auto mb-8">
+          <GoogleIntegrationStatus />
         </div>
         
         <Tabs value={activeTab} onValueChange={handleTabChange} className="max-w-4xl mx-auto">
