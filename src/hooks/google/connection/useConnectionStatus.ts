@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { ConnectionStatus } from './types';
 
 /**
@@ -7,47 +7,57 @@ import { ConnectionStatus } from './types';
  */
 export const useConnectionStatus = () => {
   const [status, setStatus] = useState<ConnectionStatus>({
-    isInitialized: false,
     isAuthorized: false,
-    isLoading: true,
     userEmail: null,
+    isLoading: false,
     error: null
   });
   
-  // Use ref to prevent multiple simultaneous operations
   const isOperationInProgress = useRef(false);
   
-  const setLoading = (isLoading: boolean) => {
-    setStatus(prev => ({ ...prev, isLoading }));
-  };
-  
-  const setError = (error: string | null) => {
-    setStatus(prev => ({ ...prev, error }));
-  };
-  
-  const setAuthorized = (isAuthorized: boolean, userEmail: string | null = null) => {
-    setStatus({
-      isInitialized: isAuthorized,
-      isAuthorized,
-      isLoading: false,
-      userEmail,
-      error: null
+  // Use functions with checks to prevent excessive state updates
+  const setLoading = useCallback((isLoading: boolean) => {
+    // Only update if value is different to prevent unnecessary renders
+    setStatus(prev => {
+      if (prev.isLoading === isLoading) return prev;
+      return {...prev, isLoading};
     });
-  };
+  }, []);
   
-  const resetStatus = () => {
+  const setError = useCallback((error: string | null) => {
+    setStatus(prev => {
+      if (prev.error === error) return prev;
+      return {...prev, error};
+    });
+  }, []);
+  
+  const setAuthorized = useCallback((isAuthorized: boolean, userEmail: string | null) => {
+    setStatus(prev => {
+      // Only update if values changed
+      if (prev.isAuthorized === isAuthorized && prev.userEmail === userEmail) {
+        return prev;
+      }
+      return {
+        ...prev, 
+        isAuthorized, 
+        userEmail,
+        isLoading: false, // Always clear loading state when auth state changes
+        error: null // Clear any errors when auth state changes
+      };
+    });
+  }, []);
+  
+  const resetStatus = useCallback(() => {
     setStatus({
-      isInitialized: false,
       isAuthorized: false,
-      isLoading: false,
       userEmail: null,
+      isLoading: false,
       error: null
     });
-  };
+  }, []);
   
   return {
     status,
-    setStatus,
     setLoading,
     setError,
     setAuthorized,

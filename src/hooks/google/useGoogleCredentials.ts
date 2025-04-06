@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { CLIENT_ID, API_KEY } from '@/utils/google';
 import { SPREADSHEET_ID } from '@/utils/sheets';
 import { toast } from 'sonner';
@@ -28,7 +28,7 @@ export const useGoogleCredentials = () => {
 
   const [showCredentialsForm, setShowCredentialsForm] = useState(false);
 
-  // Load saved credentials from localStorage
+  // Load saved credentials from localStorage only once when component mounts
   useEffect(() => {
     const savedClientId = localStorage.getItem('google_client_id');
     const savedApiKey = localStorage.getItem('google_api_key');
@@ -49,7 +49,7 @@ export const useGoogleCredentials = () => {
     }
   }, []);
 
-  const handleCredentialSubmit = (e: React.FormEvent) => {
+  const handleCredentialSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     
     // Store credentials in localStorage
@@ -82,10 +82,10 @@ export const useGoogleCredentials = () => {
     
     // Return true to indicate successful submission
     return true;
-  };
+  }, [credentials]);
 
-  // New method to clear client ID but keep API key
-  const clearClientId = () => {
+  // Clear client ID but keep API key
+  const clearClientId = useCallback(() => {
     localStorage.removeItem('google_client_id');
     setCredentials(prev => ({
       ...prev,
@@ -93,9 +93,9 @@ export const useGoogleCredentials = () => {
     }));
     toast.success('Client ID removed, using API Key only mode');
     return true;
-  };
+  }, []);
 
-  const showSetupInstructions = () => {
+  const showSetupInstructions = useCallback(() => {
     toast.info(
       'You need to set up your Google API credentials. Open the browser console (F12) to see detailed instructions.',
       { duration: 8000 }
@@ -104,7 +104,7 @@ export const useGoogleCredentials = () => {
     import('@/utils/google/config').then(module => {
       module.printOAuthSetupInstructions();
     });
-  };
+  }, []);
 
   return {
     credentials,

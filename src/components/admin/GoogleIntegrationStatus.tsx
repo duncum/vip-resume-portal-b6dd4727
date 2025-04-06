@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import GoogleIcon from './google/GoogleIcon';
 import StatusDisplay from './google/StatusDisplay';
@@ -8,6 +8,8 @@ import ConnectionButton from './google/ConnectionButton';
 import { useGoogleIntegration } from './google/useGoogleIntegration';
 
 const GoogleIntegrationStatus = () => {
+  const hasAutoConnected = useRef(false);
+  
   const {
     status,
     missingCredentials,
@@ -23,12 +25,18 @@ const GoogleIntegrationStatus = () => {
     switchToApiKeyOnlyMode
   } = useGoogleIntegration();
 
-  // Auto-connect to Google when the component mounts if credentials are available
+  // Auto-connect to Google only once when the component mounts if credentials are available
   useEffect(() => {
-    if (!status.isAuthorized && !missingCredentials.apiKey) {
+    // Check if we should attempt auto-connect (has API key, not yet connected, hasn't tried yet)
+    if (!status.isAuthorized && 
+        !missingCredentials.apiKey && 
+        !hasAutoConnected.current && 
+        !status.isLoading) {
+      console.log('Auto-connecting to Google API...');
+      hasAutoConnected.current = true;
       autoConnect();
     }
-  }, [status.isAuthorized, missingCredentials, autoConnect]);
+  }, [status.isAuthorized, missingCredentials.apiKey, status.isLoading, autoConnect]);
 
   return (
     <Card className="border-dashed">

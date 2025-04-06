@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useGoogleCredentials } from '@/hooks/google/useGoogleCredentials';
 import { useGoogleConnection } from '@/hooks/google/connection';
 
@@ -23,15 +23,27 @@ export const useGoogleIntegration = () => {
     autoConnect
   } = useGoogleConnection(missingCredentials, clearClientId);
 
-  // Debounce credential changes to prevent excessive status checks
-  useEffect(() => {
-    // Use a timeout to delay the status check after credential changes
-    const timeoutId = setTimeout(() => {
-      checkStatus();
-    }, 500);
+  // Use a throttled status check to prevent excessive renders
+  const throttledCheckStatus = useCallback(() => {
+    // Prevent multiple status checks in a short time period
+    if (window._lastStatusCheck && (Date.now() - window._lastStatusCheck) < 2000) {
+      console.log('Throttling status check - too soon since last check');
+      return;
+    }
     
-    return () => clearTimeout(timeoutId);
-  }, [missingCredentials, checkStatus]);
+    window._lastStatusCheck = Date.now();
+    checkStatus();
+  }, [checkStatus]);
+
+  // Only check status on mount and when missing credentials change
+  useEffect(() => {
+    // Initial check with a slight delay to let everything initialize
+    const initialCheckTimeout = setTimeout(() => {
+      throttledCheckStatus();
+    }, 300);
+    
+    return () => clearTimeout(initialCheckTimeout);
+  }, [missingCredentials, throttledCheckStatus]);
 
   // Wrap the credential submit handler to also check status
   const handleCredentialSubmitWithStatusCheck = (e: React.FormEvent) => {
@@ -39,8 +51,8 @@ export const useGoogleIntegration = () => {
     if (result) {
       // Delay status check to allow localStorage to update
       setTimeout(() => {
-        checkStatus();
-      }, 300);
+        throttledCheckStatus();
+      }, 500);
     }
     return result;
   };
@@ -52,7 +64,7 @@ export const useGoogleIntegration = () => {
       if (result) {
         setTimeout(() => {
           autoConnect();
-        }, 300);
+        }, 500);
       }
       return result;
     }
@@ -74,3 +86,10 @@ export const useGoogleIntegration = () => {
     switchToApiKeyOnlyMode
   };
 };
+
+// Add this to the global Window interface
+declare global {
+  interface Window {
+    _lastStatusCheck?: number;
+  }
+}

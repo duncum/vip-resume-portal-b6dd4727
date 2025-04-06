@@ -8,16 +8,34 @@ export const useInitialStatus = (
   checkStatus: () => Promise<void>,
   setLoading: (isLoading: boolean) => void
 ) => {
-  // Auto-check status when component mounts
+  // Only check status once when component mounts
   useEffect(() => {
-    checkStatus();
+    let isMounted = true;
     
-    // Add a timeout to ensure loading state doesn't get stuck
+    // Set to true first to prevent flickering
+    setLoading(true);
+    
+    // Use a timeout to delay first status check
     const timeoutId = setTimeout(() => {
-      setLoading(false);
-      console.log('Status check timeout reached, resetting loading state');
-    }, 5000); // 5 second timeout
+      if (isMounted) {
+        checkStatus().catch(() => {
+          if (isMounted) setLoading(false);
+        });
+      }
+    }, 300);
     
-    return () => clearTimeout(timeoutId);
+    // Add a safety timeout to ensure loading state doesn't get stuck
+    const safetyTimeoutId = setTimeout(() => {
+      if (isMounted) {
+        setLoading(false);
+        console.log('Safety timeout reached, resetting loading state');
+      }
+    }, 8000); // 8 second safety timeout
+    
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+      clearTimeout(safetyTimeoutId);
+    };
   }, [checkStatus, setLoading]);
 };
