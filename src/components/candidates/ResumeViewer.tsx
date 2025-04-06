@@ -2,8 +2,14 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackIpAddress } from "@/utils/ipTracker";
-import { FileText } from "lucide-react";
+import { FileText, Printer, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ResumeViewerProps {
   fileUrl: string;
@@ -48,6 +54,19 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
     setIsLoading(false);
   };
 
+  const handlePrint = () => {
+    // Focus the iframe first
+    const iframe = document.querySelector('iframe');
+    if (iframe) {
+      iframe.focus();
+      // Print the iframe content which includes the watermark
+      iframe.contentWindow?.print();
+    } else {
+      // Fallback to window print if iframe not found
+      window.print();
+    }
+  };
+
   return (
     <Card className="w-full border border-grey-200 bg-white">
       <CardContent className="p-0 relative">
@@ -66,13 +85,25 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
               </svg>
               <h3 className="text-lg font-medium text-grey-700">Unable to display resume</h3>
               <p className="mt-2 text-grey-500">The resume might be unavailable or in an unsupported format. Try downloading it directly instead.</p>
-              <Button 
-                onClick={() => window.open(fileUrl, '_blank')}
-                className="mt-4 bg-gold text-black hover:bg-gold/90"
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                Download Resume
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        onClick={() => window.open(fileUrl, '_blank')}
+                        className="bg-grey-800 text-white hover:bg-grey-700"
+                        variant="outline"
+                      >
+                        <FileText className="mr-2 h-4 w-4" />
+                        Download Original
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Downloads without watermark</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           </div>
         ) : (
@@ -112,6 +143,50 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
               frameBorder="0"
               allowFullScreen
             />
+            
+            {/* Print/Download Options */}
+            <div className="absolute bottom-4 right-4 flex gap-2 z-20">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={handlePrint}
+                      className="bg-gold text-black hover:bg-gold/90"
+                    >
+                      <Printer className="mr-2 h-4 w-4" />
+                      Print with Watermark
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Preserves the confidentiality watermark</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={() => window.open(fileUrl, '_blank')}
+                      className="bg-grey-800 text-white hover:bg-grey-700"
+                      variant="outline"
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Download Original
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Download without watermark (original file)</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            {/* Watermark notice */}
+            <div className="absolute top-2 left-2 z-20 bg-black/70 text-white px-3 py-1 rounded-md text-xs flex items-center">
+              <AlertCircle size={12} className="mr-1" />
+              Confidential - Print option preserves watermarks
+            </div>
           </div>
         )}
       </CardContent>
