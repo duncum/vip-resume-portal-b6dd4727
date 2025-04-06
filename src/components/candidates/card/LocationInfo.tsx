@@ -1,17 +1,28 @@
 
 import { MapPin } from "lucide-react";
+import { RelocationBadge } from "./";
 
 interface LocationInfoProps {
   location?: string;
+  relocationPreference?: string;
 }
 
-const LocationInfo = ({ location }: LocationInfoProps) => {
-  if (!location) return null;
+const LocationInfo = ({ location, relocationPreference }: LocationInfoProps) => {
+  if (!location && !relocationPreference) return null;
   
   return (
-    <div className="flex items-center text-grey-400 text-xs mb-3">
-      <MapPin size={14} className="mr-1 text-gold/70" />
-      <span>{location}</span>
+    <div className="flex items-center justify-between text-grey-400 text-xs mb-3">
+      <div className="flex items-center">
+        {location && (
+          <>
+            <MapPin size={14} className="mr-1 text-gold/70" />
+            <span>{location}</span>
+          </>
+        )}
+      </div>
+      {relocationPreference && (
+        <RelocationBadge relocationPreference={relocationPreference} />
+      )}
     </div>
   );
 };

@@ -65,7 +65,6 @@ const CandidateCard = ({
       <CardHeader className="pb-1 md:pb-2">
         <div className="flex justify-between items-start mb-2">
           <CategoryBadge category={category} title={title} />
-          <RelocationBadge relocationPreference={relocationPreference} />
         </div>
         
         <CardTitle className="text-lg md:text-2xl font-display text-white leading-tight line-clamp-2">
@@ -74,7 +73,10 @@ const CandidateCard = ({
       </CardHeader>
       
       <CardContent className="pb-0">
-        <LocationInfo location={location} />
+        <LocationInfo 
+          location={location} 
+          relocationPreference={relocationPreference} 
+        />
         <NotableEmployers employers={notableEmployers} />
         <CandidateSummary summary={summary} />
       </CardContent>
