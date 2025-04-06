@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { useGoogleCredentials } from '@/hooks/google/useGoogleCredentials';
-import { useGoogleConnection } from '@/hooks/google/useGoogleConnection';
+import { useGoogleConnection } from '@/hooks/google/connection';
 
 export const useGoogleIntegration = () => {
   const {
