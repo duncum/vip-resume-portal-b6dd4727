@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackIpAddress } from "@/utils/ipTracker";
+import { FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ResumeViewerProps {
   fileUrl: string;
@@ -11,6 +13,23 @@ interface ResumeViewerProps {
 const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  
+  // Fix Google Drive URLs for proper embedding
+  const getEmbedUrl = (url: string) => {
+    // Check if it's a Google Drive URL
+    if (url.includes('drive.google.com/file/d/')) {
+      // Extract the file ID
+      const fileIdMatch = url.match(/\/d\/([^\/]+)/);
+      if (fileIdMatch && fileIdMatch[1]) {
+        const fileId = fileIdMatch[1];
+        // Return the proper embed URL for Google Drive
+        return `https://drive.google.com/file/d/${fileId}/preview`;
+      }
+    }
+    return url;
+  };
+
+  const embedUrl = getEmbedUrl(fileUrl);
 
   useEffect(() => {
     // Track IP address when resume is viewed
@@ -47,14 +66,13 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
               </svg>
               <h3 className="text-lg font-medium text-grey-700">Unable to display resume</h3>
               <p className="mt-2 text-grey-500">The resume might be unavailable or in an unsupported format. Try downloading it directly instead.</p>
-              <a 
-                href={fileUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="mt-4 px-4 py-2 bg-gold text-black rounded-md hover:bg-gold/90 transition-colors"
+              <Button 
+                onClick={() => window.open(fileUrl, '_blank')}
+                className="mt-4 bg-gold text-black hover:bg-gold/90"
               >
+                <FileText className="mr-2 h-4 w-4" />
                 Download Resume
-              </a>
+              </Button>
             </div>
           </div>
         ) : (
@@ -87,10 +105,12 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
             
             {/* PDF viewer */}
             <iframe
-              src={`${fileUrl}#toolbar=0`}
+              src={embedUrl}
               className="w-full h-[800px] border-0"
               title="Resume PDF"
               onError={handleIframeError}
+              frameBorder="0"
+              allowFullScreen
             />
           </div>
         )}
