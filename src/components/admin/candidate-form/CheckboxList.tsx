@@ -17,9 +17,7 @@ const CheckboxList = ({
   descriptions, 
   columns = 2 
 }: CheckboxListProps) => {
-  // Create a dynamic class based on column count
-  const gridClass = `grid grid-cols-1 md:grid-cols-${columns} gap-2 mb-2`;
-  
+  // Hardcode the column classes to avoid runtime template string issues
   return (
     <div className={columns === 2 ? "grid grid-cols-1 md:grid-cols-2 gap-2 mb-2" : 
                      columns === 3 ? "grid grid-cols-1 md:grid-cols-3 gap-2 mb-2" : 

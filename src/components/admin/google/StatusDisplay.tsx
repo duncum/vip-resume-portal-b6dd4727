@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { CheckCircle, XCircle, RefreshCw, Info, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -81,23 +82,33 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   
   if (isAuthorized) {
     const isOAuthMode = localStorage.getItem('google_client_id') && localStorage.getItem('google_client_id') !== '';
+    const spreadsheetId = localStorage.getItem('google_spreadsheet_id');
     
     return (
-      <div className="flex items-center text-sm">
-        <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-        <div>
-          <div className="font-medium">Connected</div>
-          <div className="text-xs text-grey-500">
-            {isOAuthMode 
-              ? (userEmail ? `Signed in as ${userEmail}` : "Using OAuth authentication") 
-              : "Using API key only (limited access)"}
-          </div>
-          {!isOAuthMode && (
-            <div className="text-xs text-amber-500 mt-1">
-              Note: Client ID needed for full access
+      <div className="space-y-2">
+        <div className="flex items-center text-sm">
+          <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+          <div>
+            <div className="font-medium">Connected</div>
+            <div className="text-xs text-grey-500">
+              {isOAuthMode 
+                ? (userEmail ? `Signed in as ${userEmail}` : "Using OAuth authentication") 
+                : "Using API key only (limited access)"}
             </div>
-          )}
+            {!isOAuthMode && (
+              <div className="text-xs text-amber-500 mt-1">
+                Note: Read-only mode active. Client ID needed for write access.
+              </div>
+            )}
+          </div>
         </div>
+        
+        {!spreadsheetId && (
+          <div className="flex items-center text-xs text-amber-500 mt-1 p-2 bg-amber-50 rounded-md">
+            <AlertCircle className="h-3 w-3 mr-1 flex-shrink-0" />
+            <span>Spreadsheet ID missing. Add it in API credentials below.</span>
+          </div>
+        )}
       </div>
     );
   }

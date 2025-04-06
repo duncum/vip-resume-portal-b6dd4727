@@ -61,6 +61,18 @@ const GoogleIntegrationStatus = () => {
           switchToApiKeyOnlyMode={switchToApiKeyOnlyMode}
         />
         
+        {/* Show a help message about how to share the Google Sheet */}
+        {status.isAuthorized && (
+          <div className="mt-3 p-2 bg-gray-50 text-xs rounded-md">
+            <p className="font-medium mb-1">Google Sheet Setup:</p>
+            <ol className="list-decimal pl-4 space-y-1">
+              <li>Make sure your Sheet has a tab named "Candidates"</li>
+              <li>First row should have column headers</li>
+              <li>Share the Sheet either publicly (read access) or with your Google account</li>
+            </ol>
+          </div>
+        )}
+        
         <CredentialsToggle 
           showCredentialsForm={showCredentialsForm}
           setShowCredentialsForm={setShowCredentialsForm}
