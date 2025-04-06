@@ -1,7 +1,7 @@
+
 import { Button } from "@/components/ui/button";
-import { Printer, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useState } from "react";
-import { printResume } from "@/utils/print/printResume";
 import EmailResumeDialog from "../EmailResumeDialog";
 
 interface ResumeActionsProps {
@@ -12,10 +12,6 @@ interface ResumeActionsProps {
 const ResumeActions = ({ resumeUrl, candidateId }: ResumeActionsProps) => {
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
   
-  const handlePrint = () => {
-    printResume(resumeUrl, candidateId);
-  };
-
   return (
     <div className="flex gap-2">
       <Button 
@@ -26,14 +22,6 @@ const ResumeActions = ({ resumeUrl, candidateId }: ResumeActionsProps) => {
       >
         <Mail className="mr-2 h-4 w-4" />
         Email Resume
-      </Button>
-      <Button 
-        onClick={handlePrint}
-        size="sm"
-        className="bg-gold text-black hover:bg-gold/90"
-      >
-        <Printer className="mr-2 h-4 w-4" />
-        Print
       </Button>
       
       <EmailResumeDialog 
