@@ -1,129 +1,288 @@
+import { useState } from "react";
+import { toast } from "sonner";
+import { addCandidate } from "@/utils/sheets";
 
-import { FormEvent } from "react";
-import { useBasicInfoState } from "./hooks/useBasicInfoState";
-import { useLevelsState } from "./hooks/useLevelsState";
-import { useTitlesState } from "./hooks/useTitlesState";
-import { useCustomListState } from "./hooks/useCustomListState";
-import { useFormSubmission, FormData } from "./hooks/useFormSubmission";
+// Helper function to get selected items from a list
+const getSelectedItems = (selected: string[], custom: string[]): string[] => {
+  return [...selected, ...custom.filter(item => item.trim() !== "")];
+};
 
 export const useFormState = (onSuccess?: () => void) => {
-  // Basic information
-  const basicInfo = useBasicInfoState();
+  const [isUploading, setIsUploading] = useState(false);
+  
+  // Basic info
+  const [candidateId, setCandidateId] = useState("");
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [resumeText, setResumeText] = useState(""); // Add resume text state
+  const [headline, setHeadline] = useState("");
+  const [summary, setSummary] = useState("");
+  const [location, setLocation] = useState("");
+  const [tags, setTags] = useState("");
+  const [relocationPreference, setRelocationPreference] = useState("flexible");
+  const [notableEmployers, setNotableEmployers] = useState("");
   
   // Levels
-  const levels = useLevelsState();
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+  const handleLevelChange = (level: string, checked: boolean) => {
+    setSelectedLevels(prev => checked ? [...prev, level] : prev.filter(l => l !== level));
+  };
   
   // Titles
-  const titles = useTitlesState();
+  const [selectedTitleCategories, setSelectedTitleCategories] = useState<string[]>([]);
+  const handleTitleCategoryChange = (category: string, checked: boolean) => {
+    setSelectedTitleCategories(prev => checked ? [...prev, category] : prev.filter(c => c !== category));
+  };
+  
+  const [selectedTitles, setSelectedTitles] = useState<Record<string, string[]>>({});
+  const handleTitleChange = (category: string, title: string, checked: boolean) => {
+    setSelectedTitles(prev => ({
+      ...prev,
+      [category]: checked ? [...(prev[category] || []), title] : (prev[category] || []).filter(t => t !== title)
+    }));
+  };
+  
+  const [customTitles, setCustomTitles] = useState<Record<string, string[]>>({});
+  const handleCustomTitleChange = (category: string, index: number, value: string) => {
+    setCustomTitles(prev => {
+      const categoryTitles = [...(prev[category] || [])];
+      categoryTitles[index] = value;
+      return { ...prev, [category]: categoryTitles };
+    });
+  };
+  
+  const addAnotherCustomTitle = (category: string) => {
+    setCustomTitles(prev => ({
+      ...prev,
+      [category]: [...(prev[category] || []), ""]
+    }));
+  };
+  
+  const removeCustomTitle = (category: string, index: number) => {
+    setCustomTitles(prev => {
+      const categoryTitles = [...(prev[category] || [])];
+      categoryTitles.splice(index, 1);
+      return { ...prev, [category]: categoryTitles };
+    });
+  };
+  
+  const getTitlesObject = () => {
+    const titles: Record<string, string[]> = {};
+    selectedTitleCategories.forEach(category => {
+      titles[category] = getSelectedItems(selectedTitles[category] || [], customTitles[category] || []);
+    });
+    return titles;
+  };
   
   // Skills
-  const skills = useCustomListState({ itemName: 'skill' });
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const handleSkillChange = (item: string, checked: boolean) => {
+    setSelectedSkills(prev => checked ? [...prev, item] : prev.filter(i => i !== item));
+  };
+  
+  const [customSkills, setCustomSkills] = useState<string[]>([]);
+  const addCustomSkill = () => {
+    setCustomSkills(prev => [...prev, ""]);
+  };
+  
+  const handleCustomSkillChange = (index: number, value: string) => {
+    setCustomSkills(prev => {
+      const newSkills = [...prev];
+      newSkills[index] = value;
+      return newSkills;
+    });
+  };
+  
+  const removeCustomSkill = (index: number) => {
+    setCustomSkills(prev => prev.filter((_, i) => i !== index));
+  };
   
   // Asset Types
-  const assetTypes = useCustomListState({ itemName: 'asset type' });
+  const [selectedAssetTypes, setSelectedAssetTypes] = useState<string[]>([]);
+  const handleAssetTypeChange = (item: string, checked: boolean) => {
+    setSelectedAssetTypes(prev => checked ? [...prev, item] : prev.filter(i => i !== item));
+  };
+  
+  const [customAssetTypes, setCustomAssetTypes] = useState<string[]>([]);
+  const addCustomAssetType = () => {
+    setCustomAssetTypes(prev => [...prev, ""]);
+  };
+  
+  const handleCustomAssetTypeChange = (index: number, value: string) => {
+    setCustomAssetTypes(prev => {
+      const newAssetTypes = [...prev];
+      newAssetTypes[index] = value;
+      return newAssetTypes;
+    });
+  };
+  
+  const removeCustomAssetType = (index: number) => {
+    setCustomAssetTypes(prev => prev.filter((_, i) => i !== index));
+  };
   
   // Sectors
-  const sectors = useCustomListState({ itemName: 'sector' });
-
-  // Reset all form data
-  const resetForm = () => {
-    basicInfo.resetBasicInfo();
-    levels.resetLevels();
-    titles.resetTitles();
-    skills.reset();
-    assetTypes.reset();
-    sectors.reset();
+  const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
+  const handleSectorChange = (item: string, checked: boolean) => {
+    setSelectedSectors(prev => checked ? [...prev, item] : prev.filter(i => i !== item));
   };
   
-  // Form submission
-  const formSubmission = useFormSubmission({ 
-    onSuccess, 
-    resetForm 
-  });
-
-  // Handle form submission
-  const handleSubmit = async (e: FormEvent) => {
+  const [customSectors, setCustomSectors] = useState<string[]>([]);
+  const addCustomSector = () => {
+    setCustomSectors(prev => [...prev, ""]);
+  };
+  
+  const handleCustomSectorChange = (index: number, value: string) => {
+    setCustomSectors(prev => {
+      const newSectors = [...prev];
+      newSectors[index] = value;
+      return newSectors;
+    });
+  };
+  
+  const removeCustomSector = (index: number) => {
+    setCustomSectors(prev => prev.filter((_, i) => i !== index));
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const formData: FormData = {
-      id: basicInfo.candidateId,
-      headline: basicInfo.headline,
-      levels: levels.selectedLevels,
-      titleCategories: titles.selectedTitleCategories,
-      titles: titles.getProcessedTitles(),
-      summary: basicInfo.summary,
-      location: basicInfo.location,
-      relocationPreference: basicInfo.relocationPreference,
-      skills: skills.getAllItems(),
-      assetTypes: assetTypes.getAllItems(),
-      sectors: sectors.getAllItems(),
-      tags: basicInfo.tags.split(",").map(t => t.trim()).filter(t => t !== ""),
-      resumeUrl: basicInfo.resumeUrl,
-      notableEmployers: basicInfo.notableEmployers
+    setIsUploading(true);
+    
+    if (!candidateId.trim()) {
+      toast.error("Please enter a Candidate ID");
+      setIsUploading(false);
+      return;
+    }
+    
+    if (!headline.trim()) {
+      toast.error("Please enter a Headline");
+      setIsUploading(false);
+      return;
+    }
+    
+    // Create the candidate object to send to the API
+    const candidateData = {
+      id: candidateId,
+      headline,
+      sectors: getSelectedItems(selectedSectors, customSectors),
+      tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      resumeUrl,
+      resumeText, // Add resume text to candidate data
+      titleCategories: selectedTitleCategories,
+      titles: getTitlesObject(),
+      summary,
+      location,
+      relocationPreference,
+      notableEmployers,
+      // Levels
+      levels: selectedLevels
     };
     
-    await formSubmission.submitForm(formData);
+    try {
+      const success = await addCandidate(candidateData);
+      
+      if (success) {
+        // Reset form
+        setCandidateId("");
+        setResumeUrl("");
+        setResumeText(""); // Reset resume text
+        setHeadline("");
+        setSummary("");
+        setLocation("");
+        setTags("");
+        setRelocationPreference("flexible");
+        setNotableEmployers("");
+        
+        // Reset levels
+        setSelectedLevels([]);
+        
+        // Reset titles
+        setSelectedTitleCategories([]);
+        setSelectedTitles({});
+        setCustomTitles({});
+        
+        // Reset skills
+        setSelectedSkills([]);
+        setCustomSkills([]);
+        
+        // Reset asset types
+        setSelectedAssetTypes([]);
+        setCustomAssetTypes([]);
+        
+        // Reset sectors
+        setSelectedSectors([]);
+        setCustomSectors([]);
+        
+        if (onSuccess) {
+          onSuccess();
+        }
+      }
+    } catch (error) {
+      console.error("Error adding candidate:", error);
+      toast.error("Failed to add candidate");
+    } finally {
+      setIsUploading(false);
+    }
   };
-
+  
   return {
-    // From basicInfo
-    candidateId: basicInfo.candidateId,
-    setCandidateId: basicInfo.setCandidateId,
-    resumeUrl: basicInfo.resumeUrl,
-    setResumeUrl: basicInfo.setResumeUrl,
-    headline: basicInfo.headline,
-    setHeadline: basicInfo.setHeadline,
-    summary: basicInfo.summary,
-    setSummary: basicInfo.setSummary,
-    location: basicInfo.location,
-    setLocation: basicInfo.setLocation,
-    tags: basicInfo.tags,
-    setTags: basicInfo.setTags,
-    relocationPreference: basicInfo.relocationPreference,
-    setRelocationPreference: basicInfo.setRelocationPreference,
-    notableEmployers: basicInfo.notableEmployers,
-    setNotableEmployers: basicInfo.setNotableEmployers,
+    isUploading,
+    candidateId,
+    setCandidateId,
+    resumeUrl,
+    setResumeUrl,
+    resumeText,
+    setResumeText,
+    headline,
+    setHeadline,
+    summary,
+    setSummary,
+    location,
+    setLocation,
+    tags,
+    setTags,
+    relocationPreference,
+    setRelocationPreference,
+    notableEmployers,
+    setNotableEmployers,
     
-    // From levels
-    selectedLevels: levels.selectedLevels,
-    handleLevelChange: levels.handleLevelChange,
+    // Levels
+    selectedLevels,
+    handleLevelChange,
     
-    // From titles
-    selectedTitleCategories: titles.selectedTitleCategories,
-    handleTitleCategoryChange: titles.handleTitleCategoryChange,
-    selectedTitles: titles.selectedTitles,
-    handleTitleChange: titles.handleTitleChange,
-    customTitles: titles.customTitles,
-    handleCustomTitleChange: titles.handleCustomTitleChange,
-    addAnotherCustomTitle: titles.addAnotherCustomTitle,
-    removeCustomTitle: titles.removeCustomTitle,
+    // Titles
+    selectedTitleCategories,
+    handleTitleCategoryChange,
+    selectedTitles,
+    handleTitleChange,
+    customTitles,
+    handleCustomTitleChange,
+    addAnotherCustomTitle,
+    removeCustomTitle,
     
-    // From skills
-    selectedSkills: skills.selectedItems,
-    handleSkillChange: skills.handleItemChange,
-    customSkills: skills.customItems,
-    addCustomSkill: skills.addCustomItem,
-    handleCustomSkillChange: skills.handleCustomItemChange,
-    removeCustomSkill: skills.removeCustomItem,
+    // Skills
+    selectedSkills,
+    handleSkillChange,
+    customSkills,
+    addCustomSkill,
+    handleCustomSkillChange,
+    removeCustomSkill,
     
-    // From assetTypes
-    selectedAssetTypes: assetTypes.selectedItems,
-    handleAssetTypeChange: assetTypes.handleItemChange,
-    customAssetTypes: assetTypes.customItems,
-    addCustomAssetType: assetTypes.addCustomItem,
-    handleCustomAssetTypeChange: assetTypes.handleCustomItemChange,
-    removeCustomAssetType: assetTypes.removeCustomItem,
+    // Asset Types
+    selectedAssetTypes,
+    handleAssetTypeChange,
+    customAssetTypes,
+    addCustomAssetType,
+    handleCustomAssetTypeChange,
+    removeCustomAssetType,
     
-    // From sectors
-    selectedSectors: sectors.selectedItems,
-    handleSectorChange: sectors.handleItemChange,
-    customSectors: sectors.customItems,
-    addCustomSector: sectors.addCustomItem,
-    handleCustomSectorChange: sectors.handleCustomItemChange,
-    removeCustomSector: sectors.removeCustomItem,
+    // Sectors
+    selectedSectors,
+    handleSectorChange,
+    customSectors,
+    addCustomSector,
+    handleCustomSectorChange,
+    removeCustomSector,
     
-    // Form submission
-    isUploading: formSubmission.isUploading,
     handleSubmit
   };
 };

@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { ensureAuthorization } from '../auth-helper';
 import { SPREADSHEET_ID, CANDIDATES_RANGE } from '../config';
@@ -62,7 +61,8 @@ export const addCandidate = async (candidateData: any): Promise<boolean> => {
       candidateData.summary || '',
       candidateData.location || '',
       candidateData.relocationPreference || 'flexible',
-      candidateData.notableEmployers || ''
+      candidateData.notableEmployers || '',
+      candidateData.resumeText || '' // Add resume text to sheet
     ];
     
     console.log("Attempting to append data to Google Sheet:", rowData);

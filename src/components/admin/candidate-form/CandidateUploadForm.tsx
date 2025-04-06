@@ -36,6 +36,8 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
     setCandidateId,
     resumeUrl,
     setResumeUrl,
+    resumeText,
+    setResumeText,
     headline,
     setHeadline,
     summary,
@@ -110,6 +112,7 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
         candidateId={candidateId}
         onCandidateIdChange={setCandidateId}
         onResumeUrlChange={setResumeUrl}
+        onResumeTextChange={setResumeText}
         disabled={isApiKeyOnly}
       />
       

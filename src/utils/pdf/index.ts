@@ -1,0 +1,2 @@
+
+export { extractTextFromPdf } from './extractText';

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -60,7 +61,13 @@ const Index = () => {
         (candidate) =>
           candidate.headline.toLowerCase().includes(lowerQuery) ||
           candidate.sectors.some((sector) => sector.toLowerCase().includes(lowerQuery)) ||
-          candidate.tags.some((tag) => tag.toLowerCase().includes(lowerQuery))
+          candidate.tags.some((tag) => tag.toLowerCase().includes(lowerQuery)) ||
+          (candidate.title || "").toLowerCase().includes(lowerQuery) ||
+          (candidate.summary || "").toLowerCase().includes(lowerQuery) ||
+          (candidate.location || "").toLowerCase().includes(lowerQuery) ||
+          (candidate.notableEmployers || "").toLowerCase().includes(lowerQuery) ||
+          // Search in resume text if available
+          (candidate.resumeText || "").toLowerCase().includes(lowerQuery)
       );
     }
     

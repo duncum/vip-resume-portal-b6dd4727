@@ -7,19 +7,22 @@ import { toast } from "sonner";
 import { uploadResumeToDrive } from "@/utils/drive";
 import { Button } from "@/components/ui/button";
 import { ResumeUploaderProps } from "./types";
+import { extractTextFromPdf } from "@/utils/pdf";
 
 const ResumeUploader = ({ 
   candidateId, 
   onCandidateIdChange, 
   onResumeUrlChange,
+  onResumeTextChange,
   disabled
 }: ResumeUploaderProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       
@@ -30,6 +33,21 @@ const ResumeUploader = ({
       }
       
       setSelectedFile(file);
+      
+      // Extract text from the PDF
+      if (onResumeTextChange) {
+        try {
+          setIsExtracting(true);
+          const extractedText = await extractTextFromPdf(file);
+          onResumeTextChange(extractedText);
+          toast.success('Resume text extracted successfully');
+        } catch (error) {
+          console.error('Error extracting text from PDF:', error);
+          toast.error('Failed to extract text from PDF');
+        } finally {
+          setIsExtracting(false);
+        }
+      }
     }
   };
 
@@ -63,7 +81,7 @@ const ResumeUploader = ({
     }
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
@@ -76,6 +94,21 @@ const ResumeUploader = ({
       }
       
       setSelectedFile(file);
+      
+      // Extract text from the PDF
+      if (onResumeTextChange) {
+        try {
+          setIsExtracting(true);
+          const extractedText = await extractTextFromPdf(file);
+          onResumeTextChange(extractedText);
+          toast.success('Resume text extracted successfully');
+        } catch (error) {
+          console.error('Error extracting text from PDF:', error);
+          toast.error('Failed to extract text from PDF');
+        } finally {
+          setIsExtracting(false);
+        }
+      }
     }
   };
 
@@ -155,10 +188,10 @@ const ResumeUploader = ({
                   e.stopPropagation();
                   handleUpload();
                 }}
-                disabled={isUploading || disabled}
+                disabled={isUploading || isExtracting || disabled}
                 className="mt-2"
               >
-                {isUploading ? "Uploading..." : "Upload Resume"}
+                {isUploading ? "Uploading..." : isExtracting ? "Extracting text..." : "Upload Resume"}
               </Button>
             )}
           </>

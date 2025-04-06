@@ -97,5 +97,6 @@ export interface ResumeUploaderProps {
   candidateId: string;
   onCandidateIdChange: (id: string) => void;
   onResumeUrlChange: (url: string) => void;
+  onResumeTextChange?: (text: string) => void;
   disabled?: boolean;
 }

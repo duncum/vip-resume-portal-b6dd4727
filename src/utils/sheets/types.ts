@@ -10,6 +10,7 @@ export interface Candidate {
   sectors: string[];
   tags: string[];
   resumeUrl: string;
+  resumeText?: string; // New field for searchable resume content
   category?: string;
   title?: string;
   summary?: string;
