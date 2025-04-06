@@ -99,3 +99,52 @@ export const fetchCandidateById = async (id: string): Promise<Candidate> => {
     return candidate;
   }
 };
+
+/**
+ * Add a new candidate to Google Sheets
+ */
+export const addCandidate = async (candidateData: any): Promise<boolean> => {
+  // Check if we need to use mock data
+  const useRealApi = await ensureAuthorization();
+  
+  if (!useRealApi) {
+    console.log("Mock candidate addition - would save:", candidateData);
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return true;
+  }
+  
+  try {
+    // Format the data for Google Sheets
+    // Adjust column order based on how your sheet is structured
+    const rowData = [
+      candidateData.id,
+      candidateData.headline,
+      (candidateData.sectors || []).join(', '),
+      (candidateData.tags || []).join(', '),
+      candidateData.resumeUrl || '',
+      (candidateData.titleCategories || [])[0] || '',
+      candidateData.titles[(candidateData.titleCategories || [])[0]]?.[0] || '',
+      candidateData.summary || '',
+      candidateData.location || '',
+      candidateData.relocationPreference || 'flexible'
+    ];
+    
+    // Append the data to the Google Sheet
+    await window.gapi.client.sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: CANDIDATES_RANGE,
+      valueInputOption: 'USER_ENTERED',
+      insertDataOption: 'INSERT_ROWS',
+      resource: {
+        values: [rowData]
+      }
+    });
+    
+    return true;
+  } catch (error) {
+    console.error("Error adding candidate to Google Sheets:", error);
+    toast.error("Failed to add candidate to Google Sheets");
+    return false;
+  }
+};

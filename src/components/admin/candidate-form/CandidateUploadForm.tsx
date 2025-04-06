@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { CandidateUploadFormProps } from "./types";
@@ -15,12 +14,17 @@ import SummaryInput from "./SummaryInput";
 import TagsInput from "./TagsInput";
 import LocationSection from "./LocationSection";
 import SubmitButton from "./SubmitButton";
+import { ensureAuthorization } from "@/utils/sheets/auth-helper";
+import { SPREADSHEET_ID, CANDIDATES_RANGE } from "@/utils/sheets/config";
 
 const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
   
   // Candidate ID that can be entered by the user
   const [candidateId, setCandidateId] = useState("");
+  
+  // Resume URL (set by the ResumeUploader component)
+  const [resumeUrl, setResumeUrl] = useState("");
   
   // Form fields
   const [headline, setHeadline] = useState("");
@@ -237,12 +241,62 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
     setCustomSectors(prev => prev.filter((_, i) => i !== index));
   };
   
-  const handleUpload = (e: React.FormEvent) => {
+  const saveToGoogleSheets = async (candidateData: any) => {
+    try {
+      // Check if we're authorized to use Google Sheets
+      const authorized = await ensureAuthorization();
+      
+      if (!authorized) {
+        toast.error("Please connect to Google first");
+        return false;
+      }
+      
+      // Format the data for Google Sheets
+      // This structure should match the expected column order in your sheet
+      const rowData = [
+        candidateData.id,                                               // ID
+        candidateData.headline,                                         // Headline
+        candidateData.sectors.join(', '),                                // Sectors
+        candidateData.tags.join(', '),                                   // Tags
+        candidateData.resumeUrl,                                         // Resume URL
+        candidateData.titleCategories[0] || '',                          // Primary Category
+        candidateData.titles[candidateData.titleCategories[0]]?.[0] || '', // Primary Title
+        candidateData.summary,                                           // Summary
+        candidateData.location,                                          // Location
+        candidateData.relocationPreference                               // Relocation Preference
+      ];
+      
+      // Append the data to the Google Sheet
+      await window.gapi.client.sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: CANDIDATES_RANGE,
+        valueInputOption: 'USER_ENTERED',
+        insertDataOption: 'INSERT_ROWS',
+        resource: {
+          values: [rowData]
+        }
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Error saving to Google Sheets:', error);
+      toast.error('Failed to save to Google Sheets');
+      return false;
+    }
+  };
+
+  const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate candidateId exists
     if (!candidateId.trim()) {
       toast.error("Please enter a Candidate ID");
+      return;
+    }
+    
+    // Validate that a resume URL exists
+    if (!resumeUrl) {
+      toast.error("Please upload a resume first");
       return;
     }
     
@@ -289,37 +343,48 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
         ...selectedSectors,
         ...customSectors.filter(sector => sector.trim() !== "")
       ],
-      tags: tags.split(",").map(t => t.trim()).filter(t => t !== "")
+      tags: tags.split(",").map(t => t.trim()).filter(t => t !== ""),
+      resumeUrl // Add resume URL to the data
     };
     
     console.log("Candidate data:", candidateData);
     
-    setTimeout(() => {
-      toast.success("Resume uploaded successfully");
-      setIsUploading(false);
+    try {
+      // Attempt to save to Google Sheets
+      const saved = await saveToGoogleSheets(candidateData);
       
-      if (onSuccess) {
-        onSuccess();
+      if (saved) {
+        toast.success("Resume uploaded and data saved to Google Sheets");
+        
+        if (onSuccess) {
+          onSuccess();
+        }
+        
+        // Reset form fields
+        setCandidateId("");
+        setHeadline("");
+        setSummary("");
+        setLocation("");
+        setSelectedLevels([]);
+        setSelectedTitleCategories([]);
+        setSelectedTitles({});
+        setCustomTitles({});
+        setSelectedSkills([]);
+        setCustomSkills([]);
+        setSelectedAssetTypes([]);
+        setCustomAssetTypes([]);
+        setSelectedSectors([]);
+        setCustomSectors([]);
+        setTags("");
+        setRelocationPreference("flexible");
+        setResumeUrl("");
       }
-      
-      // Reset form fields
-      setCandidateId("");
-      setHeadline("");
-      setSummary("");
-      setLocation("");
-      setSelectedLevels([]);
-      setSelectedTitleCategories([]);
-      setSelectedTitles({});
-      setCustomTitles({});
-      setSelectedSkills([]);
-      setCustomSkills([]);
-      setSelectedAssetTypes([]);
-      setCustomAssetTypes([]);
-      setSelectedSectors([]);
-      setCustomSectors([]);
-      setTags("");
-      setRelocationPreference("flexible");
-    }, 2000);
+    } catch (error) {
+      console.error("Error in form submission:", error);
+      toast.error("There was an error saving your data");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -329,6 +394,7 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
       <ResumeUploader 
         candidateId={candidateId}
         onCandidateIdChange={setCandidateId}
+        onResumeUrlChange={setResumeUrl}
       />
       
       <HeadlineInput headline={headline} onHeadlineChange={setHeadline} />
