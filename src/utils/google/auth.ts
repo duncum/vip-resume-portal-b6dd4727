@@ -56,11 +56,14 @@ export const initGoogleApi = async (): Promise<boolean> => {
                 discoveryDocs: DISCOVERY_DOCS
               };
               
-              // Add clientId if available but not required
-              if (CLIENT_ID) {
+              // Add clientId ONLY if available AND NOT empty
+              // This is the key change - check for a non-empty client ID
+              if (CLIENT_ID && CLIENT_ID.trim() !== '') {
+                console.log("Client ID provided, adding to initialization");
                 initConfig.clientId = CLIENT_ID;
                 initConfig.scope = SCOPES;
-                console.log("Client ID provided, adding to initialization");
+              } else {
+                console.log("No Client ID provided, using API key only mode");
               }
               
               // Use setTimeout to prevent long synchronous operations
@@ -81,7 +84,17 @@ export const initGoogleApi = async (): Promise<boolean> => {
                   resolve(true);
                 } catch (error) {
                   console.error('Error initializing Google API client:', error);
-                  toast.error(`Failed to initialize Google API: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                  
+                  // Special handling for OAuth origin errors - suggest removing the client ID
+                  const errorStr = String(error);
+                  if (errorStr.includes('idpiframe_initialization_failed') || 
+                      errorStr.includes('Not a valid origin')) {
+                    console.log("OAuth origin error detected, suggesting to use API key only mode");
+                    toast.error("Your OAuth client ID is not configured for this domain. Try removing the Client ID and using only the API key.");
+                  } else {
+                    toast.error(`Failed to initialize Google API: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                  }
+                  
                   isGapiInitialized = false;
                   resolve(false);
                 }

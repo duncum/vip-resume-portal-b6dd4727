@@ -11,7 +11,8 @@ export const useGoogleIntegration = () => {
     showCredentialsForm,
     setShowCredentialsForm,
     handleCredentialSubmit,
-    showSetupInstructions
+    showSetupInstructions,
+    clearClientId
   } = useGoogleCredentials();
 
   const {
@@ -20,7 +21,7 @@ export const useGoogleIntegration = () => {
     handleSignIn,
     handleSignOut,
     autoConnect
-  } = useGoogleConnection(missingCredentials);
+  } = useGoogleConnection(missingCredentials, clearClientId);
 
   // Debounce credential changes to prevent excessive status checks
   useEffect(() => {
@@ -44,6 +45,20 @@ export const useGoogleIntegration = () => {
     return result;
   };
 
+  // Provide a way to use API key only mode
+  const switchToApiKeyOnlyMode = () => {
+    if (clearClientId) {
+      const result = clearClientId();
+      if (result) {
+        setTimeout(() => {
+          autoConnect();
+        }, 300);
+      }
+      return result;
+    }
+    return false;
+  };
+
   return {
     status,
     missingCredentials,
@@ -55,6 +70,7 @@ export const useGoogleIntegration = () => {
     handleSignOut,
     handleCredentialSubmit: handleCredentialSubmitWithStatusCheck,
     showSetupInstructions,
-    autoConnect
+    autoConnect,
+    switchToApiKeyOnlyMode
   };
 };

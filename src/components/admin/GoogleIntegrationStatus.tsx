@@ -19,12 +19,13 @@ const GoogleIntegrationStatus = () => {
     handleSignOut,
     handleCredentialSubmit,
     showSetupInstructions,
-    autoConnect
+    autoConnect,
+    switchToApiKeyOnlyMode
   } = useGoogleIntegration();
 
   // Auto-connect to Google when the component mounts if credentials are available
   useEffect(() => {
-    if (!status.isAuthorized && !missingCredentials.clientId && !missingCredentials.apiKey) {
+    if (!status.isAuthorized && !missingCredentials.apiKey) {
       autoConnect();
     }
   }, [status.isAuthorized, missingCredentials, autoConnect]);
@@ -47,7 +48,9 @@ const GoogleIntegrationStatus = () => {
           missingCredentials={missingCredentials}
           isAuthorized={status.isAuthorized}
           userEmail={status.userEmail}
+          error={status.error}
           showSetupInstructions={showSetupInstructions}
+          switchToApiKeyOnlyMode={switchToApiKeyOnlyMode}
         />
         
         <CredentialsToggle 

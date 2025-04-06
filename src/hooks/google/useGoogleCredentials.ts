@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { CLIENT_ID, API_KEY } from '@/utils/google';
 import { SPREADSHEET_ID } from '@/utils/sheets';
@@ -56,12 +55,21 @@ export const useGoogleCredentials = () => {
     // Store credentials in localStorage
     if (credentials.clientId) {
       localStorage.setItem('google_client_id', credentials.clientId);
+    } else {
+      // Clear the client ID if it's removed
+      localStorage.removeItem('google_client_id');
     }
+    
     if (credentials.apiKey) {
       localStorage.setItem('google_api_key', credentials.apiKey);
+    } else {
+      localStorage.removeItem('google_api_key');
     }
+    
     if (credentials.spreadsheetId) {
       localStorage.setItem('google_spreadsheet_id', credentials.spreadsheetId);
+    } else {
+      localStorage.removeItem('google_spreadsheet_id');
     }
     
     setMissingCredentials({
@@ -73,6 +81,17 @@ export const useGoogleCredentials = () => {
     toast.success('Credentials saved');
     
     // Return true to indicate successful submission
+    return true;
+  };
+
+  // New method to clear client ID but keep API key
+  const clearClientId = () => {
+    localStorage.removeItem('google_client_id');
+    setCredentials(prev => ({
+      ...prev,
+      clientId: ''
+    }));
+    toast.success('Client ID removed, using API Key only mode');
     return true;
   };
 
@@ -94,6 +113,7 @@ export const useGoogleCredentials = () => {
     showCredentialsForm,
     setShowCredentialsForm,
     handleCredentialSubmit,
-    showSetupInstructions
+    showSetupInstructions,
+    clearClientId
   };
 };

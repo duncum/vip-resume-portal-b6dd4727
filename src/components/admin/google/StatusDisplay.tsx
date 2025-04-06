@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { CheckCircle, XCircle, RefreshCw, Info } from 'lucide-react';
+import { CheckCircle, XCircle, RefreshCw, Info, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 type StatusDisplayProps = {
   isLoading: boolean;
@@ -10,7 +11,9 @@ type StatusDisplayProps = {
   };
   isAuthorized: boolean;
   userEmail: string | null;
+  error?: string | null;
   showSetupInstructions: () => void;
+  switchToApiKeyOnlyMode?: () => boolean;
 };
 
 const StatusDisplay: React.FC<StatusDisplayProps> = ({
@@ -18,7 +21,9 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   missingCredentials,
   isAuthorized,
   userEmail,
-  showSetupInstructions
+  error,
+  showSetupInstructions,
+  switchToApiKeyOnlyMode
 }) => {
   if (isLoading) {
     return (
@@ -44,6 +49,33 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
           onClick={showSetupInstructions}
           aria-label="API credentials missing. Click for setup instructions."
         />
+      </div>
+    );
+  }
+  
+  if (error && !isAuthorized && error.includes('idpiframe_initialization_failed') || 
+     (error && !isAuthorized && error.includes('origin'))) {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center text-sm">
+          <AlertCircle className="h-4 w-4 mr-2 text-red-500" />
+          <div>
+            <div className="font-medium">Client ID Error</div>
+            <div className="text-xs text-grey-500">
+              Your OAuth client ID is not configured for this domain
+            </div>
+          </div>
+        </div>
+        {switchToApiKeyOnlyMode && (
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={switchToApiKeyOnlyMode}
+            className="text-xs mt-1 w-full"
+          >
+            Use API Key Only (Recommended)
+          </Button>
+        )}
       </div>
     );
   }
