@@ -8,9 +8,11 @@ import { CandidateUploadForm } from "@/components/admin/candidate-form";
 import ManageCandidates from "@/components/admin/ManageCandidates";
 import Analytics from "@/components/admin/Analytics";
 import { useToast } from "@/components/ui/use-toast";
-import { fetchCandidates, fetchCandidateById, type Candidate } from "@/utils/sheets"; // Added fetchCandidateById
+import { fetchCandidates, fetchCandidateById, type Candidate } from "@/utils/sheets";
 import GoogleIntegrationStatus from "@/components/admin/GoogleIntegrationStatus";
-import { useSearchParams } from "react-router-dom"; // Added for URL parameter handling
+import { useSearchParams } from "react-router-dom";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const Admin = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,6 +23,7 @@ const Admin = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [editCandidate, setEditCandidate] = useState<Candidate | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleTabChange = (value: string) => {
@@ -38,9 +41,12 @@ const Admin = () => {
     const loadCandidates = async () => {
       try {
         setLoading(true);
+        setApiError(null);
         const data = await fetchCandidates();
         setCandidates(data);
       } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        setApiError(`Failed to load candidates: ${errorMessage}`);
         toast({
           title: "Error loading candidates",
           description: "There was a problem fetching the candidates data.",
@@ -59,6 +65,7 @@ const Admin = () => {
     if (editParam) {
       const loadCandidate = async () => {
         try {
+          setApiError(null);
           const candidate = await fetchCandidateById(editParam);
           if (candidate) {
             setEditCandidate(candidate);
@@ -67,9 +74,11 @@ const Admin = () => {
             searchParams.set("tab", "upload");
             setSearchParams(searchParams);
           } else {
+            const errorMsg = `Could not find candidate with ID ${editParam}`;
+            setApiError(errorMsg);
             toast({
               title: "Candidate not found",
-              description: `Could not find candidate with ID ${editParam}`,
+              description: errorMsg,
               variant: "destructive",
             });
             searchParams.delete("edit");
@@ -77,6 +86,8 @@ const Admin = () => {
           }
         } catch (error) {
           console.error("Error fetching candidate for edit:", error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          setApiError(`Failed to load candidate: ${errorMessage}`);
           toast({
             title: "Error loading candidate",
             description: "There was a problem fetching the candidate data for editing.",
@@ -100,7 +111,7 @@ const Admin = () => {
       <Header />
       
       <main className="flex-grow container mx-auto py-8 px-4">
-        <div className="text-center mb-10">
+        <div className="text-center mb-6">
           <h1 className="text-4xl font-bold font-display mb-2">
             Admin <span className="text-gold">Dashboard</span>
           </h1>
@@ -109,26 +120,29 @@ const Admin = () => {
           </p>
         </div>
         
-        {/* Added Google Integration Status card */}
-        <div className="max-w-4xl mx-auto mb-8">
-          <GoogleIntegrationStatus />
-        </div>
+        {/* Display any API errors prominently */}
+        {apiError && (
+          <Alert variant="destructive" className="max-w-4xl mx-auto mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-sm">{apiError}</AlertDescription>
+          </Alert>
+        )}
         
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="max-w-4xl mx-auto">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="upload" className="data-[state=active]:bg-gold data-[state=active]:text-white">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="max-w-5xl mx-auto">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="upload" className="text-base py-2.5 data-[state=active]:bg-gold data-[state=active]:text-white">
               {editCandidate ? "Edit Resume" : "Upload Resume"}
             </TabsTrigger>
-            <TabsTrigger value="manage" className="data-[state=active]:bg-gold data-[state=active]:text-white">
+            <TabsTrigger value="manage" className="text-base py-2.5 data-[state=active]:bg-gold data-[state=active]:text-white">
               Manage Candidates
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:bg-gold data-[state=active]:text-white">
+            <TabsTrigger value="analytics" className="text-base py-2.5 data-[state=active]:bg-gold data-[state=active]:text-white">
               View Analytics
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="upload" className="mt-0">
-            <Card>
+            <Card className="p-6">
               <CandidateUploadForm 
                 candidateCount={candidateCount}
                 candidateToEdit={editCandidate}
@@ -161,6 +175,11 @@ const Admin = () => {
             <Analytics />
           </TabsContent>
         </Tabs>
+        
+        {/* Google Integration Status moved to the bottom */}
+        <div className="mt-8 max-w-xs mx-auto">
+          <GoogleIntegrationStatus />
+        </div>
       </main>
       
       <Footer />

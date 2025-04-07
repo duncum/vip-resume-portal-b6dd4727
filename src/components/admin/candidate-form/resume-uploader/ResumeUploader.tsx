@@ -36,7 +36,7 @@ const ResumeUploader = ({
       />
       
       <div 
-        className={`border-2 border-dashed ${uploadedUrl ? 'border-green-300 bg-green-50' : 'border-grey-300'} rounded-md p-6 flex flex-col items-center justify-center ${disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+        className={`border-2 border-dashed ${uploadedUrl ? 'border-green-300 bg-green-50' : 'border-grey-300'} rounded-md p-6 flex flex-col items-center justify-center ${disabled ? 'opacity-70 cursor-not-allowed' : ''}`}
       >
         {uploadedUrl ? (
           <UploadedFilePreview 

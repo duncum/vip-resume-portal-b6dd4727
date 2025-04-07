@@ -23,23 +23,25 @@ const FormLayout = ({ candidateCount }: FormLayoutProps) => {
   } = useFormContext();
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {isApiKeyOnly && <ApiKeyWarning />}
-      
-      <FormHeader candidateId={candidateId} candidateCount={candidateCount} />
-      
-      <ResumeUploader 
-        candidateId={candidateId}
-        onCandidateIdChange={setCandidateId}
-        onResumeUrlChange={setResumeUrl}
-        onResumeTextChange={setResumeText}
-        disabled={isApiKeyOnly}
-      />
-      
-      <FormContent disabled={isApiKeyOnly} />
-      
-      <SubmitButton isUploading={isUploading} disabled={isApiKeyOnly} />
-    </form>
+    <div className="max-w-4xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {isApiKeyOnly && <ApiKeyWarning />}
+        
+        <FormHeader candidateId={candidateId} candidateCount={candidateCount} />
+        
+        <ResumeUploader 
+          candidateId={candidateId}
+          onCandidateIdChange={setCandidateId}
+          onResumeUrlChange={setResumeUrl}
+          onResumeTextChange={setResumeText}
+          disabled={isApiKeyOnly}
+        />
+        
+        <FormContent disabled={isApiKeyOnly} />
+        
+        <SubmitButton isUploading={isUploading} disabled={isApiKeyOnly} />
+      </form>
+    </div>
   );
 };
 

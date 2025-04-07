@@ -29,9 +29,9 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
         size="sm" 
         variant="outline" 
         onClick={onShowCredentials}
-        className="w-full text-xs"
+        className="text-xs px-2 py-1 h-7 whitespace-nowrap"
       >
-        Enter API Credentials
+        API Settings
       </Button>
     );
   }
@@ -43,15 +43,15 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
         variant="outline" 
         onClick={onSignOut} 
         disabled={isLoading}
-        className="w-full text-xs"
+        className="text-xs px-2 py-1 h-7 whitespace-nowrap"
       >
         {isLoading ? (
           <>
-            <div className="h-3 w-3 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+            <div className="h-3 w-3 mr-1 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
             Disconnecting...
           </>
         ) : (
-          "Disconnect API"
+          "Disconnect"
         )}
       </Button>
     );
@@ -62,17 +62,17 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
       size="sm" 
       onClick={onSignIn} 
       disabled={isLoading}
-      className="w-full text-xs bg-white border border-gray-200 text-gray-800 hover:bg-gray-100"
+      className="text-xs px-2 py-1 h-7 bg-white border border-gray-200 text-gray-800 hover:bg-gray-100 whitespace-nowrap"
     >
       {isLoading ? (
         <>
-          <div className="h-3 w-3 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+          <div className="h-3 w-3 mr-1 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
           Connecting...
         </>
       ) : (
         <>
-          <GoogleIcon className="h-3 w-3 mr-2" />
-          Connect Google API
+          <GoogleIcon className="h-3 w-3 mr-1" />
+          Connect API
         </>
       )}
     </Button>
