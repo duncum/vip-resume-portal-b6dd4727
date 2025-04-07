@@ -40,3 +40,4 @@ export const sendViaGmail = async (emailData: EmailData): Promise<boolean> => {
     return false;
   }
 };
+

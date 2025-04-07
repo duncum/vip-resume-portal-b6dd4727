@@ -50,6 +50,8 @@ export const sendViaEmailJS = async (emailData: EmailData): Promise<boolean> => 
       template_id: TEMPLATE_ID,
       user_id: USER_ID,
       template_params: {
+        from_name: "Michelle CRE Confidential",
+        from_email: "michelle@creconfidential.org",
         to_email: emailData.to,
         subject: emailData.subject,
         html_content: emailData.isConfidential 
@@ -72,3 +74,4 @@ export const sendViaEmailJS = async (emailData: EmailData): Promise<boolean> => 
     return false;
   }
 };
+

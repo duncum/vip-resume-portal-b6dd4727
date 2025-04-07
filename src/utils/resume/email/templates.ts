@@ -28,8 +28,9 @@ export const createStandardTemplate = (resumeUrl: string): string => {
 export const createEmail = (options: { to: string; subject: string; html: string }): string => {
   const { to, subject, html } = options;
   
-  // Create email headers
+  // Create email headers with specific from address
   const headers = [
+    `From: Michelle CRE Confidential <michelle@creconfidential.org>`,
     `To: ${to}`,
     `Subject: ${subject}`,
     'Content-Type: text/html; charset=utf-8',
@@ -45,3 +46,4 @@ export const createEmail = (options: { to: string; subject: string; html: string
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 };
+
