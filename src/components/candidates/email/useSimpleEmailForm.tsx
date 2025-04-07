@@ -1,6 +1,8 @@
+
 import { useState } from "react";
 import { toast } from "sonner";
 import { sendResumeEmail } from "@/utils/resume/email";
+import { isUserAuthorized } from "@/utils/google";
 
 interface UseSimpleEmailFormProps {
   open: boolean;
@@ -13,6 +15,7 @@ export const useSimpleEmailForm = ({ open, onOpenChange, candidateId, resumeUrl 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [isConfidential, setIsConfidential] = useState(false);
+  const [showGmailHelp, setShowGmailHelp] = useState(false);
   
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -22,7 +25,7 @@ export const useSimpleEmailForm = ({ open, onOpenChange, candidateId, resumeUrl 
     e.preventDefault();
     
     if (!email) {
-      toast.error("Please enter your email address");
+      toast.error("Please enter an email address");
       return;
     }
     
@@ -34,6 +37,12 @@ export const useSimpleEmailForm = ({ open, onOpenChange, candidateId, resumeUrl 
     setIsLoading(true);
     
     try {
+      // Check if Gmail integration is enabled
+      const isAuthorized = await isUserAuthorized();
+      if (isAuthorized && !showGmailHelp) {
+        setShowGmailHelp(true);
+      }
+      
       const success = await sendResumeEmail({
         recipientEmail: email,
         candidateId,
@@ -59,6 +68,7 @@ export const useSimpleEmailForm = ({ open, onOpenChange, candidateId, resumeUrl 
     setEmail,
     isConfidential,
     setIsConfidential,
+    showGmailHelp,
     handleSubmit
   };
 };

@@ -14,10 +14,12 @@ export const API_KEY =
 
 export const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest",
-  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",  // Drive API for resume uploads
-  "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"   // Added Gmail API for emails
+  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
+  "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"
 ];
-export const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/gmail.send'; // Updated to include Gmail
+
+// Make sure the Gmail scope is included
+export const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/gmail.send';
 
 /**
  * Get the redirect URI for OAuth - should match what's configured in Google Cloud Console
@@ -44,6 +46,7 @@ export const printOAuthSetupInstructions = () => {
        - Authorized JavaScript origins: ${window.location.origin}
        - Authorized redirect URIs: ${getRedirectUri()}
        - Enable these APIs: Google Sheets, Google Drive, Gmail
+       - IMPORTANT: For Gmail integration, enable Gmail API and include the gmail.send scope
        
     3. Make sure to add ${window.location.origin} to your allowed origins in Google Cloud Console
        

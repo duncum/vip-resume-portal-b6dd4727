@@ -28,29 +28,37 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
       } catch (error) {
         console.error("Failed to load Gmail API:", error);
         
-        // Check for Gmail API key blocked error (API_KEY_SERVICE_BLOCKED)
+        // Check for specific Gmail API errors
         const errorMsg = String(error);
+        
+        // Handle API key authentication error (Gmail requires OAuth)
         if (errorMsg.includes('API_KEY_SERVICE_BLOCKED') || 
-            errorMsg.includes('PERMISSION_DENIED') ||
-            errorMsg.includes('gmail method') ||
-            errorMsg.includes('blocked')) {
-          console.log("Gmail API cannot be used with API key only, requires OAuth. Using fallback.");
-          toast.warning("Gmail requires OAuth authentication", {
-            description: "Using alternative email service instead"
+            errorMsg.includes('PERMISSION_DENIED')) {
+          console.warn("Gmail requires OAuth authentication with proper scopes");
+          toast.warning("Gmail API requires OAuth authentication", {
+            description: "Please ensure Gmail API is enabled in your Google Cloud Console and you've logged in with OAuth"
           });
           return fallbackEmailSending(emailData);
         }
         
-        // Check for other common Gmail API errors
-        if (errorMsg.includes('Gmail API has not been used') || 
-            errorMsg.includes('disabled') ||
-            errorMsg.includes('SERVICE_DISABLED')) {
-          console.log("Gmail API is disabled in Google Cloud project, using fallback");
-          toast.warning("Gmail API not enabled", {
-            description: "Using alternative email service instead"
-          });
-        }
-        
+        return fallbackEmailSending(emailData);
+      }
+    }
+    
+    // Verify we have the correct OAuth scope for Gmail
+    try {
+      // Attempt a simple call to verify scope
+      await window.gapi.client.gmail.users.getProfile({userId: 'me'});
+    } catch (error) {
+      console.error("Gmail scope verification error:", error);
+      const errorMsg = String(error);
+      
+      if (errorMsg.includes('insufficient permission') || 
+          errorMsg.includes('scope') || 
+          errorMsg.includes('permission')) {
+        toast.warning("Gmail requires the gmail.send OAuth scope", {
+          description: "Please check your OAuth consent screen configuration"
+        });
         return fallbackEmailSending(emailData);
       }
     }
@@ -71,10 +79,9 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
       const errorMsg = String(error);
       if (errorMsg.includes('Permission denied') || 
           errorMsg.includes('insufficient permission') ||
-          errorMsg.includes('PERMISSION_DENIED') ||
-          errorMsg.includes('API_KEY_SERVICE_BLOCKED')) {
-        toast.warning("Gmail API requires OAuth authentication", {
-          description: "Using alternative email service instead"
+          errorMsg.includes('not authorized')) {
+        toast.warning("Gmail requires specific OAuth permissions", {
+          description: "Make sure Gmail API is enabled in Google Cloud Console"
         });
       }
       
