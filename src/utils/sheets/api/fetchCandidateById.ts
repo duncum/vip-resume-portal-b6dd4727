@@ -10,6 +10,9 @@ import { mockCandidates } from '../mock-data';
  * Fetch a single candidate by ID from Google Sheets API
  */
 export const fetchCandidateById = async (id: string): Promise<Candidate | null> => {
+  // Extract just the ID part if it contains commas (common in malformed URLs)
+  const cleanId = id.includes(',') ? id.split(',')[0] : id;
+
   // Check if we have proper authorization
   const isAuthorized = await ensureAuthorization();
   
@@ -20,7 +23,7 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
     });
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    const candidate = mockCandidates.find(c => c.id === id);
+    const candidate = mockCandidates.find(c => c.id === cleanId);
     
     if (!candidate) {
       return null; // Return null instead of throwing an error
@@ -38,7 +41,7 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
       });
       
       // Fall back to mock data
-      const candidate = mockCandidates.find(c => c.id === id);
+      const candidate = mockCandidates.find(c => c.id === cleanId);
       if (!candidate) return null;
       return candidate;
     }
@@ -58,18 +61,21 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
       });
       
       // Fall back to mock data
-      const candidate = mockCandidates.find(c => c.id === id);
+      const candidate = mockCandidates.find(c => c.id === cleanId);
       if (!candidate) return null;
       return candidate;
     }
     
-    // Find the row with the matching ID
-    const candidateRow = rows.find(row => row[0] === id);
+    // Find the row with the matching ID (check only the first segment if the value contains commas)
+    const candidateRow = rows.find(row => {
+      const rowId = row[0] || '';
+      return rowId.includes(',') ? rowId.split(',')[0] === cleanId : rowId === cleanId;
+    });
     
     if (!candidateRow) {
       console.log("Candidate not found in sheet, checking mock data");
       // Check mock data as fallback
-      const mockCandidate = mockCandidates.find(c => c.id === id);
+      const mockCandidate = mockCandidates.find(c => c.id === cleanId);
       if (!mockCandidate) return null;
       return mockCandidate;
     }
@@ -94,7 +100,7 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
     }
     
     // Fall back to mock data on error
-    const candidate = mockCandidates.find(c => c.id === id);
+    const candidate = mockCandidates.find(c => c.id === cleanId);
     return candidate || null;
   }
 };
