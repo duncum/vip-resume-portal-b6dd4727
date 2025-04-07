@@ -33,7 +33,7 @@ const CandidateCard = ({
   notableEmployers
 }: CandidateCardProps) => {
   // Clean ID to ensure it doesn't include commas which can break routing
-  const cleanId = id?.includes(',') ? id.split(',')[0] : id;
+  const cleanId = id?.trim().split(',')[0] || id;
   
   return (
     <Card className="h-full flex flex-col bg-grey-900/20 hover:bg-grey-900/40 border border-grey-800 transition-colors text-white overflow-hidden backdrop-blur-sm">

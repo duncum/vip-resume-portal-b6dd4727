@@ -11,8 +11,10 @@ import { mockCandidates } from '../mock-data';
  */
 export const fetchCandidateById = async (id: string): Promise<Candidate | null> => {
   // Extract just the ID part if it contains commas (common in malformed URLs)
-  const cleanId = id.includes(',') ? id.split(',')[0] : id;
+  const cleanId = id.includes(',') ? id.split(',')[0].trim() : id.trim();
 
+  console.log("Fetching candidate with clean ID:", cleanId);
+  
   // Check if we have proper authorization
   const isAuthorized = await ensureAuthorization();
   
@@ -23,7 +25,10 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
     });
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    const candidate = mockCandidates.find(c => c.id === cleanId);
+    const candidate = mockCandidates.find(c => {
+      const candidateId = c.id.includes(',') ? c.id.split(',')[0].trim() : c.id.trim();
+      return candidateId === cleanId;
+    });
     
     if (!candidate) {
       return null; // Return null instead of throwing an error
@@ -41,7 +46,10 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
       });
       
       // Fall back to mock data
-      const candidate = mockCandidates.find(c => c.id === cleanId);
+      const candidate = mockCandidates.find(c => {
+        const candidateId = c.id.includes(',') ? c.id.split(',')[0].trim() : c.id.trim();
+        return candidateId === cleanId;
+      });
       if (!candidate) return null;
       return candidate;
     }
@@ -61,21 +69,28 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
       });
       
       // Fall back to mock data
-      const candidate = mockCandidates.find(c => c.id === cleanId);
+      const candidate = mockCandidates.find(c => {
+        const candidateId = c.id.includes(',') ? c.id.split(',')[0].trim() : c.id.trim();
+        return candidateId === cleanId;
+      });
       if (!candidate) return null;
       return candidate;
     }
     
     // Find the row with the matching ID (check only the first segment if the value contains commas)
     const candidateRow = rows.find(row => {
-      const rowId = row[0] || '';
-      return rowId.includes(',') ? rowId.split(',')[0] === cleanId : rowId === cleanId;
+      if (!row[0]) return false;
+      const rowId = row[0].trim();
+      return rowId.includes(',') ? rowId.split(',')[0].trim() === cleanId : rowId === cleanId;
     });
     
     if (!candidateRow) {
       console.log("Candidate not found in sheet, checking mock data");
       // Check mock data as fallback
-      const mockCandidate = mockCandidates.find(c => c.id === cleanId);
+      const mockCandidate = mockCandidates.find(c => {
+        const candidateId = c.id.includes(',') ? c.id.split(',')[0].trim() : c.id.trim();
+        return candidateId === cleanId;
+      });
       if (!mockCandidate) return null;
       return mockCandidate;
     }
@@ -100,7 +115,10 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
     }
     
     // Fall back to mock data on error
-    const candidate = mockCandidates.find(c => c.id === cleanId);
+    const candidate = mockCandidates.find(c => {
+      const candidateId = c.id.includes(',') ? c.id.split(',')[0].trim() : c.id.trim();
+      return candidateId === cleanId;
+    });
     return candidate || null;
   }
 };
