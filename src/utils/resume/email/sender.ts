@@ -28,8 +28,20 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
       } catch (error) {
         console.error("Failed to load Gmail API:", error);
         
-        // Check for common Gmail API disabled error
+        // Check for Gmail API key blocked error (API_KEY_SERVICE_BLOCKED)
         const errorMsg = String(error);
+        if (errorMsg.includes('API_KEY_SERVICE_BLOCKED') || 
+            errorMsg.includes('PERMISSION_DENIED') ||
+            errorMsg.includes('gmail method') ||
+            errorMsg.includes('blocked')) {
+          console.log("Gmail API cannot be used with API key only, requires OAuth. Using fallback.");
+          toast.warning("Gmail requires OAuth authentication", {
+            description: "Using alternative email service instead"
+          });
+          return fallbackEmailSending(emailData);
+        }
+        
+        // Check for other common Gmail API errors
         if (errorMsg.includes('Gmail API has not been used') || 
             errorMsg.includes('disabled') ||
             errorMsg.includes('SERVICE_DISABLED')) {
@@ -59,8 +71,9 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
       const errorMsg = String(error);
       if (errorMsg.includes('Permission denied') || 
           errorMsg.includes('insufficient permission') ||
-          errorMsg.includes('PERMISSION_DENIED')) {
-        toast.warning("Gmail API permission denied", {
+          errorMsg.includes('PERMISSION_DENIED') ||
+          errorMsg.includes('API_KEY_SERVICE_BLOCKED')) {
+        toast.warning("Gmail API requires OAuth authentication", {
           description: "Using alternative email service instead"
         });
       }

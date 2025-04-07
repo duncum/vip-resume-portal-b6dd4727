@@ -35,7 +35,7 @@ export const sendResumeEmail = async (options: SendResumeEmailOptions): Promise<
   
   try {
     // Display sending toast
-    toast.loading("Sending email...");
+    const loadingToast = toast.loading("Preparing email...");
     
     // 1. Track this email send in Google Sheets
     try {
@@ -56,6 +56,7 @@ export const sendResumeEmail = async (options: SendResumeEmailOptions): Promise<
     
     // Log the email being sent
     console.log("Sending email from michelle@creconfidential.org to:", recipientEmail);
+    toast.dismiss(loadingToast);
     
     const success = await sendEmailWithService(emailData);
     
@@ -70,7 +71,7 @@ export const sendResumeEmail = async (options: SendResumeEmailOptions): Promise<
   } catch (error) {
     console.error("Error sending resume email:", error);
     toast.error("Failed to send resume", {
-      description: "Please check your connection and try again"
+      description: "Please check email configuration and try again"
     });
     return false;
   }

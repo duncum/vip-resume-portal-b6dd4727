@@ -31,6 +31,13 @@ export const fallbackEmailSending = async (emailData: EmailData): Promise<boolea
     return sendViaEmailJS(emailData);
   } else {
     console.log("No EmailJS credentials found, using simulated email delivery");
+    
+    // Provide clear guidance to the user
+    toast.info("Email delivery simulation", {
+      description: "To send real emails, set up EmailJS credentials or configure Gmail OAuth",
+      duration: 5000
+    });
+    
     // Simulate network latency
     await new Promise(resolve => setTimeout(resolve, 1000));
     
@@ -44,7 +51,7 @@ export const fallbackEmailSending = async (emailData: EmailData): Promise<boolea
     });
     
     toast.success("Email delivery simulated", {
-      description: "Set up EmailJS or enable Gmail API for actual delivery"
+      description: "Set up EmailJS or enable Gmail OAuth for actual delivery"
     });
     
     return true;
