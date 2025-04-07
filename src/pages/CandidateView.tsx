@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { fetchCandidateById, type Candidate } from "@/utils/sheets";
@@ -15,8 +15,10 @@ import CandidateResume from "@/components/candidates/CandidateResume";
 const CandidateView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
     const loadCandidate = async () => {
@@ -26,8 +28,9 @@ const CandidateView = () => {
       const cleanId = id.split(',')[0].trim();
       
       // If the ID contains more than just the ID part, redirect to a clean URL
-      if (id !== cleanId && id.includes(',')) {
+      if (id !== cleanId && (id.includes(',') || id.length > 50)) {
         console.log("URL contains full data instead of just ID, redirecting to clean URL");
+        setIsRedirecting(true);
         navigate(`/candidate/${cleanId}`, { replace: true });
         return;
       }
@@ -51,11 +54,18 @@ const CandidateView = () => {
         setCandidate(null);
       } finally {
         setIsLoading(false);
+        setIsRedirecting(false);
       }
     };
 
     loadCandidate();
   }, [id, navigate]);
+
+  if (isRedirecting) {
+    return (
+      <LoadingState message="Fixing URL format, please wait..." />
+    );
+  }
 
   if (isLoading) {
     return <LoadingState />;

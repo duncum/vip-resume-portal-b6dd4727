@@ -36,8 +36,10 @@ const CandidateCard = ({
   // Extract just the ID part without any commas or extra data
   const cleanId = id?.trim().split(',')[0] || "";
   
-  // Log the clean ID for debugging
-  console.log("Card ID:", id, "Clean ID:", cleanId);
+  // Add additional check to make sure we NEVER use a long ID in a URL
+  if (cleanId.length > 100) {
+    console.error("ID is suspiciously long, might contain full row data:", cleanId.substring(0, 30) + "...");
+  }
   
   return (
     <Card className="h-full flex flex-col bg-grey-900/20 hover:bg-grey-900/40 border border-grey-800 transition-colors text-white overflow-hidden backdrop-blur-sm">

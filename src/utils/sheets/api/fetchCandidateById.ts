@@ -10,10 +10,23 @@ import { mockCandidates } from '../mock-data';
  * Fetch a single candidate by ID from Google Sheets API
  */
 export const fetchCandidateById = async (id: string): Promise<Candidate | null> => {
+  // Always make sure we have a clean ID
   // Extract just the ID part if it contains commas or other data
-  const cleanId = id.split(',')[0].trim();
+  let cleanId = id.split(',')[0].trim();
+  
+  // Add extra safety check for extremely long IDs
+  if (cleanId.length > 50) {
+    console.error("ID is suspiciously long, might contain full data:", cleanId.substring(0, 30) + "...");
+    // Try to extract a proper ID format if possible
+    const potentialIdMatch = cleanId.match(/^([a-zA-Z0-9_-]{1,20})/);
+    if (potentialIdMatch && potentialIdMatch[1]) {
+      const extractedId = potentialIdMatch[1];
+      console.log("Extracted potential valid ID from long string:", extractedId);
+      cleanId = extractedId;
+    }
+  }
 
-  console.log("Fetching candidate with ID param:", id);
+  console.log("Fetching candidate with original ID param:", id);
   console.log("Using clean ID for search:", cleanId);
   
   // Check if we have proper authorization
