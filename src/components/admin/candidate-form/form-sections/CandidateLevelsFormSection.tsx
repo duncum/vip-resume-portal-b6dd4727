@@ -1,19 +1,16 @@
 
 import React from "react";
+import { useFormContext } from "../context/FormContext";
 import CollapsibleSection from "../CollapsibleSection";
 import CandidateLevels from "../CandidateLevels";
 
 interface CandidateLevelsFormSectionProps {
-  selectedLevels: string[];
-  handleLevelChange: (level: string, checked: boolean) => void;
   disabled?: boolean;
 }
 
-const CandidateLevelsFormSection = ({
-  selectedLevels,
-  handleLevelChange,
-  disabled = false
-}: CandidateLevelsFormSectionProps) => {
+const CandidateLevelsFormSection = ({ disabled = false }: CandidateLevelsFormSectionProps) => {
+  const { selectedLevels, handleLevelChange } = useFormContext();
+  
   return (
     <CollapsibleSection title="Candidate Level / Hierarchy">
       <CandidateLevels 

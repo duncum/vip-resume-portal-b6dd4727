@@ -1,27 +1,23 @@
 
 import React from "react";
+import { useFormContext } from "../context/FormContext";
 import CollapsibleSection from "../CollapsibleSection";
 import SkillsSection from "../SkillsSection";
 
 interface SkillsFormSectionProps {
-  selectedSkills: string[];
-  handleSkillChange: (skill: string, checked: boolean) => void;
-  customSkills: string[];
-  addCustomSkill: () => void;
-  handleCustomSkillChange: (index: number, value: string) => void;
-  removeCustomSkill: (index: number) => void;
   disabled?: boolean;
 }
 
-const SkillsFormSection = ({
-  selectedSkills,
-  handleSkillChange,
-  customSkills,
-  addCustomSkill,
-  handleCustomSkillChange,
-  removeCustomSkill,
-  disabled = false
-}: SkillsFormSectionProps) => {
+const SkillsFormSection = ({ disabled = false }: SkillsFormSectionProps) => {
+  const {
+    selectedSkills,
+    handleSkillChange,
+    customSkills,
+    addCustomSkill,
+    handleCustomSkillChange,
+    removeCustomSkill
+  } = useFormContext();
+  
   return (
     <CollapsibleSection title="High-Level Skills">
       <SkillsSection 
