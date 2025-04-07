@@ -49,21 +49,38 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
     // Since we can't directly check scopes, we'll attempt a simple operation
     // that requires the gmail.send scope to verify permissions
     try {
-      // Instead of using getProfile which doesn't exist, create a draft message
-      // to test if we have proper permissions (will fail if scope is missing)
+      // Safe check if we can access Gmail API messages endpoint
+      if (!window.gapi.client.gmail?.users?.messages) {
+        console.warn("Gmail API messages endpoint not available");
+        return fallbackEmailSending(emailData);
+      }
+      
+      // Create a simple test email
       const testEmail = createTestEmail();
       
-      // This will throw an error if scope is missing
-      await window.gapi.client.gmail.users.drafts?.create({
-        userId: 'me',
-        resource: {
-          message: {
-            raw: testEmail
-          }
+      // Check if drafts endpoint exists before trying to use it
+      if (window.gapi.client.gmail.users.drafts) {
+        try {
+          // This will throw an error if scope is missing
+          await window.gapi.client.gmail.users.drafts.create({
+            userId: 'me',
+            resource: {
+              message: {
+                raw: testEmail
+              }
+            }
+          });
+          // If we reach here without error, we have the correct scope
+        } catch (draftError) {
+          console.warn("Could not create draft, might not have proper permissions:", draftError);
+          // Try sending a simple message instead of creating a draft
+          throw draftError; // Propagate error to outer catch block
         }
-      });
-      
-      // If we reach here without error, we have the correct scope
+      } else {
+        // If drafts endpoint is unavailable, we'll try a different approach
+        console.warn("Gmail API drafts endpoint not available, skipping scope test");
+        // We'll proceed and let the actual send operation determine if we have permissions
+      }
     } catch (error) {
       console.error("Gmail scope verification error:", error);
       const errorMsg = String(error);
