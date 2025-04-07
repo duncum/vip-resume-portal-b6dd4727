@@ -2,6 +2,7 @@
 import { useEffect, useCallback } from 'react';
 import { useGoogleCredentials } from '@/hooks/google/useGoogleCredentials';
 import { useGoogleConnection } from '@/hooks/google/connection';
+import { setApiKeyOnlyMode } from '@/utils/google/auth/initialize';
 
 export const useGoogleIntegration = () => {
   const {
@@ -62,6 +63,8 @@ export const useGoogleIntegration = () => {
     if (clearClientId) {
       const result = clearClientId();
       if (result) {
+        // Force API key only mode
+        setApiKeyOnlyMode(true);
         setTimeout(() => {
           autoConnect();
         }, 500);

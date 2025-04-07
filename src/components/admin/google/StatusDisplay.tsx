@@ -54,8 +54,8 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
     );
   }
   
-  if (error && !isAuthorized && error.includes('idpiframe_initialization_failed') || 
-     (error && !isAuthorized && error.includes('origin'))) {
+  if (error && !isAuthorized && (error.includes('idpiframe_initialization_failed') || 
+     error.includes('origin') || error.includes('OAuth'))) {
     return (
       <div className="space-y-2">
         <Alert variant="destructive" className="py-2">
@@ -81,7 +81,8 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   }
   
   if (isAuthorized) {
-    const isOAuthMode = localStorage.getItem('google_client_id') && localStorage.getItem('google_client_id') !== '';
+    const isOAuthMode = localStorage.getItem('google_client_id') && localStorage.getItem('google_client_id') !== '' && 
+                         localStorage.getItem('force_api_key_only') !== 'true';
     const spreadsheetId = localStorage.getItem('google_spreadsheet_id');
     
     return (

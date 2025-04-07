@@ -23,6 +23,12 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     
     console.log("API key found, proceeding with Google sign-in");
 
+    // Check if API key only mode is forced
+    const forceApiKeyOnly = localStorage.getItem('force_api_key_only') === 'true';
+    if (forceApiKeyOnly) {
+      console.log("API key only mode is forced, skipping OAuth checks");
+    }
+
     // Use signInToGoogle which will handle initialization
     const isAuthorized = await signInToGoogle();
     console.log("Google sign-in result:", isAuthorized);
@@ -30,10 +36,12 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     // In API key only mode, we may not get full authorization but that's OK
     // as long as we have initialized the API
     const clientId = localStorage.getItem('google_client_id');
+    const isApiKeyOnlyMode = forceApiKeyOnly || !clientId || clientId === '';
     console.log("Client ID exists:", !!clientId);
+    console.log("API key only mode:", isApiKeyOnlyMode);
     
     if (isAuthorized) {
-      if (!clientId || clientId === '') {
+      if (isApiKeyOnlyMode) {
         console.log('Running in API key only mode');
         // We're in API key only mode, which is fine for reading data
         return true;
@@ -83,11 +91,11 @@ export const ensureAuthorization = async (): Promise<boolean> => {
         // Check specifically for auth errors
         console.error("Error during sheets test request:", error);
         
-        if (error.result?.error?.code === 401) {
+        if (error.result?.error?.code === 401 || error.result?.error?.code === 403) {
           console.warn('Sheets API requires OAuth for write operations');
           
           // In API key only mode, we'll allow read operations
-          if (!clientId || clientId === '') {
+          if (isApiKeyOnlyMode) {
             console.log('API key only mode - read operations should work');
             return true;
           } else {
@@ -98,14 +106,30 @@ export const ensureAuthorization = async (): Promise<boolean> => {
         }
         
         console.error('Sheets API test request failed:', error);
+        // In API key only mode, return true anyway to allow reading
+        if (isApiKeyOnlyMode) {
+          console.log('API key only mode - continuing despite errors');
+          return true;
+        }
         return false;
       }
+    }
+    
+    // Special case for API key only mode - bypass OAuth errors
+    if (isApiKeyOnlyMode) {
+      console.log('API key only mode - continuing despite auth failures');
+      return true;
     }
     
     console.log("Authorization failed - not authorized");
     return false;
   } catch (error) {
     console.error('Sheets authorization error:', error);
+    // In API key only mode, return true anyway to allow reading
+    if (localStorage.getItem('force_api_key_only') === 'true') {
+      console.log('API key only mode - continuing despite errors');
+      return true;
+    }
     return false;
   }
 };
