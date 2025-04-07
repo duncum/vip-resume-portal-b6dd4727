@@ -16,6 +16,7 @@ const ResumeUploader = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string>("");
 
   const handleFileSelect = async (file: File) => {
@@ -73,6 +74,31 @@ const ResumeUploader = ({
     }
   };
 
+  const resetUpload = async () => {
+    setIsDeleting(true);
+    
+    try {
+      // Clear the form state
+      setSelectedFile(null);
+      setUploadedUrl("");
+      
+      if (onResumeUrlChange) {
+        onResumeUrlChange("");
+      }
+      
+      if (onResumeTextChange) {
+        onResumeTextChange("");
+      }
+      
+      toast.success('Resume removed successfully');
+    } catch (error) {
+      console.error('Error removing resume:', error);
+      toast.error('Failed to remove resume');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <CandidateIdInput 
@@ -85,7 +111,12 @@ const ResumeUploader = ({
         className={`border-2 border-dashed ${uploadedUrl ? 'border-green-300 bg-green-50' : 'border-grey-300'} rounded-md p-6 flex flex-col items-center justify-center ${disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
       >
         {uploadedUrl ? (
-          <UploadedFilePreview uploadedUrl={uploadedUrl} />
+          <UploadedFilePreview 
+            uploadedUrl={uploadedUrl} 
+            onReset={resetUpload}
+            disabled={disabled}
+            isDeleting={isDeleting}
+          />
         ) : (
           <FileDropZone 
             selectedFile={selectedFile}
