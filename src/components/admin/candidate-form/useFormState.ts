@@ -23,11 +23,12 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
     relocationPreference,
     setRelocationPreference,
     notableEmployers,
-    setNotableEmployers
+    setNotableEmployers,
+    resetBasicInfo
   } = useBasicInfoState();
 
   // Levels state
-  const { selectedLevels, handleLevelChange } = useLevelsState();
+  const { selectedLevels, handleLevelChange, resetLevels } = useLevelsState();
 
   // Titles state
   const {
@@ -38,7 +39,8 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
     customTitles,
     handleCustomTitleChange,
     addAnotherCustomTitle,
-    removeCustomTitle
+    removeCustomTitle,
+    resetTitles
   } = useTitlesState();
 
   // Skills state
@@ -48,8 +50,9 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
     customItems: customSkills,
     addCustomItem: addCustomSkill,
     handleCustomItemChange: handleCustomSkillChange,
-    removeCustomItem: removeCustomSkill
-  } = useCustomListState('skills');
+    removeCustomItem: removeCustomSkill,
+    reset: resetSkills
+  } = useCustomListState({ itemName: 'skills' });
 
   // Asset Types state
   const {
@@ -58,8 +61,9 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
     customItems: customAssetTypes,
     addCustomItem: addCustomAssetType,
     handleCustomItemChange: handleCustomAssetTypeChange,
-    removeCustomItem: removeCustomAssetType
-  } = useCustomListState('assetTypes');
+    removeCustomItem: removeCustomAssetType,
+    reset: resetAssetTypes
+  } = useCustomListState({ itemName: 'assetTypes' });
 
   // Sectors state
   const {
@@ -68,11 +72,12 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
     customItems: customSectors,
     addCustomItem: addCustomSector,
     handleCustomItemChange: handleCustomSectorChange,
-    removeCustomItem: removeCustomSector
-  } = useCustomListState('sectors');
+    removeCustomItem: removeCustomSector,
+    reset: resetSectors
+  } = useCustomListState({ itemName: 'sectors' });
 
   // Form submission
-  const { isUploading, handleSubmit } = useFormSubmission({
+  const { isUploading, handleSubmit: submitForm } = useFormSubmission({
     candidateId,
     resumeUrl,
     resumeText,
@@ -95,22 +100,39 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
     onSuccess
   });
 
+  // Reset all form states
+  const resetForm = () => {
+    resetBasicInfo();
+    resetLevels();
+    resetTitles();
+    resetSkills();
+    resetAssetTypes();
+    resetSectors();
+  };
+
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    return submitForm(e);
+  };
+
   // Effect to populate form with candidate data when editing
   useEffect(() => {
     if (candidateToEdit) {
       // Set basic info
       setCandidateId(candidateToEdit.id || '');
       setResumeUrl(candidateToEdit.resumeUrl || '');
+      if (candidateToEdit.resumeText) {
+        setResumeText(candidateToEdit.resumeText);
+      }
       setHeadline(candidateToEdit.headline || '');
       setSummary(candidateToEdit.summary || '');
       setLocation(candidateToEdit.location || '');
-      setTags(candidateToEdit.tags || '');
-      setRelocationPreference(candidateToEdit.relocationPreference || '');
+      setTags(candidateToEdit.tags ? candidateToEdit.tags.join(', ') : '');
+      setRelocationPreference(candidateToEdit.relocationPreference || 'flexible');
       setNotableEmployers(candidateToEdit.notableEmployers || '');
 
-      // Handle levels, titles, skills, assetTypes, and sectors if they exist in the candidateToEdit
-      // These will need more complex logic to properly populate the form
-      // For example, for levels:
+      // Handle levels
       if (candidateToEdit.levels && Array.isArray(candidateToEdit.levels)) {
         candidateToEdit.levels.forEach(level => {
           handleLevelChange(level, true);

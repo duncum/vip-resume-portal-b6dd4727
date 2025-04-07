@@ -2,12 +2,16 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-interface UseCustomListStateParams {
+export type UseCustomListStateParams = {
   itemName: string;
   maxItems?: number;
-}
+};
 
-export function useCustomListState({ itemName, maxItems = 50 }: UseCustomListStateParams) {
+export function useCustomListState(params: UseCustomListStateParams | string) {
+  // Convert string parameter to object parameter for backward compatibility
+  const itemName = typeof params === 'string' ? params : params.itemName;
+  const maxItems = typeof params === 'string' ? 50 : (params.maxItems || 50);
+
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [customItems, setCustomItems] = useState<string[]>([]);
 

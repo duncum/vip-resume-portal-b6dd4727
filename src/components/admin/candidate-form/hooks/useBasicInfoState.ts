@@ -5,6 +5,7 @@ export const useBasicInfoState = () => {
   const [candidateId, setCandidateId] = useState<string>("");
   const [headline, setHeadline] = useState<string>("");
   const [resumeUrl, setResumeUrl] = useState<string>("");
+  const [resumeText, setResumeText] = useState<string>("");
   const [summary, setSummary] = useState<string>("");
   const [location, setLocation] = useState<string>("");
   const [tags, setTags] = useState<string>("");
@@ -15,6 +16,7 @@ export const useBasicInfoState = () => {
     setCandidateId("");
     setHeadline("");
     setResumeUrl("");
+    setResumeText("");
     setSummary("");
     setLocation("");
     setTags("");
@@ -29,6 +31,8 @@ export const useBasicInfoState = () => {
     setHeadline,
     resumeUrl,
     setResumeUrl,
+    resumeText,
+    setResumeText,
     summary,
     setSummary,
     location,

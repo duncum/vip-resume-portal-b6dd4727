@@ -18,31 +18,92 @@ export type FormData = {
   sectors: string[];
   tags: string[];
   resumeUrl: string;
+  resumeText?: string;
   notableEmployers: string;
 };
 
-type UseFormSubmissionParams = {
+export type UseFormSubmissionParams = {
+  candidateId: string;
+  resumeUrl: string;
+  resumeText: string;
+  headline: string;
+  summary: string;
+  location: string;
+  tags: string;
+  relocationPreference: string;
+  notableEmployers: string;
+  selectedLevels: string[];
+  selectedTitleCategories: string[];
+  selectedTitles: Record<string, string[]>;
+  customTitles: Record<string, string[]>;
+  selectedSkills: string[];
+  customSkills: string[];
+  selectedAssetTypes: string[];
+  customAssetTypes: string[];
+  selectedSectors: string[];
+  customSectors: string[];
   onSuccess?: () => void;
-  resetForm: () => void;
 };
 
-export function useFormSubmission({ onSuccess, resetForm }: UseFormSubmissionParams) {
+export function useFormSubmission(params: UseFormSubmissionParams) {
   const [isUploading, setIsUploading] = useState(false);
 
-  const submitForm = async (candidateData: FormData): Promise<boolean> => {
-    if (!candidateData.id.trim()) {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const {
+      candidateId,
+      resumeUrl,
+      resumeText,
+      headline,
+      summary,
+      location,
+      tags,
+      relocationPreference,
+      notableEmployers,
+      selectedLevels,
+      selectedTitleCategories,
+      selectedTitles,
+      customTitles,
+      selectedSkills,
+      customSkills,
+      selectedAssetTypes,
+      customAssetTypes,
+      selectedSectors,
+      customSectors,
+      onSuccess
+    } = params;
+
+    if (!candidateId.trim()) {
       toast.error("Please enter a Candidate ID");
       return false;
     }
     
-    if (!candidateData.resumeUrl) {
+    if (!resumeUrl) {
       toast.error("Please upload a resume first");
       return false;
     }
     
     setIsUploading(true);
     
-    console.log("Candidate data:", candidateData);
+    // Prepare form data
+    const candidateData: FormData = {
+      id: candidateId,
+      headline,
+      levels: selectedLevels,
+      titleCategories: selectedTitleCategories,
+      titles: selectedTitles,
+      summary,
+      location,
+      relocationPreference,
+      skills: [...selectedSkills, ...customSkills.filter(s => s.trim() !== '')],
+      assetTypes: [...selectedAssetTypes, ...customAssetTypes.filter(a => a.trim() !== '')],
+      sectors: [...selectedSectors, ...customSectors.filter(s => s.trim() !== '')],
+      tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag !== ''),
+      resumeUrl,
+      resumeText,
+      notableEmployers
+    };
     
     try {
       const saved = await addCandidate(candidateData);
@@ -54,7 +115,6 @@ export function useFormSubmission({ onSuccess, resetForm }: UseFormSubmissionPar
           onSuccess();
         }
         
-        resetForm();
         return true;
       }
       return false;
@@ -69,6 +129,6 @@ export function useFormSubmission({ onSuccess, resetForm }: UseFormSubmissionPar
 
   return {
     isUploading,
-    submitForm
+    handleSubmit
   };
 }
