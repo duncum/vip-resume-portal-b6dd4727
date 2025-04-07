@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Info, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { SPREADSHEET_ID } from '@/utils/sheets/config';
 
 type CredentialsFormProps = {
   credentials: {
@@ -25,6 +26,17 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
   setCredentials,
   onSubmit
 }) => {
+  // Update credentials with current spreadsheet ID from localStorage when component mounts
+  useEffect(() => {
+    const savedSpreadsheetId = localStorage.getItem('google_spreadsheet_id');
+    if (savedSpreadsheetId && savedSpreadsheetId !== credentials.spreadsheetId) {
+      setCredentials(prev => ({
+        ...prev,
+        spreadsheetId: savedSpreadsheetId
+      }));
+    }
+  }, []);
+
   return (
     <form onSubmit={onSubmit} className="mt-3 space-y-4 p-4 bg-slate-50 rounded-md">
       <div className="pb-2">
@@ -59,7 +71,7 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
       
       <div className="space-y-1">
         <Label htmlFor="spreadsheetId" className="text-xs">
-          Spreadsheet ID <span className="text-slate-500">(Optional)</span>
+          Spreadsheet ID <span className="text-red-500">*</span>
         </Label>
         <Input 
           id="spreadsheetId"
@@ -67,6 +79,7 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
           value={credentials.spreadsheetId}
           onChange={(e) => setCredentials({...credentials, spreadsheetId: e.target.value})}
           className="text-xs h-8"
+          required
         />
         <p className="text-xs text-slate-500 mt-1">
           Found in your Google Sheet URL: docs.google.com/spreadsheets/d/<span className="font-bold">spreadsheet-id</span>/edit

@@ -32,7 +32,7 @@ export const useGoogleCredentials = () => {
   // Load saved credentials from localStorage only once when component mounts
   useEffect(() => {
     const savedApiKey = localStorage.getItem('google_api_key');
-    const savedSpreadsheetId = localStorage.getItem('google_spreadsheet_id');
+    const savedSpreadsheetId = localStorage.getItem('google_spreadsheet_id') || SPREADSHEET_ID;
     
     if (savedApiKey || savedSpreadsheetId) {
       setCredentials({
@@ -62,10 +62,17 @@ export const useGoogleCredentials = () => {
       localStorage.removeItem('google_api_key');
     }
     
+    // Make spreadsheet ID required and ensure it's saved
     if (credentials.spreadsheetId) {
       localStorage.setItem('google_spreadsheet_id', credentials.spreadsheetId);
+      console.log('Saved spreadsheet ID to localStorage:', credentials.spreadsheetId);
+    } else if (SPREADSHEET_ID) {
+      // If no spreadsheet ID is provided but we have a default, use that
+      localStorage.setItem('google_spreadsheet_id', SPREADSHEET_ID);
+      console.log('Using default spreadsheet ID:', SPREADSHEET_ID);
     } else {
-      localStorage.removeItem('google_spreadsheet_id');
+      toast.error('Spreadsheet ID is required');
+      return false;
     }
     
     // Remove any client ID if previously set
@@ -86,11 +93,9 @@ export const useGoogleCredentials = () => {
     return true;
   }, [credentials]);
 
-  // Removed clearClientId since it's not needed anymore
-
   const showSetupInstructions = useCallback(() => {
     toast.info(
-      'You need to set up your Google API key. Please provide a valid API key in the settings.',
+      'You need to set up your Google API key and Spreadsheet ID. Please provide them in the settings.',
       { duration: 8000 }
     );
     // Print simplified instructions focused on API key

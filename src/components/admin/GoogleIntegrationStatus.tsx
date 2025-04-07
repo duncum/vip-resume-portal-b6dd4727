@@ -9,6 +9,7 @@ import { useGoogleIntegration } from './google/useGoogleIntegration';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { SPREADSHEET_ID } from '@/utils/sheets/config';
 
 const GoogleIntegrationStatus = () => {
   const hasAutoConnected = useRef(false);
@@ -55,12 +56,17 @@ const GoogleIntegrationStatus = () => {
       
       if (spreadsheetIdInput.value) {
         localStorage.setItem('google_spreadsheet_id', spreadsheetIdInput.value);
+        console.log('Saved spreadsheet ID to localStorage:', spreadsheetIdInput.value);
+      } else if (SPREADSHEET_ID) {
+        // Use the default spreadsheet ID if none provided
+        localStorage.setItem('google_spreadsheet_id', SPREADSHEET_ID);
+        console.log('Using default spreadsheet ID:', SPREADSHEET_ID);
       }
       
       setCredentials({
         ...credentials,
         apiKey: apiKeyInput.value,
-        spreadsheetId: spreadsheetIdInput.value || credentials.spreadsheetId
+        spreadsheetId: spreadsheetIdInput.value || SPREADSHEET_ID
       });
       
       toast.success("API Key saved! Connecting...");
@@ -74,6 +80,9 @@ const GoogleIntegrationStatus = () => {
       }, 500);
     }
   };
+
+  // Get current spreadsheet ID
+  const currentSpreadsheetId = localStorage.getItem('google_spreadsheet_id') || SPREADSHEET_ID;
 
   return (
     <Card className="border-dashed shadow-sm">
@@ -113,7 +122,13 @@ const GoogleIntegrationStatus = () => {
                 name="spreadsheetId" 
                 placeholder="Your Google Sheet ID" 
                 className="h-7 text-xs"
+                defaultValue={currentSpreadsheetId !== "1RICk5q_nQr8JHKvlYi-1tdlVwzM57UGbRdDNOdMwOFk" ? currentSpreadsheetId : ""}
               />
+              {currentSpreadsheetId && (
+                <p className="text-[10px] text-gray-500 mt-1">
+                  Current ID: {currentSpreadsheetId.substring(0, 15)}...
+                </p>
+              )}
             </div>
             <Button type="submit" size="sm" className="w-full text-xs h-7">
               Connect

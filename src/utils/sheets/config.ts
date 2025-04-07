@@ -12,7 +12,7 @@
 export const SPREADSHEET_ID = 
   typeof window !== 'undefined' && window.localStorage.getItem('google_spreadsheet_id') || 
   import.meta.env.VITE_GOOGLE_SPREADSHEET_ID || 
-  ""; 
+  "1RICk5q_nQr8JHKvlYi-1tdlVwzM57UGbRdDNOdMwOFk"; // Default spreadsheet ID as fallback
 
 export const CANDIDATES_RANGE = "Candidates!A2:Z"; // Adjust based on your sheet structure
 

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CheckCircle, XCircle, RefreshCw, Info, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, RefreshCw, Info, AlertCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -85,10 +85,15 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
           </div>
         </div>
         
-        {!spreadsheetId && (
-          <div className="flex items-center text-[10px] text-amber-500 p-1 bg-amber-50 rounded-md">
+        {!spreadsheetId ? (
+          <div className="flex items-center text-[10px] text-red-500 p-1 bg-red-50 rounded-md">
             <AlertCircle className="h-3 w-3 mr-1 flex-shrink-0" />
-            <span>Add Spreadsheet ID in API settings</span>
+            <span>Spreadsheet ID missing - add in API settings</span>
+          </div>
+        ) : (
+          <div className="flex items-center text-[10px] text-green-700 p-1 bg-green-50 rounded-md">
+            <FileText className="h-3 w-3 mr-1 flex-shrink-0" />
+            <span>Spreadsheet ID: {spreadsheetId.substring(0, 12)}...</span>
           </div>
         )}
       </div>
