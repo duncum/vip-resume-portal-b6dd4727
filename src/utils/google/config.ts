@@ -22,6 +22,7 @@ export const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.
  * Get the redirect URI for OAuth - should match what's configured in Google Cloud Console
  */
 export const getRedirectUri = () => {
+  // Always return the raw origin without any paths to match OAuth settings
   return window.location.origin;
 };
 
@@ -33,28 +34,20 @@ export const printOAuthSetupInstructions = () => {
     `Google Sheets Integration Setup Instructions:
     
     1. You need these three values to connect to Google Sheets:
-       - Client ID: Your OAuth Client ID
+       - Client ID: ${CLIENT_ID || "Your OAuth Client ID"} 
        - API Key: Your API Key
        - Spreadsheet ID: Your Spreadsheet ID
     
-    2. To get these values:
-       a) Go to https://console.cloud.google.com/
-       b) Create a new project (or select an existing one)
-       c) Enable both the Google Sheets API and Google Drive API
-       d) Create OAuth consent screen (External)
-       e) Create OAuth credentials with these settings:
-          - Application type: Web application
-          - Name: CRE Resume Portal (or your app name)
-          - Authorized JavaScript origins: ${window.location.origin}
-          - Authorized redirect URIs: ${getRedirectUri()}
-       f) Create an API key
+    2. Google Cloud Console OAuth Settings:
+       - Application type: Web application
+       - Authorized JavaScript origins: ${window.location.origin}
+       - Authorized redirect URIs: ${getRedirectUri()}
        
-    3. Your Spreadsheet ID is found in your Google Sheet URL:
+    3. Make sure to add ${window.location.origin} to your allowed origins in Google Cloud Console
+       
+    4. Your Spreadsheet ID is found in your Google Sheet URL:
        https://docs.google.com/spreadsheets/d/[YOUR_SPREADSHEET_ID]/edit
-       
-    4. You can enter these credentials in the API Credentials form in the app.
-    
-    Once you have your credentials, the Google Integration Status panel will allow you to connect and access your spreadsheet.`
+    `
   );
 };
 

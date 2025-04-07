@@ -9,7 +9,7 @@ import { mockCandidates } from '../mock-data';
 /**
  * Fetch a single candidate by ID from Google Sheets API
  */
-export const fetchCandidateById = async (id: string): Promise<Candidate> => {
+export const fetchCandidateById = async (id: string): Promise<Candidate | null> => {
   // Check if we have proper authorization
   const isAuthorized = await ensureAuthorization();
   
@@ -23,7 +23,7 @@ export const fetchCandidateById = async (id: string): Promise<Candidate> => {
     const candidate = mockCandidates.find(c => c.id === id);
     
     if (!candidate) {
-      throw new Error("Candidate not found");
+      return null; // Return null instead of throwing an error
     }
     
     return candidate;
@@ -39,7 +39,7 @@ export const fetchCandidateById = async (id: string): Promise<Candidate> => {
       
       // Fall back to mock data
       const candidate = mockCandidates.find(c => c.id === id);
-      if (!candidate) throw new Error("Candidate not found");
+      if (!candidate) return null;
       return candidate;
     }
     
@@ -59,7 +59,7 @@ export const fetchCandidateById = async (id: string): Promise<Candidate> => {
       
       // Fall back to mock data
       const candidate = mockCandidates.find(c => c.id === id);
-      if (!candidate) throw new Error("Candidate not found");
+      if (!candidate) return null;
       return candidate;
     }
     
@@ -70,7 +70,7 @@ export const fetchCandidateById = async (id: string): Promise<Candidate> => {
       console.log("Candidate not found in sheet, checking mock data");
       // Check mock data as fallback
       const mockCandidate = mockCandidates.find(c => c.id === id);
-      if (!mockCandidate) throw new Error("Candidate not found");
+      if (!mockCandidate) return null;
       return mockCandidate;
     }
     
@@ -87,11 +87,6 @@ export const fetchCandidateById = async (id: string): Promise<Candidate> => {
       toast.error("Spreadsheet not found - check your Spreadsheet ID", {
         duration: 5000
       });
-    } else if (error.message === "Candidate not found") {
-      toast.error("Candidate not found with ID: " + id, {
-        duration: 5000
-      });
-      throw error;
     } else {
       toast.error("Failed to load candidate details", {
         duration: 5000
@@ -100,11 +95,6 @@ export const fetchCandidateById = async (id: string): Promise<Candidate> => {
     
     // Fall back to mock data on error
     const candidate = mockCandidates.find(c => c.id === id);
-    
-    if (!candidate) {
-      throw new Error("Candidate not found");
-    }
-    
-    return candidate;
+    return candidate || null;
   }
 };

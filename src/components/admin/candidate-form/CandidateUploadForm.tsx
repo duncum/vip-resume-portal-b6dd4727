@@ -1,25 +1,55 @@
 
 import React from "react";
-import { FormProvider } from "./context/FormContext";
+import { useFormState } from "./hooks/useFormState";
+import { FormLayout } from "./FormLayout";
+import { FormHeader } from "./FormHeader";
+import { FormContent } from "./FormContent";
+import { SubmitButton } from "./SubmitButton";
+import ApiKeyWarning from "./ApiKeyWarning";
 import { useApiKeyValidation } from "./hooks/useApiKeyValidation";
-import FormLayout from "./FormLayout";
-import { CandidateUploadFormProps } from "./types";
+import { type Candidate } from "@/utils/sheets";
 
-const CandidateUploadForm = ({ 
-  onSuccess, 
-  candidateCount = 0, 
-  candidateToEdit 
-}: CandidateUploadFormProps) => {
+interface CandidateUploadFormProps {
+  candidateCount?: number;
+  candidateToEdit?: Candidate | null;
+  onSuccess?: () => void;
+}
+
+const CandidateUploadForm: React.FC<CandidateUploadFormProps> = ({
+  candidateCount = 0,
+  candidateToEdit,
+  onSuccess
+}) => {
+  const formState = useFormState(onSuccess, candidateToEdit || undefined);
+  
+  // Check if we're in API key only mode
   const { isApiKeyOnly } = useApiKeyValidation();
   
+  // If we're in API key only mode, show the warning
+  // but only if we're not editing a candidate
+  if (isApiKeyOnly && !candidateToEdit) {
+    return <ApiKeyWarning />;
+  }
+  
   return (
-    <FormProvider 
-      onSuccess={onSuccess} 
-      candidateToEdit={candidateToEdit}
-      isApiKeyOnly={isApiKeyOnly}
-    >
-      <FormLayout candidateCount={candidateCount} />
-    </FormProvider>
+    <FormLayout>
+      <FormHeader 
+        isUploadMode={!candidateToEdit}
+        candidateCount={candidateCount}
+      />
+      
+      <form className="space-y-6" onSubmit={formState.handleSubmit}>
+        <FormContent
+          formState={formState}
+          candidateToEdit={candidateToEdit}
+        />
+        
+        <SubmitButton
+          isUploading={formState.isUploading}
+          isEditing={!!candidateToEdit}
+        />
+      </form>
+    </FormLayout>
   );
 };
 
