@@ -63,7 +63,7 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
         </Label>
         <Input 
           id="clientId"
-          placeholder="Your OAuth Client ID" 
+          placeholder="Enter 353615110421-8o1i2nfo0tp97btrvhmjghvu3hk24c2a.apps.googleusercontent.com" 
           value={credentials.clientId}
           onChange={(e) => setCredentials({...credentials, clientId: e.target.value})}
           className="text-xs h-8"

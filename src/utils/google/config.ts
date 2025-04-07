@@ -4,7 +4,7 @@
 // Get credentials from localStorage if available
 export const CLIENT_ID = 
   typeof window !== 'undefined' && window.localStorage.getItem('google_client_id') || 
-  import.meta.env.VITE_GOOGLE_CLIENT_ID || 
+  "353615110421-8o1i2nfo0tp97btrvhmjghvu3hk24c2a.apps.googleusercontent.com" || 
   "";
 
 export const API_KEY = 
