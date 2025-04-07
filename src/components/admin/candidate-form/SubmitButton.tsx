@@ -1,7 +1,11 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { SubmitButtonProps } from "./types";
+
+interface SubmitButtonProps {
+  isUploading: boolean;
+  disabled?: boolean;
+}
 
 const SubmitButton = ({ isUploading, disabled }: SubmitButtonProps) => {
   return (

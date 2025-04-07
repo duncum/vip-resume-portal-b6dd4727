@@ -36,17 +36,18 @@ const CandidateUploadForm: React.FC<CandidateUploadFormProps> = ({
       <FormHeader 
         isUploadMode={!candidateToEdit}
         candidateCount={candidateCount}
+        candidateId={formState.candidateId}
       />
       
       <form className="space-y-6" onSubmit={formState.handleSubmit}>
         <FormContent
-          formState={formState}
-          candidateToEdit={candidateToEdit}
+          disabled={false}
+          isApiKeyOnly={false}
         />
         
         <SubmitButton
           isUploading={formState.isUploading}
-          isEditing={!!candidateToEdit}
+          disabled={false}
         />
       </form>
     </FormLayout>

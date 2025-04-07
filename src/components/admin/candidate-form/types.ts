@@ -5,11 +5,6 @@ export interface CandidateUploadFormProps {
   candidateToEdit?: any; // Adding the candidateToEdit prop
 }
 
-export interface FormHeaderProps {
-  candidateId: string;
-  candidateCount: number;
-}
-
 export interface HeadlineInputProps {
   headline: string;
   onHeadlineChange: (headline: string) => void;
@@ -33,11 +28,6 @@ export interface LocationSectionProps {
   onLocationChange: (location: string) => void;
   relocationPreference: string;
   onRelocationChange: (preference: string) => void;
-  disabled?: boolean;
-}
-
-export interface SubmitButtonProps {
-  isUploading: boolean;
   disabled?: boolean;
 }
 
@@ -101,4 +91,3 @@ export interface ResumeUploaderProps {
   onResumeTextChange?: (text: string) => void;
   disabled?: boolean;
 }
-
