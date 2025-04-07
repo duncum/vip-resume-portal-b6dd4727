@@ -1,10 +1,10 @@
 
 import { toast } from 'sonner';
-import { getResumeFolderId, setResumeFolderId, RESUME_FOLDER_NAME } from './config';
+import { getResumeFolderId, setResumeFolderId, RESUME_FOLDER_NAME, RESUME_FOLDER_ID_DEFAULT } from './config';
 import { ensureAuthorization } from './auth';
 
-// Fallback folder ID for when we can't create one
-const FALLBACK_FOLDER_ID = 'root';
+// Fallback folder ID for when we can't create one (using user's folder)
+const FALLBACK_FOLDER_ID = RESUME_FOLDER_ID_DEFAULT || 'root';
 
 /**
  * Get or create a folder for storing resumes
@@ -24,7 +24,27 @@ export const getOrCreateResumeFolder = async (): Promise<string> => {
       return FALLBACK_FOLDER_ID;
     }
 
-    // Check if the folder already exists
+    // If we have a default folder ID, check if it exists and is accessible
+    if (RESUME_FOLDER_ID_DEFAULT) {
+      try {
+        // Try to access the folder using the ID
+        const response = await window.gapi.client.drive.files.get({
+          fileId: RESUME_FOLDER_ID_DEFAULT,
+          fields: 'id,name'
+        });
+        
+        if (response.result.id) {
+          // Folder exists and is accessible
+          console.log(`Using existing folder: ${response.result.name} (${response.result.id})`);
+          setResumeFolderId(response.result.id);
+          return response.result.id;
+        }
+      } catch (error) {
+        console.warn('Could not access the default folder, will fall back to searching by name:', error);
+      }
+    }
+
+    // Check if the folder already exists by name
     const response = await window.gapi.client.drive.files.list({
       q: `name='${RESUME_FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
       spaces: 'drive',
@@ -56,7 +76,7 @@ export const getOrCreateResumeFolder = async (): Promise<string> => {
     return newId;
   } catch (error) {
     console.error('Error getting or creating resume folder:', error);
-    // If we can't create or access a folder, use the root folder as fallback
+    // If we can't create or access a folder, use the fallback folder ID
     return FALLBACK_FOLDER_ID;
   }
 };
