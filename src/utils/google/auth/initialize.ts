@@ -18,7 +18,13 @@ localStorage.setItem('force_api_key_only', 'true');
 export const loadApiIfNeeded = async (): Promise<boolean> => {
   if (!isApiLoaded()) {
     console.log("Google API not loaded, loading now...");
-    await loadGoogleApi();
+    try {
+      await loadGoogleApi();
+      console.log("Google API loaded successfully");
+    } catch (error) {
+      console.error("Failed to load Google API:", error);
+      return false;
+    }
   }
   
   if (!window.gapi) {
@@ -57,14 +63,33 @@ export const initializeWithTimeout = async (): Promise<boolean> => {
  * Initialize the Google API client
  */
 export const initializeClient = async (): Promise<boolean> => {
+  // Early return if already initialized with Sheets API available
+  if (isGapiInitialized && window.gapi?.client?.sheets) {
+    console.log("Google API already initialized with Sheets API");
+    return true;
+  }
+  
   return new Promise<boolean>((resolve) => {
     window.gapi.load('client', async () => {
       try {
         console.log("Initializing client with API_KEY only...");
         
+        // Get API key from localStorage or fallback
+        const savedApiKey = localStorage.getItem('google_api_key');
+        const apiKeyToUse = savedApiKey || API_KEY;
+        
+        if (!apiKeyToUse) {
+          console.error("No API key available for initialization");
+          toast.error("API key missing. Please add your API key in settings.");
+          resolve(false);
+          return;
+        }
+        
+        console.log("Using API key:", apiKeyToUse ? "Present (hidden)" : "Missing");
+        
         // Initialize with minimum required parameters - API key only
         const initConfig: GoogleApiInitOptions = {
-          apiKey: API_KEY,
+          apiKey: apiKeyToUse,
           discoveryDocs: DISCOVERY_DOCS
         };
         
@@ -85,14 +110,30 @@ export const initializeClient = async (): Promise<boolean> => {
               return;
             }
             
-            // Explicitly load the Sheets API
-            try {
-              console.log("Loading Sheets API...");
-              await window.gapi.client.load('sheets', 'v4');
-              console.log("Sheets API loaded successfully during initialization");
-            } catch (sheetsError) {
-              console.error("Failed to load Sheets API during initialization:", sheetsError);
-              // Continue anyway since we'll try again later if needed
+            // Explicitly load the Sheets API with retries
+            let sheetsLoaded = false;
+            let retryCount = 0;
+            const maxRetries = 3;
+            
+            while (!sheetsLoaded && retryCount < maxRetries) {
+              try {
+                console.log(`Loading Sheets API (attempt ${retryCount + 1})...`);
+                await window.gapi.client.load('sheets', 'v4');
+                console.log("Sheets API loaded successfully");
+                sheetsLoaded = true;
+              } catch (sheetsError) {
+                console.error(`Failed to load Sheets API (attempt ${retryCount + 1}):`, sheetsError);
+                retryCount++;
+                // Wait a bit before retrying
+                if (retryCount < maxRetries) {
+                  await new Promise(r => setTimeout(r, 300 * retryCount));
+                }
+              }
+            }
+            
+            if (!sheetsLoaded) {
+              console.warn("Failed to load Sheets API after multiple attempts");
+              // We'll still mark as initialized and try to continue
             }
             
             isGapiInitialized = true;
@@ -113,7 +154,6 @@ export const initializeClient = async (): Promise<boolean> => {
                 console.log("Sheets API loaded successfully after OAuth error");
               } catch (sheetsError) {
                 console.error("Failed to load Sheets API after OAuth error:", sheetsError);
-                // Continue anyway since we'll try again later if needed
               }
               
               isGapiInitialized = true;
@@ -159,7 +199,14 @@ export const handleInitError = (error: unknown): void => {
 /**
  * Check if the API is initialized
  */
-export const getIsGapiInitialized = (): boolean => isGapiInitialized;
+export const getIsGapiInitialized = (): boolean => {
+  // Add additional check for sheets API availability
+  const sheetsAvailable = !!window.gapi?.client?.sheets;
+  if (isGapiInitialized && !sheetsAvailable) {
+    console.warn("isGapiInitialized is true but sheets API is not available");
+  }
+  return isGapiInitialized;
+};
 
 /**
  * Set the initialization state (for testing or resetting)

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { fetchCandidateById, type Candidate } from "@/utils/sheets";
@@ -14,6 +14,7 @@ import CandidateResume from "@/components/candidates/CandidateResume";
 
 const CandidateView = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,21 +22,40 @@ const CandidateView = () => {
     const loadCandidate = async () => {
       if (!id) return;
       
+      // Clean ID to ensure we're only using the part before any comma
+      const cleanId = id.split(',')[0].trim();
+      
+      // If the ID contains more than just the ID part, redirect to a clean URL
+      if (id !== cleanId && id.includes(',')) {
+        console.log("URL contains full data instead of just ID, redirecting to clean URL");
+        navigate(`/candidate/${cleanId}`, { replace: true });
+        return;
+      }
+      
       try {
-        const data = await fetchCandidateById(id);
-        setCandidate(data);
+        console.log("Loading candidate with ID:", cleanId);
+        const data = await fetchCandidateById(cleanId);
+        
+        if (!data) {
+          console.log("No candidate found with ID:", cleanId);
+          setCandidate(null);
+        } else {
+          console.log("Candidate loaded successfully:", data.id);
+          setCandidate(data);
+        }
       } catch (error) {
         console.error("Error loading candidate:", error);
-        toast("Failed to load candidate", {
-          description: "Please try again later",
+        toast.error("Failed to load candidate", {
+          description: "Please try again or check your API settings",
         });
+        setCandidate(null);
       } finally {
         setIsLoading(false);
       }
     };
 
     loadCandidate();
-  }, [id]);
+  }, [id, navigate]);
 
   if (isLoading) {
     return <LoadingState />;

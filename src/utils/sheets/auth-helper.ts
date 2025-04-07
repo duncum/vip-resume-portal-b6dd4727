@@ -23,6 +23,12 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     
     console.log("API key found, proceeding with Google sign-in in API key only mode");
 
+    // Check if API is already initialized
+    if (window.gapi?.client?.sheets) {
+      console.log("Google Sheets API already initialized");
+      return true;
+    }
+
     // Use signInToGoogle which will handle initialization
     const isInitialized = await signInToGoogle();
     console.log("Google sign-in result:", isInitialized);
@@ -34,19 +40,45 @@ export const ensureAuthorization = async (): Promise<boolean> => {
       if (!window.gapi?.client?.sheets) {
         console.log('Sheets API not loaded yet, attempting to load it');
         
-        await new Promise<void>((resolve, reject) => {
-          window.gapi.client.load('sheets', 'v4')
-            .then(() => {
-              console.log("Sheets API loaded successfully");
-              resolve();
-            })
-            .catch(err => {
-              console.error("Failed to load Sheets API:", err);
-              reject(err);
-            });
-        });
+        // Try loading Sheets API with multiple retries
+        let retryCount = 0;
+        const maxRetries = 3;
         
-        console.log("After loading attempt, Sheets API available:", !!window.gapi?.client?.sheets);
+        while (retryCount < maxRetries && !window.gapi?.client?.sheets) {
+          try {
+            console.log(`Loading Sheets API (attempt ${retryCount + 1})`);
+            await new Promise<void>((resolve, reject) => {
+              if (!window.gapi?.client) {
+                reject(new Error("Google API client not initialized"));
+                return;
+              }
+              
+              window.gapi.client.load('sheets', 'v4')
+                .then(() => {
+                  console.log("Sheets API loaded successfully");
+                  resolve();
+                })
+                .catch(err => {
+                  console.error(`Failed to load Sheets API (attempt ${retryCount + 1}):`, err);
+                  reject(err);
+                });
+            });
+            
+            // Break if successful
+            if (window.gapi?.client?.sheets) {
+              console.log("Sheets API loaded successfully after retry");
+              break;
+            }
+          } catch (err) {
+            console.error(`Sheets API load attempt ${retryCount + 1} failed:`, err);
+          }
+          
+          retryCount++;
+          // Wait a bit before retrying
+          await new Promise(resolve => setTimeout(resolve, 300 * retryCount));
+        }
+        
+        console.log("After loading attempts, Sheets API available:", !!window.gapi?.client?.sheets);
       }
       
       // In API key only mode, we can continue if the API is initialized

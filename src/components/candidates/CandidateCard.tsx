@@ -32,8 +32,12 @@ const CandidateCard = ({
   resumeUrl,
   notableEmployers
 }: CandidateCardProps) => {
-  // Clean ID to ensure it doesn't include commas which can break routing
-  const cleanId = id?.trim().split(',')[0] || id;
+  // Clean ID to ensure it ONLY includes the ID part and nothing else
+  // Extract just the ID part without any commas or extra data
+  const cleanId = id?.trim().split(',')[0] || "";
+  
+  // Log the clean ID for debugging
+  console.log("Card ID:", id, "Clean ID:", cleanId);
   
   return (
     <Card className="h-full flex flex-col bg-grey-900/20 hover:bg-grey-900/40 border border-grey-800 transition-colors text-white overflow-hidden backdrop-blur-sm">
