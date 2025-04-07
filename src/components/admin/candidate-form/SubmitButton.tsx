@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useFormContext } from "./context/FormContext";
 
 interface SubmitButtonProps {
-  isUploading: boolean;
   disabled?: boolean;
 }
 
-const SubmitButton = ({ isUploading: propIsUploading, disabled: propDisabled }: SubmitButtonProps) => {
+const SubmitButton = ({ disabled: propDisabled }: SubmitButtonProps) => {
   const { isUploading, handleSubmit } = useFormContext();
   
   return (

@@ -39,7 +39,6 @@ const CandidateUploadForm: React.FC<CandidateUploadFormProps> = ({
         <FormHeader 
           isUploadMode={!candidateToEdit}
           candidateCount={candidateCount}
-          candidateId=""
         />
         
         <form className="space-y-6">
@@ -48,8 +47,7 @@ const CandidateUploadForm: React.FC<CandidateUploadFormProps> = ({
             isApiKeyOnly={isApiKeyOnly}
           />
           
-          <SubmitButton
-            isUploading={false}
+          <SubmitButton 
             disabled={false}
           />
         </form>

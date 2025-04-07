@@ -1,10 +1,5 @@
 
 import React from "react";
-import { useFormContext } from "./context/FormContext";
-import FormHeader from "./FormHeader";
-import { ResumeUploader } from "./resume-uploader";
-import FormContent from "./FormContent";
-import SubmitButton from "./SubmitButton";
 
 interface FormLayoutProps {
   children: React.ReactNode;
