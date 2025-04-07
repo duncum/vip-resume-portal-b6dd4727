@@ -18,8 +18,9 @@ import SubmitButton from "./SubmitButton";
 import { CandidateUploadFormProps } from "./types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { type Candidate } from "@/utils/sheets"; // Import the Candidate type
 
-const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadFormProps) => {
+const CandidateUploadForm = ({ onSuccess, candidateCount = 0, candidateToEdit }: CandidateUploadFormProps) => {
   const [isApiKeyOnly, setIsApiKeyOnly] = useState<boolean>(false);
   
   useEffect(() => {
@@ -91,7 +92,7 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0 }: CandidateUploadF
     
     // Form submission
     handleSubmit
-  } = useFormState(onSuccess);
+  } = useFormState(onSuccess, candidateToEdit); // Pass candidateToEdit to useFormState
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">

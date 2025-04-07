@@ -1,7 +1,7 @@
-
 export interface CandidateUploadFormProps {
   onSuccess?: () => void;
   candidateCount?: number;
+  candidateToEdit?: any; // Adding the candidateToEdit prop
 }
 
 export interface FormHeaderProps {
