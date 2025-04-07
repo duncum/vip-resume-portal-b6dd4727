@@ -1,7 +1,8 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useBasicInfoState, useLevelsState, useTitlesState, useCustomListState, useFormSubmission } from './hooks';
-import { type Candidate } from '@/utils/sheets';
+import { type Candidate } from '@/utils/sheets/types';
+import { useCandidateEdit } from './hooks/useCandidateEdit';
 
 export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate) => {
   // Basic info states
@@ -44,6 +45,7 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
   } = useTitlesState();
 
   // Skills state
+  const skillsState = useCustomListState({ itemName: 'skills' });
   const {
     selectedItems: selectedSkills,
     handleItemChange: handleSkillChange,
@@ -52,9 +54,10 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
     handleCustomItemChange: handleCustomSkillChange,
     removeCustomItem: removeCustomSkill,
     reset: resetSkills
-  } = useCustomListState({ itemName: 'skills' });
+  } = skillsState;
 
   // Asset Types state
+  const assetTypesState = useCustomListState({ itemName: 'assetTypes' });
   const {
     selectedItems: selectedAssetTypes,
     handleItemChange: handleAssetTypeChange,
@@ -63,9 +66,10 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
     handleCustomItemChange: handleCustomAssetTypeChange,
     removeCustomItem: removeCustomAssetType,
     reset: resetAssetTypes
-  } = useCustomListState({ itemName: 'assetTypes' });
+  } = assetTypesState;
 
   // Sectors state
+  const sectorsState = useCustomListState({ itemName: 'sectors' });
   const {
     selectedItems: selectedSectors,
     handleItemChange: handleSectorChange,
@@ -74,7 +78,26 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
     handleCustomItemChange: handleCustomSectorChange,
     removeCustomItem: removeCustomSector,
     reset: resetSectors
-  } = useCustomListState({ itemName: 'sectors' });
+  } = sectorsState;
+
+  // Use candidate edit hook
+  useCandidateEdit({
+    candidateToEdit,
+    setCandidateId,
+    setResumeUrl,
+    setResumeText,
+    setHeadline,
+    setSummary,
+    setLocation,
+    setTags,
+    setRelocationPreference,
+    setNotableEmployers,
+    handleLevelChange,
+    handleTitleCategoryChange,
+    handleSkillChange,
+    handleAssetTypeChange,
+    handleSectorChange
+  });
 
   // Form submission
   const { isUploading, handleSubmit: submitForm } = useFormSubmission({
@@ -115,58 +138,6 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
     e.preventDefault();
     return submitForm(e);
   };
-
-  // Effect to populate form with candidate data when editing
-  useEffect(() => {
-    if (candidateToEdit) {
-      // Set basic info
-      setCandidateId(candidateToEdit.id || '');
-      setResumeUrl(candidateToEdit.resumeUrl || '');
-      if (candidateToEdit.resumeText) {
-        setResumeText(candidateToEdit.resumeText);
-      }
-      setHeadline(candidateToEdit.headline || '');
-      setSummary(candidateToEdit.summary || '');
-      setLocation(candidateToEdit.location || '');
-      setTags(candidateToEdit.tags ? candidateToEdit.tags.join(', ') : '');
-      setRelocationPreference(candidateToEdit.relocationPreference || 'flexible');
-      setNotableEmployers(candidateToEdit.notableEmployers || '');
-
-      // Handle levels
-      if (candidateToEdit.levels && Array.isArray(candidateToEdit.levels)) {
-        candidateToEdit.levels.forEach(level => {
-          handleLevelChange(level, true);
-        });
-      }
-
-      // For title categories and titles, this would require more complex mapping
-      // This is just an example, you may need to adjust based on your data structure
-      if (candidateToEdit.category) {
-        handleTitleCategoryChange(candidateToEdit.category, true);
-      }
-      
-      // For skills
-      if (candidateToEdit.skills && Array.isArray(candidateToEdit.skills)) {
-        candidateToEdit.skills.forEach(skill => {
-          handleSkillChange(skill, true);
-        });
-      }
-      
-      // For asset types
-      if (candidateToEdit.assetTypes && Array.isArray(candidateToEdit.assetTypes)) {
-        candidateToEdit.assetTypes.forEach(assetType => {
-          handleAssetTypeChange(assetType, true);
-        });
-      }
-      
-      // For sectors
-      if (candidateToEdit.sectors && Array.isArray(candidateToEdit.sectors)) {
-        candidateToEdit.sectors.forEach(sector => {
-          handleSectorChange(sector, true);
-        });
-      }
-    }
-  }, [candidateToEdit]);
 
   return {
     // Return all the state and handler functions

@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { ensureAuthorization } from "@/utils/sheets/auth-helper";
 import { addCandidate } from "@/utils/sheets";
 
 export type FormData = {
