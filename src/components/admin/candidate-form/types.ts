@@ -1,3 +1,4 @@
+
 export interface CandidateUploadFormProps {
   onSuccess?: () => void;
   candidateCount?: number;
@@ -100,3 +101,4 @@ export interface ResumeUploaderProps {
   onResumeTextChange?: (text: string) => void;
   disabled?: boolean;
 }
+

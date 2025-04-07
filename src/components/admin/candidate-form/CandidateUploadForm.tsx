@@ -1,24 +1,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useFormState } from "./useFormState";
-import CollapsibleSection from "./CollapsibleSection";
-import CandidateLevels from "./CandidateLevels";
-import PositionTitles from "./PositionTitles";
-import SkillsSection from "./SkillsSection";
-import AssetTypesSection from "./AssetTypesSection";
-import SectorsSection from "./SectorsSection";
 import ResumeUploader from "./ResumeUploader";
 import FormHeader from "./FormHeader";
-import HeadlineInput from "./HeadlineInput";
-import SummaryInput from "./SummaryInput";
-import TagsInput from "./TagsInput";
-import LocationSection from "./LocationSection";
-import NotableEmployersInput from "./NotableEmployersInput";
 import SubmitButton from "./SubmitButton";
 import { CandidateUploadFormProps } from "./types";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
-import { type Candidate } from "@/utils/sheets"; // Import the Candidate type
+import FormContent from "./FormContent";
+import ApiKeyWarning from "./ApiKeyWarning";
 
 const CandidateUploadForm = ({ onSuccess, candidateCount = 0, candidateToEdit }: CandidateUploadFormProps) => {
   const [isApiKeyOnly, setIsApiKeyOnly] = useState<boolean>(false);
@@ -92,20 +80,11 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0, candidateToEdit }:
     
     // Form submission
     handleSubmit
-  } = useFormState(onSuccess, candidateToEdit); // Pass candidateToEdit to useFormState
+  } = useFormState(onSuccess, candidateToEdit);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {isApiKeyOnly && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>API Key Only Mode</AlertTitle>
-          <AlertDescription>
-            You are in API key only mode which does not support adding candidates.
-            Please add a Google OAuth Client ID in the Google Integration settings to enable this feature.
-          </AlertDescription>
-        </Alert>
-      )}
+      {isApiKeyOnly && <ApiKeyWarning />}
       
       <FormHeader candidateId={candidateId} candidateCount={candidateCount} />
       
@@ -117,81 +96,47 @@ const CandidateUploadForm = ({ onSuccess, candidateCount = 0, candidateToEdit }:
         disabled={isApiKeyOnly}
       />
       
-      <HeadlineInput headline={headline} onHeadlineChange={setHeadline} disabled={isApiKeyOnly} />
-      
-      <CollapsibleSection title="Candidate Level / Hierarchy">
-        <CandidateLevels 
-          selectedLevels={selectedLevels}
-          onLevelChange={handleLevelChange}
-          disabled={isApiKeyOnly}
-        />
-      </CollapsibleSection>
-      
-      <CollapsibleSection title="Position Titles">
-        <PositionTitles 
-          selectedTitleCategories={selectedTitleCategories}
-          onTitleCategoryChange={handleTitleCategoryChange}
-          selectedTitles={selectedTitles}
-          onTitleChange={handleTitleChange}
-          customTitles={customTitles}
-          onCustomTitleChange={handleCustomTitleChange}
-          onAddCustomTitle={addAnotherCustomTitle}
-          onRemoveCustomTitle={removeCustomTitle}
-          disabled={isApiKeyOnly}
-        />
-      </CollapsibleSection>
-      
-      <NotableEmployersInput 
-        notableEmployers={notableEmployers}
-        onNotableEmployersChange={setNotableEmployers}
-        disabled={isApiKeyOnly}
-      />
-      
-      <CollapsibleSection title="High-Level Skills">
-        <SkillsSection 
-          selectedSkills={selectedSkills}
-          onSkillChange={handleSkillChange}
-          customSkills={customSkills}
-          onAddCustomSkill={addCustomSkill}
-          onCustomSkillChange={handleCustomSkillChange}
-          onRemoveCustomSkill={removeCustomSkill}
-          disabled={isApiKeyOnly}
-        />
-      </CollapsibleSection>
-      
-      <CollapsibleSection title="Asset Type Experience">
-        <AssetTypesSection 
-          selectedAssetTypes={selectedAssetTypes}
-          onAssetTypeChange={handleAssetTypeChange}
-          customAssetTypes={customAssetTypes}
-          onAddCustomAssetType={addCustomAssetType}
-          onCustomAssetTypeChange={handleCustomAssetTypeChange}
-          onRemoveCustomAssetType={removeCustomAssetType}
-          disabled={isApiKeyOnly}
-        />
-      </CollapsibleSection>
-      
-      <CollapsibleSection title="Sector / Ownership Experience">
-        <SectorsSection 
-          selectedSectors={selectedSectors}
-          onSectorChange={handleSectorChange}
-          customSectors={customSectors}
-          onAddCustomSector={addCustomSector}
-          onCustomSectorChange={handleCustomSectorChange}
-          onRemoveCustomSector={removeCustomSector}
-          disabled={isApiKeyOnly}
-        />
-      </CollapsibleSection>
-      
-      <SummaryInput summary={summary} onSummaryChange={setSummary} disabled={isApiKeyOnly} />
-      
-      <TagsInput tags={tags} onTagsChange={setTags} disabled={isApiKeyOnly} />
-      
-      <LocationSection
+      <FormContent 
+        headline={headline}
+        setHeadline={setHeadline}
+        summary={summary}
+        setSummary={setSummary}
         location={location}
-        onLocationChange={setLocation}
+        setLocation={setLocation}
+        tags={tags}
+        setTags={setTags}
         relocationPreference={relocationPreference}
-        onRelocationChange={setRelocationPreference}
+        setRelocationPreference={setRelocationPreference}
+        notableEmployers={notableEmployers}
+        setNotableEmployers={setNotableEmployers}
+        selectedLevels={selectedLevels}
+        handleLevelChange={handleLevelChange}
+        selectedTitleCategories={selectedTitleCategories}
+        handleTitleCategoryChange={handleTitleCategoryChange}
+        selectedTitles={selectedTitles}
+        handleTitleChange={handleTitleChange}
+        customTitles={customTitles}
+        handleCustomTitleChange={handleCustomTitleChange}
+        addAnotherCustomTitle={addAnotherCustomTitle}
+        removeCustomTitle={removeCustomTitle}
+        selectedSkills={selectedSkills}
+        handleSkillChange={handleSkillChange}
+        customSkills={customSkills}
+        addCustomSkill={addCustomSkill}
+        handleCustomSkillChange={handleCustomSkillChange}
+        removeCustomSkill={removeCustomSkill}
+        selectedAssetTypes={selectedAssetTypes}
+        handleAssetTypeChange={handleAssetTypeChange}
+        customAssetTypes={customAssetTypes}
+        addCustomAssetType={addCustomAssetType}
+        handleCustomAssetTypeChange={handleCustomAssetTypeChange}
+        removeCustomAssetType={removeCustomAssetType}
+        selectedSectors={selectedSectors}
+        handleSectorChange={handleSectorChange}
+        customSectors={customSectors}
+        addCustomSector={addCustomSector}
+        handleCustomSectorChange={handleCustomSectorChange}
+        removeCustomSector={removeCustomSector}
         disabled={isApiKeyOnly}
       />
       
