@@ -2,6 +2,7 @@
 import React from 'react';
 import { CheckCircle, XCircle, RefreshCw, Info, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type StatusDisplayProps = {
   isLoading: boolean;
@@ -56,16 +57,15 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   if (error && !isAuthorized && error.includes('idpiframe_initialization_failed') || 
      (error && !isAuthorized && error.includes('origin'))) {
     return (
-      <div className="space-y-1">
-        <div className="flex items-center text-xs">
-          <AlertCircle className="h-3 w-3 mr-2 text-red-500 flex-shrink-0" />
-          <div>
-            <div className="font-medium">Client ID Error</div>
-            <div className="text-xs text-grey-500 truncate max-w-[150px]">
-              OAuth not configured for this domain
-            </div>
-          </div>
-        </div>
+      <div className="space-y-2">
+        <Alert variant="destructive" className="py-2">
+          <AlertCircle className="h-3 w-3 mr-2" />
+          <AlertDescription className="text-xs">
+            <div className="font-medium">OAuth Configuration Error</div>
+            <div>Your Client ID is not authorized for this domain: {window.location.origin}</div>
+          </AlertDescription>
+        </Alert>
+        
         {switchToApiKeyOnlyMode && (
           <Button 
             size="sm" 
@@ -73,7 +73,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
             onClick={switchToApiKeyOnlyMode}
             className="text-[10px] mt-1 py-0 h-6 w-full"
           >
-            Use API Key Only
+            Switch to API Key Only Mode
           </Button>
         )}
       </div>
@@ -96,7 +96,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
             </div>
             
             {!isOAuthMode && (
-              <div className="text-[10px] text-amber-500">
+              <div className="text-[10px] text-amber-500 font-medium">
                 Read-only mode (API key only)
               </div>
             )}

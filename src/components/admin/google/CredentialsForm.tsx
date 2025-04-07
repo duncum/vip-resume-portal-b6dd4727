@@ -3,7 +3,8 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Info } from 'lucide-react';
+import { Info, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type CredentialsFormProps = {
   credentials: {
@@ -25,7 +26,20 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
   onSubmit
 }) => {
   return (
-    <form onSubmit={onSubmit} className="mt-3 space-y-3 p-3 bg-slate-50 rounded-md">
+    <form onSubmit={onSubmit} className="mt-3 space-y-4 p-4 bg-slate-50 rounded-md">
+      <div className="pb-2">
+        <Alert variant="default" className="bg-blue-50 text-blue-800 border-blue-200">
+          <AlertCircle className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-xs">
+            <span className="font-semibold">Access Modes:</span>
+            <ul className="mt-1 pl-4 list-disc">
+              <li><span className="font-medium">API Key only:</span> Read-only access (view candidates)</li>
+              <li><span className="font-medium">API Key + OAuth:</span> Full access (add/edit candidates)</li>
+            </ul>
+          </AlertDescription>
+        </Alert>
+      </div>
+      
       <div className="space-y-1">
         <Label htmlFor="apiKey" className="text-xs">
           API Key <span className="text-red-500">*</span>
@@ -45,7 +59,7 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
       
       <div className="space-y-1">
         <Label htmlFor="clientId" className="text-xs flex items-center">
-          Client ID <span className="text-slate-500 ml-1">(Required for adding candidates)</span>
+          OAuth Client ID <span className="text-amber-500 ml-1">(Required for adding candidates)</span>
         </Label>
         <Input 
           id="clientId"
