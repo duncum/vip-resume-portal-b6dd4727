@@ -8,17 +8,30 @@ import { CandidateUploadForm } from "@/components/admin/candidate-form";
 import ManageCandidates from "@/components/admin/ManageCandidates";
 import Analytics from "@/components/admin/Analytics";
 import { useToast } from "@/components/ui/use-toast";
-import { fetchCandidates, type Candidate } from "@/utils/sheets"; // Updated import with type
-import GoogleIntegrationStatus from "@/components/admin/GoogleIntegrationStatus"; // Added import
+import { fetchCandidates, fetchCandidateById, type Candidate } from "@/utils/sheets"; // Added fetchCandidateById
+import GoogleIntegrationStatus from "@/components/admin/GoogleIntegrationStatus";
+import { useSearchParams } from "react-router-dom"; // Added for URL parameter handling
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState("upload");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const editParam = searchParams.get("edit");
+  
+  const [activeTab, setActiveTab] = useState(tabParam || "upload");
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editCandidate, setEditCandidate] = useState<Candidate | null>(null);
   const { toast } = useToast();
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+    searchParams.set("tab", value);
+    // If we're not going to upload tab, clear the edit parameter
+    if (value !== "upload" && searchParams.has("edit")) {
+      searchParams.delete("edit");
+      setEditCandidate(null);
+    }
+    setSearchParams(searchParams);
   };
   
   useEffect(() => {
@@ -40,6 +53,45 @@ const Admin = () => {
 
     loadCandidates();
   }, [toast]);
+  
+  // Effect for handling edit parameter
+  useEffect(() => {
+    if (editParam) {
+      const loadCandidate = async () => {
+        try {
+          const candidate = await fetchCandidateById(editParam);
+          if (candidate) {
+            setEditCandidate(candidate);
+            // Ensure we're on the upload tab
+            setActiveTab("upload");
+            searchParams.set("tab", "upload");
+            setSearchParams(searchParams);
+          } else {
+            toast({
+              title: "Candidate not found",
+              description: `Could not find candidate with ID ${editParam}`,
+              variant: "destructive",
+            });
+            searchParams.delete("edit");
+            setSearchParams(searchParams);
+          }
+        } catch (error) {
+          console.error("Error fetching candidate for edit:", error);
+          toast({
+            title: "Error loading candidate",
+            description: "There was a problem fetching the candidate data for editing.",
+            variant: "destructive",
+          });
+          searchParams.delete("edit");
+          setSearchParams(searchParams);
+        }
+      };
+      
+      loadCandidate();
+    } else {
+      setEditCandidate(null);
+    }
+  }, [editParam, searchParams, setSearchParams, toast]);
   
   const candidateCount = candidates.length;
 
@@ -65,7 +117,7 @@ const Admin = () => {
         <Tabs value={activeTab} onValueChange={handleTabChange} className="max-w-4xl mx-auto">
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="upload" className="data-[state=active]:bg-gold data-[state=active]:text-white">
-              Upload Resume
+              {editCandidate ? "Edit Resume" : "Upload Resume"}
             </TabsTrigger>
             <TabsTrigger value="manage" className="data-[state=active]:bg-gold data-[state=active]:text-white">
               Manage Candidates
@@ -79,11 +131,22 @@ const Admin = () => {
             <Card>
               <CandidateUploadForm 
                 candidateCount={candidateCount}
+                candidateToEdit={editCandidate}
                 onSuccess={() => {
-                  toast({
-                    title: "Candidate added successfully",
-                    description: "The candidate has been added to the database.",
-                  });
+                  if (editCandidate) {
+                    toast({
+                      title: "Candidate updated successfully",
+                      description: "The candidate has been updated in the database.",
+                    });
+                    // Clear the edit parameter
+                    searchParams.delete("edit");
+                    setSearchParams(searchParams);
+                  } else {
+                    toast({
+                      title: "Candidate added successfully",
+                      description: "The candidate has been added to the database.",
+                    });
+                  }
                   handleTabChange("manage");
                 }} 
               />

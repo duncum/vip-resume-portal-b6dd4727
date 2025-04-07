@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { fetchCandidates, type Candidate } from "@/utils/sheets"; // Updated import with type
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
 
@@ -19,6 +19,7 @@ const ManageCandidates = ({ initialCandidates = [], isInitialLoading = false }: 
   const [loading, setLoading] = useState(isInitialLoading);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (initialCandidates.length > 0) {
@@ -61,6 +62,16 @@ const ManageCandidates = ({ initialCandidates = [], isInitialLoading = false }: 
     
     // For demonstration purposes, remove from local state
     setCandidates(candidates.filter(candidate => candidate.id !== id));
+  };
+
+  const handleEdit = (id: string) => {
+    // Navigate to the edit page for this candidate
+    navigate(`/admin?tab=upload&edit=${id}`);
+    
+    toast({
+      title: "Edit mode",
+      description: "Editing candidate " + id,
+    });
   };
 
   return (
@@ -129,7 +140,12 @@ const ManageCandidates = ({ initialCandidates = [], isInitialLoading = false }: 
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0"
+                            onClick={() => handleEdit(candidate.id)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button 
