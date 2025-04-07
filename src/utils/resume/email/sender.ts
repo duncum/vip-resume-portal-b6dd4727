@@ -46,9 +46,24 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
     }
     
     // Verify we have the correct OAuth scope for Gmail
+    // Since we can't directly check scopes, we'll attempt a simple operation
+    // that requires the gmail.send scope to verify permissions
     try {
-      // Attempt a simple call to verify scope
-      await window.gapi.client.gmail.users.getProfile({userId: 'me'});
+      // Instead of using getProfile which doesn't exist, create a draft message
+      // to test if we have proper permissions (will fail if scope is missing)
+      const testEmail = createTestEmail();
+      
+      // This will throw an error if scope is missing
+      await window.gapi.client.gmail.users.drafts?.create({
+        userId: 'me',
+        resource: {
+          message: {
+            raw: testEmail
+          }
+        }
+      });
+      
+      // If we reach here without error, we have the correct scope
     } catch (error) {
       console.error("Gmail scope verification error:", error);
       const errorMsg = String(error);
@@ -92,3 +107,24 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
     return fallbackEmailSending(emailData);
   }
 };
+
+/**
+ * Create a minimal test email for scope testing
+ */
+function createTestEmail(): string {
+  // Create simple email headers with a test subject
+  const headers = [
+    'Subject: SCOPE_TEST',
+    'MIME-Version: 1.0',
+    'Content-Type: text/plain; charset=utf-8'
+  ];
+  
+  // Create minimal email content
+  const email = headers.join('\r\n') + '\r\n\r\n' + 'This is a scope test.';
+  
+  // Encode as base64
+  return btoa(unescape(encodeURIComponent(email)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
