@@ -8,6 +8,8 @@ export interface SendResumeEmailOptions {
   candidateId: string;
   resumeUrl: string;
   useConfidential?: boolean;
+  templateId?: string;
+  customSubject?: string;
 }
 
 export interface EmailContent {

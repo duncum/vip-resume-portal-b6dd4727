@@ -18,3 +18,11 @@ export interface InitResult {
   success: boolean;
   error?: string;
 }
+
+/**
+ * State management for initialization status
+ */
+export interface InitState {
+  isInitialized: boolean;
+  setInitialized: (value: boolean) => void;
+}

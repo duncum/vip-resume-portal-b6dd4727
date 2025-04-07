@@ -1,6 +1,5 @@
 
 // Core authentication functionality for Google API
-// This is now a thin wrapper that delegates to specialized modules
 
 import { toast } from "sonner";
 import { API_KEY } from '../config';

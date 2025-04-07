@@ -5,10 +5,33 @@ import { trackEmailInSheets } from './tracking';
 import { sendEmailWithService } from './sender';
 
 /**
+ * Email template definitions
+ */
+export const EMAIL_TEMPLATES = [
+  {
+    id: 'standard',
+    name: 'Standard Template',
+    description: 'Basic resume email with download link'
+  },
+  {
+    id: 'confidential',
+    name: 'Confidential',
+    description: 'Secure resume viewing with confidentiality notice'
+  }
+];
+
+/**
  * Main function to send a resume via email
  */
 export const sendResumeEmail = async (options: SendResumeEmailOptions): Promise<boolean> => {
-  const { recipientEmail, candidateId, resumeUrl, useConfidential = false } = options;
+  const { 
+    recipientEmail, 
+    candidateId, 
+    resumeUrl, 
+    useConfidential = false,
+    templateId,
+    customSubject
+  } = options;
   
   try {
     // 1. Track this email send in Google Sheets
@@ -17,10 +40,11 @@ export const sendResumeEmail = async (options: SendResumeEmailOptions): Promise<
     // 2. Send the email using Google Workspace or fallback
     const emailData: EmailData = {
       to: recipientEmail,
-      subject: useConfidential ? "Confidential Resume from CRE Recruitment" : "Resume from CRE Recruitment",
+      subject: customSubject || 
+              (useConfidential ? "Confidential Resume from CRE Recruitment" : "Resume from CRE Recruitment"),
       resumeUrl,
       candidateId,
-      isConfidential: useConfidential
+      isConfidential: useConfidential || templateId === 'confidential'
     };
     
     const success = await sendEmailWithService(emailData);
