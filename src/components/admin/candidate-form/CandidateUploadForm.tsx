@@ -1,6 +1,6 @@
 
 import React from "react";
-import { useFormState } from "./hooks/useFormState";
+import { FormProvider } from "./context/FormContext";
 import FormLayout from "./FormLayout";
 import FormHeader from "./FormHeader";
 import FormContent from "./FormContent";
@@ -20,8 +20,6 @@ const CandidateUploadForm: React.FC<CandidateUploadFormProps> = ({
   candidateToEdit,
   onSuccess
 }) => {
-  const formState = useFormState(onSuccess, candidateToEdit || undefined);
-  
   // Check if we're in API key only mode
   const { isApiKeyOnly } = useApiKeyValidation();
   
@@ -32,25 +30,31 @@ const CandidateUploadForm: React.FC<CandidateUploadFormProps> = ({
   }
   
   return (
-    <FormLayout>
-      <FormHeader 
-        isUploadMode={!candidateToEdit}
-        candidateCount={candidateCount}
-        candidateId={formState.candidateId}
-      />
-      
-      <form className="space-y-6" onSubmit={formState.handleSubmit}>
-        <FormContent
-          disabled={false}
-          isApiKeyOnly={false}
+    <FormProvider 
+      onSuccess={onSuccess} 
+      candidateToEdit={candidateToEdit || undefined}
+      isApiKeyOnly={isApiKeyOnly}
+    >
+      <FormLayout>
+        <FormHeader 
+          isUploadMode={!candidateToEdit}
+          candidateCount={candidateCount}
+          candidateId=""
         />
         
-        <SubmitButton
-          isUploading={formState.isUploading}
-          disabled={false}
-        />
-      </form>
-    </FormLayout>
+        <form className="space-y-6">
+          <FormContent
+            disabled={false}
+            isApiKeyOnly={isApiKeyOnly}
+          />
+          
+          <SubmitButton
+            isUploading={false}
+            disabled={false}
+          />
+        </form>
+      </FormLayout>
+    </FormProvider>
   );
 };
 

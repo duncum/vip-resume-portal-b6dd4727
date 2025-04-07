@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Badge } from "@/components/ui/badge";
+import { useFormContext } from "./context/FormContext";
 
 interface FormHeaderProps {
   isUploadMode: boolean;
@@ -8,7 +9,10 @@ interface FormHeaderProps {
   candidateId?: string;
 }
 
-const FormHeader = ({ isUploadMode, candidateCount, candidateId }: FormHeaderProps) => {
+const FormHeader = ({ isUploadMode, candidateCount, candidateId: propCandidateId }: FormHeaderProps) => {
+  const { candidateId: contextCandidateId } = useFormContext();
+  const candidateId = propCandidateId || contextCandidateId;
+  
   return (
     <div className="flex justify-between items-center pb-4 mb-4 border-b">
       <div>

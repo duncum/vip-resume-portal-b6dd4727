@@ -1,18 +1,25 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { useFormContext } from "./context/FormContext";
 
 interface SubmitButtonProps {
   isUploading: boolean;
   disabled?: boolean;
 }
 
-const SubmitButton = ({ isUploading, disabled }: SubmitButtonProps) => {
+const SubmitButton = ({ isUploading: propIsUploading, disabled: propDisabled }: SubmitButtonProps) => {
+  const { isUploading, handleSubmit } = useFormContext();
+  
   return (
     <Button 
       type="submit" 
       className="w-full bg-gold hover:bg-gold-dark text-white"
-      disabled={isUploading || disabled}
+      disabled={isUploading || propDisabled}
+      onClick={(e) => {
+        e.preventDefault();
+        handleSubmit(e);
+      }}
     >
       {isUploading ? (
         <>
