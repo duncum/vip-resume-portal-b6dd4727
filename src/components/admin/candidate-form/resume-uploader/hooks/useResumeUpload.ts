@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { uploadResumeToDrive } from "@/utils/drive";
+import { uploadResumeToDrive, deleteResumeFromDrive } from "@/utils/drive";
 import { extractTextFromPdf } from "@/utils/pdf";
 
 interface UseResumeUploadOptions {
@@ -20,6 +20,7 @@ export const useResumeUpload = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string>("");
 
   const handleFileSelect = async (file: File) => {
@@ -77,15 +78,44 @@ export const useResumeUpload = ({
     }
   };
   
-  const resetUpload = () => {
-    setSelectedFile(null);
-    setUploadedUrl("");
+  const resetUpload = async () => {
+    // If there's no uploaded URL, nothing to delete
+    if (!uploadedUrl) {
+      return;
+    }
+    
+    setIsDeleting(true);
+    
+    try {
+      // Try to delete the file from Google Drive
+      await deleteResumeFromDrive(uploadedUrl);
+      
+      // Clear the form state
+      setSelectedFile(null);
+      setUploadedUrl("");
+      
+      if (onResumeUrlChange) {
+        onResumeUrlChange("");
+      }
+      
+      if (onResumeTextChange) {
+        onResumeTextChange("");
+      }
+      
+      toast.success('Resume removed successfully');
+    } catch (error) {
+      console.error('Error deleting resume:', error);
+      toast.error('Failed to remove resume');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return {
     selectedFile,
     isUploading,
     isExtracting,
+    isDeleting,
     uploadedUrl,
     handleFileSelect,
     handleUpload,

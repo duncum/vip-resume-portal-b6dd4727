@@ -15,9 +15,11 @@ const ResumeUploader = ({
     selectedFile,
     isUploading,
     isExtracting,
+    isDeleting,
     uploadedUrl,
     handleFileSelect,
-    handleUpload
+    handleUpload,
+    resetUpload
   } = useResumeUpload({
     candidateId,
     onResumeUrlChange,
@@ -37,7 +39,12 @@ const ResumeUploader = ({
         className={`border-2 border-dashed ${uploadedUrl ? 'border-green-300 bg-green-50' : 'border-grey-300'} rounded-md p-6 flex flex-col items-center justify-center ${disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
       >
         {uploadedUrl ? (
-          <UploadedFilePreview uploadedUrl={uploadedUrl} />
+          <UploadedFilePreview 
+            uploadedUrl={uploadedUrl}
+            onReset={resetUpload}
+            disabled={disabled}
+            isDeleting={isDeleting}
+          />
         ) : (
           <FileDropZone 
             selectedFile={selectedFile}

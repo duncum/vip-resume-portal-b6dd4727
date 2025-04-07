@@ -1,9 +1,6 @@
 
 // Components
-export { default as CandidateIdInput } from './components/CandidateIdInput';
-export { default as FileDropZone } from './components/FileDropZone';
-export { default as UploadedFilePreview } from './components/UploadedFilePreview';
-export { default as DeleteButton } from './components/DeleteButton';
+export * from './components';
 
 // Hooks
 export { useResumeUpload } from './hooks/useResumeUpload';

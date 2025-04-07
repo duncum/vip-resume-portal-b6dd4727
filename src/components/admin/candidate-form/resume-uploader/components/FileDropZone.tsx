@@ -25,11 +25,7 @@ const FileDropZone = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      if (file.type !== 'application/pdf') {
-        return; // Error handling is in the parent component
-      }
-      onFileSelect(file);
+      onFileSelect(e.target.files[0]);
     }
   };
 
@@ -39,11 +35,7 @@ const FileDropZone = ({
     if (disabled) return;
     
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
-      if (file.type !== 'application/pdf') {
-        return; // Error handling is in the parent component
-      }
-      onFileSelect(file);
+      onFileSelect(e.dataTransfer.files[0]);
     }
   };
 
@@ -60,7 +52,7 @@ const FileDropZone = ({
   return (
     <>
       <div 
-        className={`border-2 border-dashed border-grey-300 rounded-md p-6 flex flex-col items-center justify-center ${disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
+        className="w-full flex flex-col items-center justify-center"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onClick={triggerFileInput}
