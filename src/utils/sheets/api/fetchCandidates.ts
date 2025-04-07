@@ -11,7 +11,17 @@ import { mockCandidates } from '../mock-data';
  */
 export const fetchCandidates = async (): Promise<Candidate[]> => {
   // Check if we have proper authorization
+  console.log("Starting fetchCandidates...");
+  
+  // Log critical configuration values
+  const apiKey = localStorage.getItem('google_api_key');
+  const spreadsheetId = localStorage.getItem('google_spreadsheet_id') || SPREADSHEET_ID;
+  
+  console.log("API Key exists:", !!apiKey);
+  console.log("Spreadsheet ID:", spreadsheetId ? "Exists" : "Missing");
+  
   const isAuthorized = await ensureAuthorization();
+  console.log("Authorization check result:", isAuthorized);
   
   if (!isAuthorized) {
     console.log("Not authorized, using mock data for candidates");
@@ -24,16 +34,19 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
   }
   
   try {
-    console.log("Attempting to fetch candidates from Google Sheets");
+    console.log("Authorized successfully, attempting to fetch candidates from Google Sheets");
     
     // Make sure we have a spreadsheet ID
-    const spreadsheetId = localStorage.getItem('google_spreadsheet_id') || SPREADSHEET_ID;
     if (!spreadsheetId) {
+      console.log("No spreadsheet ID found");
       toast.error("Spreadsheet ID missing. Please add it in Google settings.", {
         duration: 5000
       });
       return mockCandidates;
     }
+    
+    console.log("Making API request to Google Sheets with spreadsheet ID:", spreadsheetId);
+    console.log("Range:", CANDIDATES_RANGE);
     
     const response = await window.gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: spreadsheetId,
@@ -52,10 +65,12 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
     }
     
     // Convert rows to candidate objects
+    console.log(`Found ${rows.length} candidates in the sheet`);
     const candidates = rows.map(rowToCandidate);
     return candidates;
   } catch (error: any) {
     console.error("Error fetching candidates from Google Sheets:", error);
+    console.log("Error details:", JSON.stringify(error, null, 2));
     
     // More detailed error message based on the error type
     if (error.result?.error?.status === "PERMISSION_DENIED") {

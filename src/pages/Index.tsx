@@ -7,12 +7,16 @@ import CandidateList from "@/components/candidates/CandidateList";
 import { fetchCandidates, type Candidate } from "@/utils/sheets";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const Index = () => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [usedMockData, setUsedMockData] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const isMobile = useIsMobile();
   
   // Define position categories
@@ -28,15 +32,42 @@ const Index = () => {
   useEffect(() => {
     const loadCandidates = async () => {
       try {
-        // This would be replaced with actual API call
+        setIsLoading(true);
+        setLoadError(null);
+        
+        // Check for necessary Google configuration
+        const apiKey = localStorage.getItem('google_api_key');
+        const spreadsheetId = localStorage.getItem('google_spreadsheet_id');
+        
+        console.log("Loading candidates with API key:", !!apiKey);
+        console.log("Loading candidates with spreadsheet ID:", !!spreadsheetId);
+        
+        // Fetch data from API
         const data = await fetchCandidates();
         setCandidates(data);
         setFilteredCandidates(data);
         
-        // Show success notification
-        toast.success("Candidates loaded successfully");
+        // Detect if we're using mock data by checking candidate IDs 
+        // (all mock data has predefined IDs 1-7)
+        const isMockData = data.some(c => ["1", "2", "3", "4", "5", "6", "7"].includes(c.id));
+        setUsedMockData(isMockData);
+        
+        if (isMockData) {
+          console.log("Using mock data - check Google configuration");
+          if (!apiKey) {
+            setLoadError("Google API key is missing");
+          } else if (!spreadsheetId) {
+            setLoadError("Google Spreadsheet ID is missing");
+          } else {
+            setLoadError("Connection to Google Sheets failed - using demo data");
+          }
+        } else {
+          // Show success notification
+          toast.success("Candidates loaded successfully");
+        }
       } catch (error) {
         console.error("Error loading candidates:", error);
+        setLoadError("Failed to load candidates - using demo data");
         toast.error("Failed to load candidates");
       } finally {
         setIsLoading(false);
@@ -104,6 +135,21 @@ const Index = () => {
             Browse our exclusive selection of qualified candidates for your confidential review.
           </p>
         </div>
+
+        {usedMockData && loadError && (
+          <Alert variant="destructive" className="mb-6 bg-red-900/20 border-red-800">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="flex justify-between items-center">
+              <span>{loadError}</span>
+              <a 
+                href="/admin?tab=google" 
+                className="text-xs bg-red-800 px-3 py-1 rounded hover:bg-red-700 transition-colors"
+              >
+                Fix Google Settings
+              </a>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <CandidateSearch 
           onSearch={handleSearch} 
