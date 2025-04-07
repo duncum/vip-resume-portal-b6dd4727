@@ -34,8 +34,15 @@ export const sendResumeEmail = async (options: SendResumeEmailOptions): Promise<
   } = options;
   
   try {
+    // Display sending toast
+    toast.loading("Sending email...");
+    
     // 1. Track this email send in Google Sheets
-    await trackEmailInSheets(candidateId, recipientEmail);
+    try {
+      await trackEmailInSheets(candidateId, recipientEmail);
+    } catch (trackError) {
+      console.warn("Couldn't track email in sheets, but continuing:", trackError);
+    }
     
     // 2. Send the email using Google Workspace or fallback
     const emailData: EmailData = {
@@ -47,20 +54,23 @@ export const sendResumeEmail = async (options: SendResumeEmailOptions): Promise<
       isConfidential: useConfidential || templateId === 'confidential'
     };
     
+    // Log the email being sent
+    console.log("Sending email from michelle@creconfidential.org to:", recipientEmail);
+    
     const success = await sendEmailWithService(emailData);
     
     if (success) {
       toast.success("Resume sent to email", {
-        description: "Please check your inbox shortly"
+        description: `Sent to ${recipientEmail}`
       });
       return true;
     } else {
-      throw new Error("Failed to send email");
+      throw new Error("Email service reported delivery failure");
     }
   } catch (error) {
     console.error("Error sending resume email:", error);
     toast.error("Failed to send resume", {
-      description: "Please try again later"
+      description: "Please check your connection and try again"
     });
     return false;
   }
