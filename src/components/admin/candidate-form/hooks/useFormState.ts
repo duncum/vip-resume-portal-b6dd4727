@@ -1,69 +1,136 @@
 
 import { useBasicInfoState, useLevelsState, useTitlesState, useCustomListState, useFormSubmission } from './';
-import { useCandidateEdit } from './useCandidateEdit';
 import { type Candidate } from '@/utils/sheets/types';
+import { useCandidateEdit } from './useCandidateEdit';
 
 export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate) => {
   // Basic info states
-  const basicInfoState = useBasicInfoState();
-  
+  const {
+    candidateId,
+    setCandidateId,
+    resumeUrl,
+    setResumeUrl,
+    resumeText,
+    setResumeText,
+    headline,
+    setHeadline,
+    summary,
+    setSummary,
+    location,
+    setLocation,
+    tags,
+    setTags,
+    relocationPreference,
+    setRelocationPreference,
+    notableEmployers,
+    setNotableEmployers,
+    resetBasicInfo
+  } = useBasicInfoState();
+
   // Levels state
-  const levelsState = useLevelsState();
-  
+  const { selectedLevels, handleLevelChange, resetLevels } = useLevelsState();
+
   // Titles state
-  const titlesState = useTitlesState();
-  
+  const {
+    selectedTitleCategories,
+    handleTitleCategoryChange,
+    selectedTitles,
+    handleTitleChange,
+    customTitles,
+    handleCustomTitleChange,
+    addAnotherCustomTitle,
+    removeCustomTitle,
+    resetTitles
+  } = useTitlesState();
+
   // Skills state
   const skillsState = useCustomListState({ itemName: 'skills' });
-  
+  const {
+    selectedItems: selectedSkills,
+    handleItemChange: handleSkillChange,
+    customItems: customSkills,
+    addCustomItem: addCustomSkill,
+    handleCustomItemChange: handleCustomSkillChange,
+    removeCustomItem: removeCustomSkill,
+    reset: resetSkills
+  } = skillsState;
+
   // Asset Types state
   const assetTypesState = useCustomListState({ itemName: 'assetTypes' });
-  
+  const {
+    selectedItems: selectedAssetTypes,
+    handleItemChange: handleAssetTypeChange,
+    customItems: customAssetTypes,
+    addCustomItem: addCustomAssetType,
+    handleCustomItemChange: handleCustomAssetTypeChange,
+    removeCustomItem: removeCustomAssetType,
+    reset: resetAssetTypes
+  } = assetTypesState;
+
   // Sectors state
   const sectorsState = useCustomListState({ itemName: 'sectors' });
+  const {
+    selectedItems: selectedSectors,
+    handleItemChange: handleSectorChange,
+    customItems: customSectors,
+    addCustomItem: addCustomSector,
+    handleCustomItemChange: handleCustomSectorChange,
+    removeCustomItem: removeCustomSector,
+    reset: resetSectors
+  } = sectorsState;
 
   // Use candidate edit hook
   useCandidateEdit({
     candidateToEdit,
-    setCandidateId: basicInfoState.setCandidateId,
-    setResumeUrl: basicInfoState.setResumeUrl,
-    setResumeText: basicInfoState.setResumeText,
-    setHeadline: basicInfoState.setHeadline,
-    setSummary: basicInfoState.setSummary,
-    setLocation: basicInfoState.setLocation,
-    setTags: basicInfoState.setTags,
-    setRelocationPreference: basicInfoState.setRelocationPreference,
-    setNotableEmployers: basicInfoState.setNotableEmployers,
-    handleLevelChange: levelsState.handleLevelChange,
-    handleTitleCategoryChange: titlesState.handleTitleCategoryChange,
-    handleSkillChange: skillsState.handleItemChange,
-    handleAssetTypeChange: assetTypesState.handleItemChange,
-    handleSectorChange: sectorsState.handleItemChange
+    setCandidateId,
+    setResumeUrl,
+    setResumeText,
+    setHeadline,
+    setSummary,
+    setLocation,
+    setTags,
+    setRelocationPreference,
+    setNotableEmployers,
+    handleLevelChange,
+    handleTitleCategoryChange,
+    handleSkillChange,
+    handleAssetTypeChange,
+    handleSectorChange
   });
 
   // Form submission
   const { isUploading, handleSubmit: submitForm } = useFormSubmission({
-    candidateId: basicInfoState.candidateId,
-    resumeUrl: basicInfoState.resumeUrl,
-    resumeText: basicInfoState.resumeText,
-    headline: basicInfoState.headline,
-    summary: basicInfoState.summary,
-    location: basicInfoState.location,
-    tags: basicInfoState.tags,
-    relocationPreference: basicInfoState.relocationPreference,
-    notableEmployers: basicInfoState.notableEmployers,
-    selectedLevels: levelsState.selectedLevels,
-    selectedTitleCategories: titlesState.selectedTitleCategories,
-    selectedTitles: titlesState.selectedTitles,
-    customTitles: titlesState.customTitles,
-    selectedSkills: skillsState.selectedItems,
-    customSkills: skillsState.customItems,
-    selectedAssetTypes: assetTypesState.selectedItems,
-    customAssetTypes: assetTypesState.customItems,
-    selectedSectors: sectorsState.selectedItems,
-    customSectors: sectorsState.customItems,
+    candidateId,
+    resumeUrl,
+    resumeText,
+    headline,
+    summary,
+    location,
+    tags,
+    relocationPreference,
+    notableEmployers,
+    selectedLevels,
+    selectedTitleCategories,
+    selectedTitles,
+    customTitles,
+    selectedSkills,
+    customSkills,
+    selectedAssetTypes,
+    customAssetTypes,
+    selectedSectors,
+    customSectors,
     onSuccess
   });
+
+  // Reset all form states
+  const resetForm = () => {
+    resetBasicInfo();
+    resetLevels();
+    resetTitles();
+    resetSkills();
+    resetAssetTypes();
+    resetSectors();
+  };
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
@@ -74,37 +141,62 @@ export const useFormState = (onSuccess?: () => void, candidateToEdit?: Candidate
   return {
     // Return all the state and handler functions
     isUploading,
-    ...basicInfoState,
+    candidateId,
+    setCandidateId,
+    resumeUrl,
+    setResumeUrl,
+    resumeText,
+    setResumeText,
+    headline,
+    setHeadline,
+    summary,
+    setSummary,
+    location,
+    setLocation,
+    tags,
+    setTags,
+    relocationPreference,
+    setRelocationPreference,
+    notableEmployers,
+    setNotableEmployers,
     
     // Levels
-    ...levelsState,
+    selectedLevels,
+    handleLevelChange,
     
     // Titles
-    ...titlesState,
+    selectedTitleCategories,
+    handleTitleCategoryChange,
+    selectedTitles,
+    handleTitleChange,
+    customTitles,
+    handleCustomTitleChange,
+    addAnotherCustomTitle,
+    removeCustomTitle,
     
     // Skills
-    selectedSkills: skillsState.selectedItems,
-    handleSkillChange: skillsState.handleItemChange,
-    customSkills: skillsState.customItems,
-    addCustomSkill: skillsState.addCustomItem,
-    handleCustomSkillChange: skillsState.handleCustomItemChange,
-    removeCustomSkill: skillsState.removeCustomItem,
+    selectedSkills,
+    handleSkillChange,
+    customSkills,
+    addCustomSkill,
+    handleCustomSkillChange,
+    removeCustomSkill,
     
     // Asset Types
-    selectedAssetTypes: assetTypesState.selectedItems,
-    handleAssetTypeChange: assetTypesState.handleItemChange,
-    customAssetTypes: assetTypesState.customItems,
-    addCustomAssetType: assetTypesState.addCustomItem,
-    handleCustomAssetTypeChange: assetTypesState.handleCustomItemChange,
-    removeCustomAssetType: assetTypesState.removeCustomItem,
+    selectedAssetTypes,
+    handleAssetTypeChange,
+    customAssetTypes,
+    addCustomAssetType,
+    handleCustomAssetTypeChange,
+    removeCustomAssetType,
     
     // Sectors
-    selectedSectors: sectorsState.selectedItems,
-    handleSectorChange: sectorsState.handleItemChange,
-    customSectors: sectorsState.customItems,
-    addCustomSector: sectorsState.addCustomItem,
-    handleCustomSectorChange: sectorsState.handleCustomItemChange,
-    removeCustomSector: sectorsState.removeCustomItem,
+    selectedSectors,
+    handleSectorChange,
+    customSectors,
+    addCustomSector,
+    handleCustomSectorChange,
+    removeCustomSector,
     
     // Form submission
     handleSubmit

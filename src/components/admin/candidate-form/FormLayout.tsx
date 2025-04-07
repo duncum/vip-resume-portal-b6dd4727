@@ -2,7 +2,7 @@
 import React from "react";
 import { useFormContext } from "./context/FormContext";
 import FormHeader from "./FormHeader";
-import ResumeUploader from "./ResumeUploader";
+import { ResumeUploader } from "./resume-uploader";
 import FormContent from "./FormContent";
 import SubmitButton from "./SubmitButton";
 import ApiKeyWarning from "./ApiKeyWarning";
