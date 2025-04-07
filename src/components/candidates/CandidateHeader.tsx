@@ -8,7 +8,7 @@ interface CandidateHeaderProps {
 }
 
 const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
-  const isOneManArmy = candidate.category === "One Man Army";
+  const isOneManArmy = candidate.category?.includes("One Man Army");
   
   return (
     <div className="mb-6 relative">

@@ -44,11 +44,9 @@ const CandidateCard = ({
   return (
     <Card className="h-full flex flex-col bg-grey-900/20 hover:bg-grey-900/40 border border-grey-800 transition-colors text-white overflow-hidden backdrop-blur-sm">
       <CardContent className="flex-grow p-6 space-y-4">
-        {category && <CategoryBadge category={category} />}
+        {category && <CategoryBadge category={category} title={title} />}
         
         <h2 className="text-xl font-medium line-clamp-2 font-display">{headline}</h2>
-        
-        {title && <div className="text-gold text-sm font-medium">{title}</div>}
         
         {summary && <CandidateSummary summary={summary} />}
         

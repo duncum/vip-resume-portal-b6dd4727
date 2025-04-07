@@ -21,6 +21,9 @@ const CategoryBadge = ({ category, title }: CategoryBadgeProps) => {
   // Split category by comma and trim whitespace
   const categories = category.split(',').map(cat => cat.trim());
   
+  // Split titles by comma as well (handling the case where title is undefined)
+  const titles = title ? title.split(',').map(t => t.trim()) : [];
+  
   return (
     <div className="flex flex-col space-y-1.5">
       <div className="flex flex-wrap gap-1.5">
@@ -40,10 +43,17 @@ const CategoryBadge = ({ category, title }: CategoryBadgeProps) => {
         })}
       </div>
       
-      {title && (
-        <span className="text-white text-sm font-medium hover:text-gold/90 transition-colors duration-300 tracking-wide">
-          {title}
-        </span>
+      {titles.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {titles.map((singleTitle, index) => (
+            <span 
+              key={index} 
+              className="text-white hover:text-gold/90 transition-colors duration-300 text-sm font-medium tracking-wide bg-grey-800/40 px-2 py-0.5 rounded"
+            >
+              {singleTitle}
+            </span>
+          ))}
+        </div>
       )}
     </div>
   );
