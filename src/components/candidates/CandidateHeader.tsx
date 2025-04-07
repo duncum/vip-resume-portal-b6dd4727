@@ -1,7 +1,7 @@
-
 import { Star, MapPin } from "lucide-react";
 import { type Candidate } from "@/utils/sheets";
 import { CategoryBadge, LocationInfo, RelocationBadge } from "../candidates/card";
+import { cn } from "@/lib/utils";
 
 interface CandidateHeaderProps {
   candidate: Candidate;
@@ -9,6 +9,25 @@ interface CandidateHeaderProps {
 
 const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
   const isOneManArmy = candidate.category?.includes("One Man Army");
+  
+  // Format summary to sentence case
+  const formatSummary = (text: string | undefined): string => {
+    if (!text) return "";
+    
+    // Split the text by periods, exclamation marks, and question marks followed by a space
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    
+    // Capitalize the first letter of each sentence and keep the rest as is
+    const formattedSentences = sentences.map(sentence => {
+      if (sentence.length === 0) return sentence;
+      return sentence.charAt(0).toUpperCase() + sentence.slice(1).toLowerCase();
+    });
+    
+    // Join the sentences back together
+    return formattedSentences.join(' ');
+  };
+
+  const formattedSummary = formatSummary(candidate.summary);
   
   return (
     <div className="mb-6 relative">
@@ -59,7 +78,7 @@ const CandidateHeader = ({ candidate }: CandidateHeaderProps) => {
         <div className="text-grey-300 text-sm md:text-base border-l-2 border-gold/30 pl-4 py-1 my-4
           bg-gradient-to-br from-grey-800/30 to-grey-800/10 rounded-r-md hover:border-gold/50
           transition-all duration-300 hover:shadow-inner shadow-sm shadow-black/10">
-          {candidate.summary}
+          {formattedSummary}
         </div>
       )}
       

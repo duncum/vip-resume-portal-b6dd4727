@@ -1,6 +1,6 @@
-
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CandidateSummaryProps {
   summary?: string;
@@ -11,10 +11,27 @@ const CandidateSummary = ({ summary }: CandidateSummaryProps) => {
   
   if (!summary) return null;
 
+  // Convert summary to sentence case
+  const formatSummary = (text: string): string => {
+    // Split the text by periods, exclamation marks, and question marks followed by a space
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    
+    // Capitalize the first letter of each sentence and keep the rest as is
+    const formattedSentences = sentences.map(sentence => {
+      if (sentence.length === 0) return sentence;
+      return sentence.charAt(0).toUpperCase() + sentence.slice(1).toLowerCase();
+    });
+    
+    // Join the sentences back together
+    return formattedSentences.join(' ');
+  };
+
+  const formattedSummary = formatSummary(summary);
+
   // Truncate summary to approximately 4 lines (around 320 characters)
-  const truncatedSummary = summary.length > 320 
-    ? `${summary.substring(0, 320)}...` 
-    : summary;
+  const truncatedSummary = formattedSummary.length > 320 
+    ? `${formattedSummary.substring(0, 320)}...` 
+    : formattedSummary;
 
   return (
     <div className="mb-4 bg-gradient-to-br from-grey-800/30 to-grey-800/20 
@@ -22,8 +39,8 @@ const CandidateSummary = ({ summary }: CandidateSummaryProps) => {
       transition-all duration-500
       shadow-inner shadow-black/10 hover:shadow-inner hover:shadow-black/15">
       <p className="text-grey-200 text-sm leading-relaxed min-h-[5rem]">
-        {showFullSummary ? summary : truncatedSummary}
-        {summary.length > 320 && (
+        {showFullSummary ? formattedSummary : truncatedSummary}
+        {formattedSummary.length > 320 && (
           <button 
             onClick={(e) => {
               e.preventDefault();
@@ -34,7 +51,7 @@ const CandidateSummary = ({ summary }: CandidateSummaryProps) => {
               transition-colors font-medium group"
           >
             {showFullSummary ? "Show less" : "Read more"}
-            <ChevronRight size={12} className={`ml-0.5 transition-transform duration-300 group-hover:translate-x-0.5 ${showFullSummary ? "rotate-90" : ""}`} />
+            <ChevronRight size={12} className={cn(`ml-0.5 transition-transform duration-300 group-hover:translate-x-0.5`, showFullSummary ? "rotate-90" : "")} />
           </button>
         )}
       </p>
