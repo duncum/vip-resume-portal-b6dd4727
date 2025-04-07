@@ -7,8 +7,8 @@ import { Link } from "react-router-dom";
 
 const ApiKeyWarning = () => {
   return (
-    <Alert variant="destructive">
-      <AlertCircle className="h-4 w-4" />
+    <Alert variant="default" className="bg-red-50 border-red-200 text-red-800">
+      <AlertCircle className="h-4 w-4 text-red-500" />
       <AlertTitle>API Key Only Mode</AlertTitle>
       <AlertDescription className="space-y-2">
         <p>

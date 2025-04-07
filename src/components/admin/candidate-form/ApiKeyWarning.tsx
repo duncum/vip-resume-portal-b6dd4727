@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 
 const ApiKeyWarning = () => {
   return (
-    <Alert variant="warning" className="bg-amber-50 border-amber-200">
+    <Alert variant="default" className="bg-amber-50 border-amber-200">
       <AlertCircle className="h-4 w-4 text-amber-500" />
       <AlertTitle>Read-Only Mode</AlertTitle>
       <AlertDescription className="space-y-2">
