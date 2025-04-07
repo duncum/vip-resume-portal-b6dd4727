@@ -146,6 +146,35 @@ interface GoogleApiClient {
       }) => Promise<any>;
     };
   };
+  gmail: {
+    users: {
+      messages: {
+        send: (options: {
+          userId: string;
+          resource: {
+            raw: string;
+            [key: string]: any;
+          };
+        }) => Promise<any>;
+      };
+      drafts?: {
+        create: (options: {
+          userId: string;
+          resource: {
+            message: {
+              raw: string;
+              [key: string]: any;
+            };
+          };
+        }) => Promise<any>;
+      };
+      labels?: {
+        list: (options: {
+          userId: string;
+        }) => Promise<any>;
+      };
+    };
+  };
 }
 
 interface Window {
