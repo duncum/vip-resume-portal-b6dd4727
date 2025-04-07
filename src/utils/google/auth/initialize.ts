@@ -131,6 +131,15 @@ export const initializeClient = async (): Promise<boolean> => {
               }
             }
             
+            // Try to load Gmail API if available
+            try {
+              console.log("Loading Gmail API...");
+              await window.gapi.client.load('gmail', 'v1');
+              console.log("Gmail API loaded successfully");
+            } catch (gmailError) {
+              console.warn("Gmail API not loaded, email sending may use fallback:", gmailError);
+            }
+            
             if (!sheetsLoaded) {
               console.warn("Failed to load Sheets API after multiple attempts");
               // We'll still mark as initialized and try to continue

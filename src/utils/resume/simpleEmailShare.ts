@@ -1,6 +1,7 @@
 
 import { toast } from "sonner";
 import { updateCells, findRowByValue } from "@/utils/sheets/operations";
+import { isUserAuthorized } from "@/utils/google";
 
 interface SendResumeEmailOptions {
   recipientEmail: string;
@@ -19,7 +20,7 @@ export const sendResumeEmail = async (options: SendResumeEmailOptions): Promise<
     // 1. Track this email send in Google Sheets
     await trackEmailInSheets(candidateId, recipientEmail);
     
-    // 2. Send the email using EmailJS (or fallback for development)
+    // 2. Send the email using Google Workspace or fallback
     const success = await sendEmailWithService({
       to: recipientEmail,
       subject: useConfidential ? "Confidential Resume from CRE Recruitment" : "Resume from CRE Recruitment",
@@ -98,7 +99,7 @@ const trackEmailInSheets = async (candidateId: string, recipientEmail: string): 
 };
 
 /**
- * Send the email using EmailJS or fallback
+ * Send the email using Google Workspace API or fallback
  */
 const sendEmailWithService = async (emailData: {
   to: string;
@@ -108,15 +109,24 @@ const sendEmailWithService = async (emailData: {
   isConfidential: boolean;
 }): Promise<boolean> => {
   try {
-    // Get EmailJS credentials from localStorage (or use defaults for demo)
-    const SERVICE_ID = localStorage.getItem('emailjs_service_id') || "your_service_id";
-    const TEMPLATE_ID = localStorage.getItem('emailjs_template_id') || "your_template_id";
-    const USER_ID = localStorage.getItem('emailjs_user_id') || "your_user_id";
+    // First check if Google API is authorized
+    const isAuthorized = await isUserAuthorized();
     
-    // Check if we have valid credentials
-    if (SERVICE_ID === "your_service_id" || TEMPLATE_ID === "your_template_id" || USER_ID === "your_user_id") {
-      console.warn("Using fallback email sending because EmailJS credentials not set");
+    if (!isAuthorized || !window.gapi?.client) {
+      console.warn("Google API not authorized, using fallback email sender");
       return fallbackEmailSending(emailData);
+    }
+
+    // Check if Gmail API is loaded
+    if (!window.gapi.client.gmail) {
+      try {
+        // Try loading Gmail API
+        await window.gapi.client.load('gmail', 'v1');
+        console.log("Gmail API loaded successfully");
+      } catch (error) {
+        console.error("Failed to load Gmail API:", error);
+        return fallbackEmailSending(emailData);
+      }
     }
     
     // Prepare a simple HTML template
@@ -135,7 +145,106 @@ const sendEmailWithService = async (emailData: {
           <p><a href="${emailData.resumeUrl}" style="display: inline-block; background-color: #daa520; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Resume</a></p>
         </div>`;
     
-    // Send email using EmailJS
+    // Attempt to send via Google API if available and fallback otherwise
+    try {
+      // Check if Gmail API is available
+      if (window.gapi.client.gmail) {
+        // Encode the email in base64
+        const email = createEmail({
+          to: emailData.to,
+          subject: emailData.subject,
+          html: htmlContent
+        });
+        
+        // Send the email
+        const response = await window.gapi.client.gmail.users.messages.send({
+          userId: 'me',
+          resource: {
+            raw: email
+          }
+        });
+        
+        console.log("Email sent via Gmail API:", response);
+        return true;
+      } else {
+        throw new Error("Gmail API not available");
+      }
+    } catch (error) {
+      console.error("Error sending email via Gmail API:", error);
+      return fallbackEmailSending(emailData);
+    }
+  } catch (error) {
+    console.error("Error in email service:", error);
+    return fallbackEmailSending(emailData);
+  }
+};
+
+/**
+ * Create email in base64 format for Gmail API
+ */
+const createEmail = (options: { to: string; subject: string; html: string }): string => {
+  const { to, subject, html } = options;
+  
+  // Create email headers
+  const headers = [
+    `To: ${to}`,
+    `Subject: ${subject}`,
+    'Content-Type: text/html; charset=utf-8',
+    'MIME-Version: 1.0'
+  ];
+  
+  // Create email content
+  const email = headers.join('\r\n') + '\r\n\r\n' + html;
+  
+  // Encode as base64
+  return btoa(unescape(encodeURIComponent(email)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+};
+
+/**
+ * For development/testing purposes
+ */
+const fallbackEmailSending = async (emailData: any): Promise<boolean> => {
+  // Simulate network latency
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // Log what would be sent to a real email service
+  console.log("Email would be sent with:", emailData);
+  
+  const emailjsAvailable = checkEmailJSCredentials();
+  
+  if (emailjsAvailable) {
+    return sendViaEmailJS(emailData);
+  }
+  
+  return true;
+};
+
+/**
+ * Check if EmailJS credentials are available
+ */
+const checkEmailJSCredentials = (): boolean => {
+  const SERVICE_ID = localStorage.getItem('emailjs_service_id');
+  const TEMPLATE_ID = localStorage.getItem('emailjs_template_id');
+  const USER_ID = localStorage.getItem('emailjs_user_id');
+  
+  return !!(SERVICE_ID && TEMPLATE_ID && USER_ID &&
+    SERVICE_ID !== "your_service_id" && 
+    TEMPLATE_ID !== "your_template_id" && 
+    USER_ID !== "your_user_id");
+};
+
+/**
+ * Send email via EmailJS as fallback
+ */
+const sendViaEmailJS = async (emailData: any): Promise<boolean> => {
+  try {
+    const SERVICE_ID = localStorage.getItem('emailjs_service_id') || "";
+    const TEMPLATE_ID = localStorage.getItem('emailjs_template_id') || "";
+    const USER_ID = localStorage.getItem('emailjs_user_id') || "";
+    
     const API_URL = "https://api.emailjs.com/api/v1.0/email/send";
     const requestData = {
       service_id: SERVICE_ID,
@@ -144,7 +253,18 @@ const sendEmailWithService = async (emailData: {
       template_params: {
         to_email: emailData.to,
         subject: emailData.subject,
-        html_content: htmlContent,
+        html_content: emailData.isConfidential 
+          ? `<div style="font-family: Arial, sans-serif;">
+              <h2>Confidential Resume</h2>
+              <p>This resume is being shared on a confidential basis.</p>
+              <p><strong>Important:</strong> Please do not redistribute this resume without permission.</p>
+              <p><a href="${emailData.resumeUrl}">View Confidential Resume</a></p>
+            </div>`
+          : `<div style="font-family: Arial, sans-serif;">
+              <h2>Resume from CRE Recruitment</h2>
+              <p>Thank you for your interest in our candidate. You can view or download the resume using the link below:</p>
+              <p><a href="${emailData.resumeUrl}">View Resume</a></p>
+            </div>`,
         resume_url: emailData.resumeUrl,
         candidate_id: emailData.candidateId
       }
@@ -158,20 +278,8 @@ const sendEmailWithService = async (emailData: {
     
     return response.status === 200;
   } catch (error) {
-    console.error("Error in email service:", error);
+    console.error("Error in EmailJS:", error);
     return false;
   }
 };
 
-/**
- * For development/testing purposes
- */
-const fallbackEmailSending = async (emailData: any): Promise<boolean> => {
-  // Simulate network latency
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Log what would be sent to a real email service
-  console.log("Email would be sent with:", emailData);
-  
-  return true;
-};

@@ -14,9 +14,10 @@ export const API_KEY =
 
 export const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest",
-  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"  // Added Drive API for resume uploads
+  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",  // Drive API for resume uploads
+  "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"   // Added Gmail API for emails
 ];
-export const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file'; // Updated to include full sheets access
+export const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/gmail.send'; // Updated to include Gmail
 
 /**
  * Get the redirect URI for OAuth - should match what's configured in Google Cloud Console
@@ -31,17 +32,18 @@ export const getRedirectUri = () => {
  */
 export const printOAuthSetupInstructions = () => {
   console.info(
-    `Google Sheets Integration Setup Instructions:
+    `Google Workspace Integration Setup Instructions:
     
-    1. You need these three values to connect to Google Sheets:
+    1. You need these three values to connect to Google APIs:
        - Client ID: ${CLIENT_ID || "Your OAuth Client ID"} 
        - API Key: Your API Key
        - Spreadsheet ID: Your Spreadsheet ID
     
-    2. Google Cloud Console OAuth Settings:
+    2. Google Cloud Console Settings:
        - Application type: Web application
        - Authorized JavaScript origins: ${window.location.origin}
        - Authorized redirect URIs: ${getRedirectUri()}
+       - Enable these APIs: Google Sheets, Google Drive, Gmail
        
     3. Make sure to add ${window.location.origin} to your allowed origins in Google Cloud Console
        

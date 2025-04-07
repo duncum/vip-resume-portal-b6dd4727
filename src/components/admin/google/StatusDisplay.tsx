@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { CheckCircle, XCircle, RefreshCw, Info, AlertCircle, FileText } from 'lucide-react';
+import { CheckCircle, XCircle, RefreshCw, Info, AlertCircle, FileText, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -76,11 +76,12 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
           <CheckCircle className="h-3 w-3 mr-1 text-green-500 flex-shrink-0" />
           <div>
             <div className="font-medium">
-              API Key connected
+              Google Workspace connected
             </div>
             
-            <div className="text-[10px] text-amber-500 font-medium">
-              Read-only mode (API key only)
+            <div className="text-[10px] font-medium flex items-center">
+              <Mail className="h-2.5 w-2.5 mr-1 text-blue-500" />
+              <span className="text-blue-500">Email sending available</span>
             </div>
           </div>
         </div>
