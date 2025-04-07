@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { CheckCircle, XCircle, RefreshCw, Info, AlertCircle, FileText, Mail } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, AlertTriangle, Info } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type StatusDisplayProps = {
   isLoading: boolean;
@@ -12,9 +12,9 @@ type StatusDisplayProps = {
   };
   isAuthorized: boolean;
   userEmail: string | null;
-  error?: string | null;
+  error: string | null;
   showSetupInstructions: () => void;
-  switchToApiKeyOnlyMode?: () => boolean;
+  switchToApiKeyOnlyMode: () => void;
 };
 
 const StatusDisplay: React.FC<StatusDisplayProps> = ({
@@ -23,91 +23,102 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   isAuthorized,
   userEmail,
   error,
-  showSetupInstructions
+  showSetupInstructions,
+  switchToApiKeyOnlyMode
 }) => {
+  const anyCredentialsMissing = missingCredentials.apiKey || missingCredentials.clientId;
+  const clientIdPresent = !missingCredentials.clientId;
+  
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-1">
-        <RefreshCw className="h-3 w-3 animate-spin text-grey-400" />
-        <span className="ml-2 text-xs text-grey-400">Checking status...</span>
+      <div className="flex items-center space-x-2 text-xs text-slate-600">
+        <Loader2 className="h-3 w-3 animate-spin" />
+        <span>Checking connection status...</span>
       </div>
     );
   }
   
-  if (missingCredentials.apiKey) {
+  if (anyCredentialsMissing) {
     return (
-      <div className="flex items-center text-xs">
-        <XCircle className="h-3 w-3 mr-2 text-amber-500 flex-shrink-0" />
-        <div>
-          <div className="font-medium">Setup required</div>
-          <div className="text-xs text-grey-500">
-            API Key required
-          </div>
+      <div className="text-xs">
+        <div className="flex items-center space-x-2 text-amber-600">
+          <AlertTriangle className="h-3 w-3" />
+          <span className="font-medium">Credentials Required</span>
         </div>
-        <Info 
-          className="h-3 w-3 ml-2 text-amber-500 cursor-pointer" 
-          onClick={showSetupInstructions}
-          aria-label="API credentials missing. Click for setup instructions."
-        />
+        <p className="mt-1 text-slate-600 text-xs">
+          API Key {missingCredentials.apiKey ? 
+            <Badge variant="outline" className="text-[10px] h-4 bg-red-50 border-red-200 text-red-600">Missing</Badge> : 
+            <Badge variant="outline" className="text-[10px] h-4 bg-green-50 border-green-200 text-green-600">Set</Badge>}
+          {" · "}
+          Client ID {missingCredentials.clientId ? 
+            <Badge variant="outline" className="text-[10px] h-4 bg-amber-50 border-amber-200 text-amber-600">Optional</Badge> : 
+            <Badge variant="outline" className="text-[10px] h-4 bg-green-50 border-green-200 text-green-600">Set</Badge>}
+        </p>
+        <div className="mt-2 text-[10px] space-y-1">
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="text-[10px] h-6 w-full"
+            onClick={showSetupInstructions}
+          >
+            <Info className="h-3 w-3 mr-1" />
+            Setup Instructions
+          </Button>
+          {!clientIdPresent && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="text-[10px] h-6 w-full bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+              onClick={switchToApiKeyOnlyMode}
+            >
+              <Info className="h-3 w-3 mr-1" />
+              Use API Key Only
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
   
-  if (error && !isAuthorized) {
+  if (error) {
     return (
-      <div className="space-y-2">
-        <Alert variant="destructive" className="py-2">
-          <AlertCircle className="h-3 w-3 mr-2" />
-          <AlertDescription className="text-xs">
-            <div className="font-medium">API Connection Error</div>
-            <div>{error}</div>
-          </AlertDescription>
-        </Alert>
+      <div className="text-xs">
+        <div className="flex items-center space-x-2 text-red-600">
+          <XCircle className="h-3 w-3" />
+          <span className="font-medium">Connection Error</span>
+        </div>
+        <p className="mt-1 text-slate-600 text-xs">{error}</p>
       </div>
     );
   }
   
   if (isAuthorized) {
-    const spreadsheetId = localStorage.getItem('google_spreadsheet_id');
-    
     return (
-      <div className="space-y-1">
-        <div className="flex items-center text-xs">
-          <CheckCircle className="h-3 w-3 mr-1 text-green-500 flex-shrink-0" />
-          <div>
-            <div className="font-medium">
-              Google Workspace connected
-            </div>
-            
-            <div className="text-[10px] font-medium flex items-center">
-              <Mail className="h-2.5 w-2.5 mr-1 text-blue-500" />
-              <span className="text-blue-500">Email sending available</span>
-            </div>
-          </div>
+      <div className="text-xs">
+        <div className="flex items-center space-x-2 text-green-600">
+          <CheckCircle className="h-3 w-3" />
+          <span className="font-medium">Connected</span>
         </div>
-        
-        {!spreadsheetId ? (
-          <div className="flex items-center text-[10px] text-red-500 p-1 bg-red-50 rounded-md">
-            <AlertCircle className="h-3 w-3 mr-1 flex-shrink-0" />
-            <span>Spreadsheet ID missing - add in API settings</span>
-          </div>
+        {userEmail ? (
+          <p className="mt-1 text-slate-600 text-xs">Signed in as <span className="font-medium">{userEmail}</span></p>
         ) : (
-          <div className="flex items-center text-[10px] text-green-700 p-1 bg-green-50 rounded-md">
-            <FileText className="h-3 w-3 mr-1 flex-shrink-0" />
-            <span>Spreadsheet ID: {spreadsheetId.substring(0, 12)}...</span>
-          </div>
+          <p className="mt-1 text-slate-600 text-xs">
+            {clientIdPresent ? 'Connected with full access' : 'Connected with read-only access'}
+          </p>
         )}
       </div>
     );
   }
   
   return (
-    <div className="flex items-center text-xs">
-      <XCircle className="h-3 w-3 mr-1 text-amber-500 flex-shrink-0" />
-      <div>
-        <div className="font-medium">Not connected</div>
-        <div className="text-[10px] text-grey-500">API connection required</div>
+    <div className="text-xs">
+      <div className="flex items-center space-x-2 text-slate-600">
+        <XCircle className="h-3 w-3" />
+        <span className="font-medium">Not Connected</span>
       </div>
+      <p className="mt-1 text-slate-600 text-xs">
+        Sign in to access Google Sheets data
+      </p>
     </div>
   );
 };

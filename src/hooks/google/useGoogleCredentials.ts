@@ -23,7 +23,7 @@ export const useGoogleCredentials = () => {
   });
 
   const [missingCredentials, setMissingCredentials] = useState<MissingCredentials>({
-    clientId: false,
+    clientId: true,
     apiKey: true
   });
 
@@ -31,31 +31,40 @@ export const useGoogleCredentials = () => {
 
   // Load saved credentials from localStorage only once when component mounts
   useEffect(() => {
+    const savedClientId = localStorage.getItem('google_client_id');
     const savedApiKey = localStorage.getItem('google_api_key');
     const savedSpreadsheetId = localStorage.getItem('google_spreadsheet_id') || SPREADSHEET_ID;
     
-    if (savedApiKey || savedSpreadsheetId) {
+    if (savedClientId || savedApiKey || savedSpreadsheetId) {
       setCredentials({
-        clientId: '', // Always empty, never needed
+        clientId: savedClientId || '',
         apiKey: savedApiKey || '',
         spreadsheetId: savedSpreadsheetId || ''
       });
       
       // Set missing credentials state
       setMissingCredentials({
-        clientId: false, // Always false as it's never needed
-        apiKey: !savedApiKey // Only API key is required
+        clientId: !savedClientId,
+        apiKey: !savedApiKey
       });
     }
     
-    // Ensure we're always in API key only mode
-    localStorage.setItem('force_api_key_only', 'true');
+    // Remove API key only mode flag if we have a client ID
+    if (savedClientId) {
+      localStorage.removeItem('force_api_key_only');
+    }
   }, []);
 
   const handleCredentialSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     
     // Store credentials in localStorage
+    if (credentials.clientId) {
+      localStorage.setItem('google_client_id', credentials.clientId);
+    } else {
+      localStorage.removeItem('google_client_id');
+    }
+    
     if (credentials.apiKey) {
       localStorage.setItem('google_api_key', credentials.apiKey);
     } else {
@@ -75,19 +84,18 @@ export const useGoogleCredentials = () => {
       return false;
     }
     
-    // Remove any client ID if previously set
-    localStorage.removeItem('google_client_id');
-    
-    // Ensure API key only mode
-    localStorage.setItem('force_api_key_only', 'true');
+    // If we're setting a client ID, remove the API key only mode flag
+    if (credentials.clientId) {
+      localStorage.removeItem('force_api_key_only');
+    }
     
     setMissingCredentials({
-      clientId: false,
+      clientId: !credentials.clientId,
       apiKey: !credentials.apiKey
     });
     
     setShowCredentialsForm(false);
-    toast.success('API credentials saved');
+    toast.success('Google API credentials saved');
     
     // Return true to indicate successful submission
     return true;
@@ -95,20 +103,29 @@ export const useGoogleCredentials = () => {
 
   const showSetupInstructions = useCallback(() => {
     toast.info(
-      'You need to set up your Google API key and Spreadsheet ID. Please provide them in the settings.',
+      'You need to set up your Google API credentials. Please provide them in the settings.',
       { duration: 8000 }
     );
-    // Print simplified instructions focused on API key
+    // Print instructions to console
     console.log(
-      `Google Sheets API Key Setup Instructions:
+      `Google API Setup Instructions:
       
-      1. You need to get an API Key from Google Cloud Console
+      1. You need to get an API Key and Client ID from Google Cloud Console
       2. Enable the Google Sheets API in your Google Cloud project
-      3. Input the API Key in the settings form
-      4. Your Spreadsheet ID is found in your Google Sheet URL:
+      3. For full access, set up OAuth consent screen and create OAuth credentials
+      4. Input both credentials in the settings form
+      5. Your Spreadsheet ID is found in your Google Sheet URL:
          https://docs.google.com/spreadsheets/d/[YOUR_SPREADSHEET_ID]/edit
       `
     );
+  }, []);
+
+  // Clear client ID (for API key only mode)
+  const clearClientId = useCallback(() => {
+    localStorage.removeItem('google_client_id');
+    setCredentials(prev => ({ ...prev, clientId: '' }));
+    setMissingCredentials(prev => ({ ...prev, clientId: true }));
+    return true;
   }, []);
 
   return {
@@ -119,7 +136,6 @@ export const useGoogleCredentials = () => {
     setShowCredentialsForm,
     handleCredentialSubmit,
     showSetupInstructions,
-    // Since we don't use OAuth, we don't need clearClientId
-    clearClientId: () => true
+    clearClientId
   };
 };

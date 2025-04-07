@@ -38,18 +38,34 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
   }, []);
 
   return (
-    <form onSubmit={onSubmit} className="mt-3 space-y-4 p-4 bg-slate-50 rounded-md">
+    <form onSubmit={onSubmit} className="mt-3 space-y-4 p-4 bg-white rounded-md border border-gray-200 shadow-sm">
       <div className="pb-2">
         <Alert variant="default" className="bg-blue-50 text-blue-800 border-blue-200">
-          <AlertCircle className="h-4 w-4 text-blue-600" />
+          <Info className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-xs">
-            <span className="font-semibold">API Key Only Mode:</span>
+            <span className="font-semibold">Choose your authentication mode:</span>
             <ul className="mt-1 pl-4 list-disc">
-              <li>Read-only access to view existing candidates</li>
-              <li>No OAuth required - simpler configuration</li>
+              <li>API Key Only: Limited read-only access</li>
+              <li>OAuth Client ID: Full read/write access</li>
             </ul>
           </AlertDescription>
         </Alert>
+      </div>
+      
+      <div className="space-y-1">
+        <Label htmlFor="clientId" className="text-xs">
+          OAuth Client ID
+        </Label>
+        <Input 
+          id="clientId"
+          placeholder="Your Google OAuth Client ID" 
+          value={credentials.clientId}
+          onChange={(e) => setCredentials({...credentials, clientId: e.target.value})}
+          className="text-xs h-8"
+        />
+        <p className="text-xs text-slate-500 mt-1">
+          Required for OAuth authentication (Gmail, full Sheets access).
+        </p>
       </div>
       
       <div className="space-y-1">
