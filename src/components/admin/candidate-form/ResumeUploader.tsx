@@ -1,13 +1,10 @@
 
-import React, { useState, useRef } from "react";
-import { Upload, FileText, Check } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import React, { useState } from "react";
 import { toast } from "sonner";
 import { uploadResumeToDrive } from "@/utils/drive";
-import { Button } from "@/components/ui/button";
-import { ResumeUploaderProps } from "./types";
 import { extractTextFromPdf } from "@/utils/pdf";
+import { ResumeUploaderProps } from "./types";
+import { CandidateIdInput, FileDropZone, UploadedFilePreview } from "./resume-uploader";
 
 const ResumeUploader = ({ 
   candidateId, 
@@ -20,33 +17,28 @@ const ResumeUploader = ({
   const [isUploading, setIsUploading] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string>("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      
-      // Check if the file is a PDF
-      if (file.type !== 'application/pdf') {
-        toast.error('Only PDF files are allowed');
-        return;
-      }
-      
-      setSelectedFile(file);
-      
-      // Extract text from the PDF
-      if (onResumeTextChange) {
-        try {
-          setIsExtracting(true);
-          const extractedText = await extractTextFromPdf(file);
-          onResumeTextChange(extractedText);
-          toast.success('Resume text extracted successfully');
-        } catch (error) {
-          console.error('Error extracting text from PDF:', error);
-          toast.error('Failed to extract text from PDF');
-        } finally {
-          setIsExtracting(false);
-        }
+  const handleFileSelect = async (file: File) => {
+    // Check if the file is a PDF
+    if (file.type !== 'application/pdf') {
+      toast.error('Only PDF files are allowed');
+      return;
+    }
+    
+    setSelectedFile(file);
+    
+    // Extract text from the PDF
+    if (onResumeTextChange) {
+      try {
+        setIsExtracting(true);
+        const extractedText = await extractTextFromPdf(file);
+        onResumeTextChange(extractedText);
+        toast.success('Resume text extracted successfully');
+      } catch (error) {
+        console.error('Error extracting text from PDF:', error);
+        toast.error('Failed to extract text from PDF');
+      } finally {
+        setIsExtracting(false);
       }
     }
   };
@@ -81,120 +73,28 @@ const ResumeUploader = ({
     }
   };
 
-  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const file = e.dataTransfer.files[0];
-      
-      // Check if the file is a PDF
-      if (file.type !== 'application/pdf') {
-        toast.error('Only PDF files are allowed');
-        return;
-      }
-      
-      setSelectedFile(file);
-      
-      // Extract text from the PDF
-      if (onResumeTextChange) {
-        try {
-          setIsExtracting(true);
-          const extractedText = await extractTextFromPdf(file);
-          onResumeTextChange(extractedText);
-          toast.success('Resume text extracted successfully');
-        } catch (error) {
-          console.error('Error extracting text from PDF:', error);
-          toast.error('Failed to extract text from PDF');
-        } finally {
-          setIsExtracting(false);
-        }
-      }
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-
-  const triggerFileInput = () => {
-    if (fileInputRef.current && !disabled) {
-      fileInputRef.current.click();
-    }
-  };
-
   return (
     <div className="space-y-4">
-      <div className="flex items-center space-x-2 pb-2 border-b border-grey-200">
-        <FileText className="h-5 w-5 text-gold" />
-        <div className="flex-1">
-          <Label className="text-sm">Candidate ID</Label>
-          <Input
-            value={candidateId}
-            onChange={(e) => onCandidateIdChange?.(e.target.value)}
-            placeholder="Enter candidate ID"
-            className="font-mono text-sm"
-            required
-            disabled={disabled}
-          />
-        </div>
-      </div>
+      <CandidateIdInput 
+        candidateId={candidateId}
+        onCandidateIdChange={onCandidateIdChange}
+        disabled={disabled}
+      />
       
       <div 
         className={`border-2 border-dashed ${uploadedUrl ? 'border-green-300 bg-green-50' : 'border-grey-300'} rounded-md p-6 flex flex-col items-center justify-center ${disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
-        onDrop={disabled ? undefined : handleDrop}
-        onDragOver={disabled ? undefined : handleDragOver}
-        onClick={uploadedUrl || disabled ? undefined : triggerFileInput}
       >
         {uploadedUrl ? (
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-2">
-              <Check className="h-10 w-10 text-green-500" />
-            </div>
-            <p className="text-sm text-green-600 mb-1">Resume uploaded successfully!</p>
-            <a 
-              href={uploadedUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-xs text-blue-500 underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              View uploaded resume
-            </a>
-          </div>
+          <UploadedFilePreview uploadedUrl={uploadedUrl} />
         ) : (
-          <>
-            <Upload className="h-10 w-10 text-grey-400 mb-2" />
-            <p className="text-sm text-grey-600 mb-1">
-              {selectedFile 
-                ? `Selected: ${selectedFile.name}` 
-                : "Drag and drop or click to upload PDF resume"}
-            </p>
-            <p className="text-xs text-grey-500 mb-4">
-              Max file size: 10MB
-            </p>
-            <Input 
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf"
-              className="hidden"
-              onChange={handleFileChange}
-              disabled={disabled}
-            />
-            
-            {selectedFile && !uploadedUrl && !disabled && (
-              <Button 
-                type="button" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleUpload();
-                }}
-                disabled={isUploading || isExtracting || disabled}
-                className="mt-2"
-              >
-                {isUploading ? "Uploading..." : isExtracting ? "Extracting text..." : "Upload Resume"}
-              </Button>
-            )}
-          </>
+          <FileDropZone 
+            selectedFile={selectedFile}
+            onFileSelect={handleFileSelect}
+            onUploadClick={handleUpload}
+            isUploading={isUploading}
+            isExtracting={isExtracting}
+            disabled={disabled}
+          />
         )}
       </div>
     </div>
