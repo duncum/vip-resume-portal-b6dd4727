@@ -47,6 +47,47 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
       return mockCandidates;
     }
     
+    // Check if the Sheets API is available
+    if (!window.gapi?.client?.sheets) {
+      console.error("Sheets API not available. Trying to load it now.");
+      
+      // Try to load the Sheets API if not already loaded
+      try {
+        await new Promise<void>((resolve, reject) => {
+          if (!window.gapi?.client) {
+            console.error("Google API client not initialized");
+            reject(new Error("Google API client not initialized"));
+            return;
+          }
+          
+          window.gapi.client.load('sheets', 'v4')
+            .then(() => {
+              console.log("Sheets API loaded successfully");
+              resolve();
+            })
+            .catch(err => {
+              console.error("Failed to load Sheets API:", err);
+              reject(err);
+            });
+        });
+      } catch (error) {
+        console.error("Failed to load Sheets API:", error);
+        toast.error("Failed to load Google Sheets API - using demo data instead", {
+          duration: 5000
+        });
+        return mockCandidates;
+      }
+      
+      // Double-check if the API is now available
+      if (!window.gapi?.client?.sheets) {
+        console.error("Sheets API still not available after loading attempt");
+        toast.error("Google Sheets API unavailable - using demo data", {
+          duration: 5000
+        });
+        return mockCandidates;
+      }
+    }
+    
     console.log("Making API request to Google Sheets with spreadsheet ID:", spreadsheetId);
     console.log("Range:", CANDIDATES_RANGE);
     

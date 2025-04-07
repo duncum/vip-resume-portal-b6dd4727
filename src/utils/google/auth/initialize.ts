@@ -90,6 +90,16 @@ export const initializeClient = async (): Promise<boolean> => {
               return;
             }
             
+            // Explicitly load the Sheets API
+            try {
+              console.log("Loading Sheets API...");
+              await window.gapi.client.load('sheets', 'v4');
+              console.log("Sheets API loaded successfully during initialization");
+            } catch (sheetsError) {
+              console.error("Failed to load Sheets API during initialization:", sheetsError);
+              // Continue anyway since we'll try again later if needed
+            }
+            
             isGapiInitialized = true;
             console.log("Google API initialized successfully (API key mode)");
             resolve(true);
@@ -104,6 +114,17 @@ export const initializeClient = async (): Promise<boolean> => {
               console.log("OAuth-related error in API key only mode - continuing anyway");
               // Force API key only mode
               localStorage.setItem('force_api_key_only', 'true');
+              
+              // Try to explicitly load the Sheets API
+              try {
+                console.log("Loading Sheets API after OAuth error...");
+                await window.gapi.client.load('sheets', 'v4');
+                console.log("Sheets API loaded successfully after OAuth error");
+              } catch (sheetsError) {
+                console.error("Failed to load Sheets API after OAuth error:", sheetsError);
+                // Continue anyway since we'll try again later if needed
+              }
+              
               isGapiInitialized = true;
               resolve(true);
               return;

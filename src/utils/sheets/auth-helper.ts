@@ -40,84 +40,56 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     console.log("Client ID exists:", !!clientId);
     console.log("API key only mode:", isApiKeyOnlyMode);
     
-    if (isAuthorized) {
-      if (isApiKeyOnlyMode) {
-        console.log('Running in API key only mode');
-        // We're in API key only mode, which is fine for reading data
-        return true;
-      }
-      
+    if (isAuthorized || isApiKeyOnlyMode) {
+      // Always make sure Sheets API is loaded
       try {
-        // Check if the sheets API is available
         console.log("Checking if Sheets API is loaded:", !!window.gapi?.client?.sheets);
         
-        if (!window.gapi.client.sheets) {
+        if (!window.gapi?.client?.sheets) {
           console.log('Sheets API not loaded yet, attempting to load it');
           
-          // Use the simplified approach with a direct callback function
           await new Promise<void>((resolve, reject) => {
-            window.gapi.load('client:auth2', () => {
-              window.gapi.client.load('sheets', 'v4')
-                .then(() => {
-                  console.log("Sheets API loaded successfully");
-                  resolve();
-                })
-                .catch(err => {
-                  console.error("Failed to load Sheets API:", err);
-                  reject(err);
-                });
-            });
+            window.gapi.client.load('sheets', 'v4')
+              .then(() => {
+                console.log("Sheets API loaded successfully");
+                resolve();
+              })
+              .catch(err => {
+                console.error("Failed to load Sheets API:", err);
+                reject(err);
+              });
           });
           
-          if (!window.gapi.client.sheets) {
-            console.error('Could not load Sheets API after attempt');
-            throw new Error('Could not load Sheets API');
-          }
+          console.log("After loading attempt, Sheets API available:", !!window.gapi?.client?.sheets);
         }
         
-        // Try a test request to see if we have permissions
-        console.log("Making test request to verify sheet access");
-        const spreadsheetId = localStorage.getItem('google_spreadsheet_id') || '';
-        console.log("Using spreadsheet ID for test:", spreadsheetId);
-        
-        await window.gapi.client.sheets.spreadsheets.values.get({
-          spreadsheetId: spreadsheetId,
-          range: 'A1'
-        });
-        
-        console.log("Test request succeeded - we have access to the sheet");
-        return true;
-      } catch (error: any) {
-        // Check specifically for auth errors
-        console.error("Error during sheets test request:", error);
-        
-        if (error.result?.error?.code === 401 || error.result?.error?.code === 403) {
-          console.warn('Sheets API requires OAuth for write operations');
-          
-          // In API key only mode, we'll allow read operations
-          if (isApiKeyOnlyMode) {
-            console.log('API key only mode - read operations should work');
-            return true;
-          } else {
-            toast.warning('Google Sheets permissions are limited. Some features may not work.', {
-              duration: 5000
-            });
-          }
-        }
-        
-        console.error('Sheets API test request failed:', error);
-        // In API key only mode, return true anyway to allow reading
+        // If in API key only mode, we can consider it successful if the API is at least initialized
         if (isApiKeyOnlyMode) {
-          console.log('API key only mode - continuing despite errors');
+          if (window.gapi?.client) {
+            console.log('Running in API key only mode with initialized client');
+            return true;
+          }
+        }
+        
+        // If we get here with authorization, we should be good to go
+        if (isAuthorized) {
+          console.log('Authorized with Google and Sheets API is available');
           return true;
         }
-        return false;
+      } catch (error) {
+        console.error("Error loading Sheets API:", error);
+        
+        // In API key only mode, we'll still try to continue
+        if (isApiKeyOnlyMode) {
+          console.log('API key only mode - continuing despite Sheets API load error');
+          return true;
+        }
       }
     }
     
-    // Special case for API key only mode - bypass OAuth errors
-    if (isApiKeyOnlyMode) {
-      console.log('API key only mode - continuing despite auth failures');
+    // Special case for API key only mode - bypass OAuth errors if API initialization worked
+    if (isApiKeyOnlyMode && window.gapi?.client) {
+      console.log('API key only mode with initialized client - continuing');
       return true;
     }
     
