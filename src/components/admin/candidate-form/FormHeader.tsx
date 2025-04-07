@@ -3,15 +3,18 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 
 interface FormHeaderProps {
-  candidateId: string;
+  isUploadMode: boolean;
   candidateCount: number;
+  candidateId?: string;
 }
 
-const FormHeader = ({ candidateId, candidateCount }: FormHeaderProps) => {
+const FormHeader = ({ isUploadMode, candidateCount, candidateId }: FormHeaderProps) => {
   return (
     <div className="flex justify-between items-center pb-4 mb-4 border-b">
       <div>
-        <h3 className="text-xl font-medium">Upload New Resume</h3>
+        <h3 className="text-xl font-medium">
+          {isUploadMode ? "Upload New Resume" : "Edit Candidate"}
+        </h3>
         {candidateId && (
           <p className="text-sm text-gray-500">Candidate ID: <span className="font-mono text-gold">{candidateId}</span></p>
         )}

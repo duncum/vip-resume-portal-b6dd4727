@@ -1,10 +1,10 @@
 
 import React from "react";
 import { useFormState } from "./hooks/useFormState";
-import { FormLayout } from "./FormLayout";
-import { FormHeader } from "./FormHeader";
-import { FormContent } from "./FormContent";
-import { SubmitButton } from "./SubmitButton";
+import FormLayout from "./FormLayout";
+import FormHeader from "./FormHeader";
+import FormContent from "./FormContent";
+import SubmitButton from "./SubmitButton";
 import ApiKeyWarning from "./ApiKeyWarning";
 import { useApiKeyValidation } from "./hooks/useApiKeyValidation";
 import { type Candidate } from "@/utils/sheets";
