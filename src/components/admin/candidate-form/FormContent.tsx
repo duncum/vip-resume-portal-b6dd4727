@@ -1,16 +1,13 @@
 
 import React from "react";
-import CollapsibleSection from "./CollapsibleSection";
-import CandidateLevels from "./CandidateLevels";
-import PositionTitles from "./PositionTitles";
-import SkillsSection from "./SkillsSection";
-import AssetTypesSection from "./AssetTypesSection";
-import SectorsSection from "./SectorsSection";
-import HeadlineInput from "./HeadlineInput";
-import SummaryInput from "./SummaryInput";
-import TagsInput from "./TagsInput";
-import LocationSection from "./LocationSection";
-import NotableEmployersInput from "./NotableEmployersInput";
+import {
+  BasicInfoFormSection,
+  CandidateLevelsFormSection,
+  PositionTitlesFormSection,
+  SkillsFormSection,
+  AssetTypesFormSection,
+  SectorsFormSection
+} from "./form-sections";
 
 interface FormContentProps {
   headline: string;
@@ -67,7 +64,7 @@ interface FormContentProps {
   disabled?: boolean;
 }
 
-const FormContent = ({
+const FormContent = ({ 
   headline,
   setHeadline,
   summary,
@@ -123,81 +120,67 @@ const FormContent = ({
 }: FormContentProps) => {
   return (
     <>
-      <HeadlineInput headline={headline} onHeadlineChange={setHeadline} disabled={disabled} />
-      
-      <CollapsibleSection title="Candidate Level / Hierarchy">
-        <CandidateLevels 
-          selectedLevels={selectedLevels}
-          onLevelChange={handleLevelChange}
-          disabled={disabled}
-        />
-      </CollapsibleSection>
-      
-      <CollapsibleSection title="Position Titles">
-        <PositionTitles 
-          selectedTitleCategories={selectedTitleCategories}
-          onTitleCategoryChange={handleTitleCategoryChange}
-          selectedTitles={selectedTitles}
-          onTitleChange={handleTitleChange}
-          customTitles={customTitles}
-          onCustomTitleChange={handleCustomTitleChange}
-          onAddCustomTitle={addAnotherCustomTitle}
-          onRemoveCustomTitle={removeCustomTitle}
-          disabled={disabled}
-        />
-      </CollapsibleSection>
-      
-      <NotableEmployersInput 
+      <BasicInfoFormSection
+        headline={headline}
+        setHeadline={setHeadline}
+        summary={summary}
+        setSummary={setSummary}
+        location={location}
+        setLocation={setLocation}
+        tags={tags}
+        setTags={setTags}
+        relocationPreference={relocationPreference}
+        setRelocationPreference={setRelocationPreference}
         notableEmployers={notableEmployers}
-        onNotableEmployersChange={setNotableEmployers}
+        setNotableEmployers={setNotableEmployers}
         disabled={disabled}
       />
       
-      <CollapsibleSection title="High-Level Skills">
-        <SkillsSection 
-          selectedSkills={selectedSkills}
-          onSkillChange={handleSkillChange}
-          customSkills={customSkills}
-          onAddCustomSkill={addCustomSkill}
-          onCustomSkillChange={handleCustomSkillChange}
-          onRemoveCustomSkill={removeCustomSkill}
-          disabled={disabled}
-        />
-      </CollapsibleSection>
+      <CandidateLevelsFormSection
+        selectedLevels={selectedLevels}
+        handleLevelChange={handleLevelChange}
+        disabled={disabled}
+      />
       
-      <CollapsibleSection title="Asset Type Experience">
-        <AssetTypesSection 
-          selectedAssetTypes={selectedAssetTypes}
-          onAssetTypeChange={handleAssetTypeChange}
-          customAssetTypes={customAssetTypes}
-          onAddCustomAssetType={addCustomAssetType}
-          onCustomAssetTypeChange={handleCustomAssetTypeChange}
-          onRemoveCustomAssetType={removeCustomAssetType}
-          disabled={disabled}
-        />
-      </CollapsibleSection>
+      <PositionTitlesFormSection
+        selectedTitleCategories={selectedTitleCategories}
+        handleTitleCategoryChange={handleTitleCategoryChange}
+        selectedTitles={selectedTitles}
+        handleTitleChange={handleTitleChange}
+        customTitles={customTitles}
+        handleCustomTitleChange={handleCustomTitleChange}
+        addAnotherCustomTitle={addAnotherCustomTitle}
+        removeCustomTitle={removeCustomTitle}
+        disabled={disabled}
+      />
       
-      <CollapsibleSection title="Sector / Ownership Experience">
-        <SectorsSection 
-          selectedSectors={selectedSectors}
-          onSectorChange={handleSectorChange}
-          customSectors={customSectors}
-          onAddCustomSector={addCustomSector}
-          onCustomSectorChange={handleCustomSectorChange}
-          onRemoveCustomSector={removeCustomSector}
-          disabled={disabled}
-        />
-      </CollapsibleSection>
+      <SkillsFormSection
+        selectedSkills={selectedSkills}
+        handleSkillChange={handleSkillChange}
+        customSkills={customSkills}
+        addCustomSkill={addCustomSkill}
+        handleCustomSkillChange={handleCustomSkillChange}
+        removeCustomSkill={removeCustomSkill}
+        disabled={disabled}
+      />
       
-      <SummaryInput summary={summary} onSummaryChange={setSummary} disabled={disabled} />
+      <AssetTypesFormSection
+        selectedAssetTypes={selectedAssetTypes}
+        handleAssetTypeChange={handleAssetTypeChange}
+        customAssetTypes={customAssetTypes}
+        addCustomAssetType={addCustomAssetType}
+        handleCustomAssetTypeChange={handleCustomAssetTypeChange}
+        removeCustomAssetType={removeCustomAssetType}
+        disabled={disabled}
+      />
       
-      <TagsInput tags={tags} onTagsChange={setTags} disabled={disabled} />
-      
-      <LocationSection
-        location={location}
-        onLocationChange={setLocation}
-        relocationPreference={relocationPreference}
-        onRelocationChange={setRelocationPreference}
+      <SectorsFormSection
+        selectedSectors={selectedSectors}
+        handleSectorChange={handleSectorChange}
+        customSectors={customSectors}
+        addCustomSector={addCustomSector}
+        handleCustomSectorChange={handleCustomSectorChange}
+        removeCustomSector={removeCustomSector}
         disabled={disabled}
       />
     </>
