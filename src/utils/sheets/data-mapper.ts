@@ -16,7 +16,6 @@ export const rowToCandidate = (row: any[]): Candidate => {
     sectors: (row[2] || '').split(',').map((s: string) => s.trim()).filter(Boolean),
     tags: (row[3] || '').split(',').map((t: string) => t.trim()).filter(Boolean),
     resumeUrl: row[4] || '',
-    titleCategories: (row[5] || '').split(',').map((c: string) => c.trim()).filter(Boolean),
     titles: {
       // Extract title categories and create a map of titles
       [(row[5] || '').split(',')[0]?.trim() || 'Other']: 
