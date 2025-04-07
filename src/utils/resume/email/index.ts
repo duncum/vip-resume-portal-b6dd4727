@@ -1,42 +1,37 @@
 
 import { toast } from "sonner";
-import { prepareEmailContent, sendEmailViaAPI } from "./sender";
-import { trackResumeShare } from "./tracking";
-import { SendResumeEmailData } from "./types";
-import { EMAIL_TEMPLATES, getTemplateById } from "./templates";
+import { SendResumeEmailOptions, EmailData } from './types';
+import { trackEmailInSheets } from './tracking';
+import { sendEmailWithService } from './sender';
 
 /**
- * Sends the resume to the specified email address
- * 
- * @param data Email data including recipient, candidate ID, resume URL and template options
- * @returns Promise resolving to success or error
+ * Main function to send a resume via email
  */
-export const sendResumeEmail = async (data: SendResumeEmailData): Promise<boolean> => {
-  const { recipientEmail, candidateId, resumeUrl, templateId, customSubject } = data;
+export const sendResumeEmail = async (options: SendResumeEmailOptions): Promise<boolean> => {
+  const { recipientEmail, candidateId, resumeUrl, useConfidential = false } = options;
   
   try {
-    // Track this share in our tracking systems
-    await trackResumeShare(candidateId, recipientEmail);
+    // 1. Track this email send in Google Sheets
+    await trackEmailInSheets(candidateId, recipientEmail);
     
-    // Prepare the email content using the specified template
-    const emailContent = prepareEmailContent(
-      recipientEmail, 
-      resumeUrl, 
+    // 2. Send the email using Google Workspace or fallback
+    const emailData: EmailData = {
+      to: recipientEmail,
+      subject: useConfidential ? "Confidential Resume from CRE Recruitment" : "Resume from CRE Recruitment",
+      resumeUrl,
       candidateId,
-      templateId,
-      customSubject
-    );
+      isConfidential: useConfidential
+    };
     
-    // Send email using EmailJS
-    const response = await sendEmailViaAPI(emailContent);
+    const success = await sendEmailWithService(emailData);
     
-    if (response.success) {
-      toast.success("Resume sent to your email", {
+    if (success) {
+      toast.success("Resume sent to email", {
         description: "Please check your inbox shortly"
       });
       return true;
     } else {
-      throw new Error(response.message || "Failed to send email");
+      throw new Error("Failed to send email");
     }
   } catch (error) {
     console.error("Error sending resume email:", error);
@@ -46,9 +41,3 @@ export const sendResumeEmail = async (data: SendResumeEmailData): Promise<boolea
     return false;
   }
 };
-
-// Export template constants and utilities
-export { EMAIL_TEMPLATES, getTemplateById } from "./templates";
-
-// Re-export types
-export * from "./types";

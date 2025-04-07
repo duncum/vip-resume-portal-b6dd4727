@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { toast } from "sonner";
-import { sendResumeEmail } from "@/utils/resume/simpleEmailShare";
+import { sendResumeEmail } from "@/utils/resume/email";
 
 interface UseSimpleEmailFormProps {
   open: boolean;

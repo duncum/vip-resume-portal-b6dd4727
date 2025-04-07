@@ -1,31 +1,22 @@
 
-import { trackDownload } from "@/utils/ipTracker";
-import { findRowByValue, updateCells, SPREADSHEET_ID } from "@/utils/sheets";
+import { updateCells, findRowByValue } from "@/utils/sheets/operations";
 
 /**
- * Record resume share activity in the Candidates sheet
- * 
- * @param candidateId The ID of the candidate
- * @param recipientEmail Email of the recipient 
+ * Track the email in Google Sheets
  */
-export const recordResumeShareToCandidatesSheet = async (
-  candidateId: string, 
-  recipientEmail: string
-): Promise<boolean> => {
+export const trackEmailInSheets = async (candidateId: string, recipientEmail: string): Promise<boolean> => {
   try {
     // Check if Google API is available
     if (!window.gapi || !window.gapi.client || !window.gapi.client.sheets) {
-      console.warn("Google Sheets API not available, skipping share tracking");
+      console.warn("Google Sheets API not available, skipping email tracking");
       return false;
     }
     
-    // Get spreadsheet ID from local storage or config
-    const spreadsheetId = 
-      localStorage.getItem('google_spreadsheet_id') || 
-      SPREADSHEET_ID;
+    // Get spreadsheet ID from local storage or default
+    const spreadsheetId = localStorage.getItem('google_spreadsheet_id') || "1RICk5q_nQr8JHKvlYi-1tdlVwzM57UGbRdDNOdMwOFk";
     
     if (!spreadsheetId) {
-      console.warn("No spreadsheet ID available, skipping share tracking");
+      console.warn("No spreadsheet ID available, skipping email tracking");
       return false;
     }
     
@@ -42,12 +33,9 @@ export const recordResumeShareToCandidatesSheet = async (
       return false;
     }
     
-    // Determine which columns to update (assuming we add these columns to the sheet)
-    // We'll update the "LastEmailedTo" and "LastEmailedDate" columns
-    // Assuming these might be columns P and Q (adjust based on your sheet structure)
+    // Update the candidate row with email tracking information
     const timestamp = new Date().toISOString();
     
-    // Update the candidate row with email tracking information
     const success = await updateCells(
       spreadsheetId,
       `Candidates!P${rowIndex}:Q${rowIndex}`,
@@ -55,28 +43,12 @@ export const recordResumeShareToCandidatesSheet = async (
     );
     
     if (success) {
-      console.log(`Resume share recorded for candidate ${candidateId}`);
+      console.log(`Resume share tracked for candidate ${candidateId}`);
     }
     
     return success;
   } catch (error) {
-    console.error("Error recording resume share in Google Sheets:", error);
-    // Don't throw here - this is a non-critical operation
+    console.error("Error tracking email in Google Sheets:", error);
     return false;
   }
-};
-
-/**
- * Track resume share action
- * Records both local tracking and Google Sheets tracking
- */
-export const trackResumeShare = async (
-  candidateId: string,
-  recipientEmail: string
-): Promise<void> => {
-  // Track the download/email action in our local tracking system
-  trackDownload(candidateId);
-  
-  // Also record this action in Google Sheets
-  await recordResumeShareToCandidatesSheet(candidateId, recipientEmail);
 };

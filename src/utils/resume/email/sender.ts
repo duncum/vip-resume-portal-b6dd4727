@@ -1,108 +1,48 @@
 
-import { toast } from "sonner";
-import { EmailSendResponse } from "./types";
-import { EmailTemplate, getTemplateById, processTemplate, RESUME_TEMPLATE } from "./templates";
+import { isUserAuthorized } from "@/utils/google";
+import { EmailData } from './types';
+import { sendViaGmail } from './gmail';
+import { fallbackEmailSending } from './fallback';
 
 /**
- * Send email using EmailJS
+ * Send the email using Google Workspace API or fallback
  */
-export const sendEmailViaAPI = async (emailData: any): Promise<EmailSendResponse> => {
+export const sendEmailWithService = async (emailData: EmailData): Promise<boolean> => {
   try {
-    // For this example, we'll use EmailJS as it works directly from frontend
-    const API_URL = "https://api.emailjs.com/api/v1.0/email/send";
+    // First check if Google API is authorized
+    const isAuthorized = await isUserAuthorized();
     
-    // Get EmailJS credentials from localStorage (or use defaults for demo)
-    const SERVICE_ID = localStorage.getItem('emailjs_service_id') || "your_service_id";
-    const TEMPLATE_ID = localStorage.getItem('emailjs_template_id') || "your_template_id";
-    const USER_ID = localStorage.getItem('emailjs_user_id') || "your_user_id";
-    
-    // Check if we have valid credentials
-    if (SERVICE_ID === "your_service_id" || TEMPLATE_ID === "your_template_id" || USER_ID === "your_user_id") {
-      console.warn("Using fallback email sending because EmailJS credentials not set");
+    if (!isAuthorized || !window.gapi?.client) {
+      console.warn("Google API not authorized, using fallback email sender");
       return fallbackEmailSending(emailData);
     }
-    
-    const requestData = {
-      service_id: SERVICE_ID,
-      template_id: TEMPLATE_ID,
-      user_id: USER_ID,
-      template_params: {
-        to_email: emailData.to,
-        subject: emailData.subject,
-        message: emailData.text,
-        html_content: emailData.html,
-        resume_url: emailData.resumeUrl,
-        candidate_id: emailData.candidateId
+
+    // Check if Gmail API is loaded
+    if (!window.gapi.client.gmail) {
+      try {
+        // Try loading Gmail API
+        await window.gapi.client.load('gmail', 'v1');
+        console.log("Gmail API loaded successfully");
+      } catch (error) {
+        console.error("Failed to load Gmail API:", error);
+        return fallbackEmailSending(emailData);
       }
-    };
+    }
     
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData),
-    });
-    
-    // For EmailJS, a 200 status means the request was accepted
-    if (response.status === 200) {
-      return { success: true };
-    } else {
-      const errorData = await response.json();
-      return { 
-        success: false, 
-        message: errorData.error || "Failed to send email" 
-      };
+    // Attempt to send via Gmail API
+    try {
+      const success = await sendViaGmail(emailData);
+      if (success) {
+        return true;
+      } else {
+        return fallbackEmailSending(emailData);
+      }
+    } catch (error) {
+      console.error("Error sending email via Gmail API:", error);
+      return fallbackEmailSending(emailData);
     }
   } catch (error) {
-    console.error("Error in email API call:", error);
-    return { 
-      success: false, 
-      message: error instanceof Error ? error.message : "Unknown error occurred" 
-    };
+    console.error("Error in email service:", error);
+    return fallbackEmailSending(emailData);
   }
-};
-
-/**
- * For development/testing purposes
- * This fallback will be used if the email API credentials are not set
- */
-export const fallbackEmailSending = async (emailData: any): Promise<EmailSendResponse> => {
-  // Simulate network latency
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Log what would be sent to a real email service
-  console.log("Email would be sent with:", emailData);
-  
-  return { success: true };
-};
-
-/**
- * Prepare email content for sending
- */
-export const prepareEmailContent = (
-  recipientEmail: string, 
-  resumeUrl: string, 
-  candidateId: string,
-  templateId?: string,
-  customSubject?: string
-) => {
-  // Get the template (default or specified)
-  const template = templateId ? getTemplateById(templateId) : RESUME_TEMPLATE;
-  
-  // Process the template with variables
-  const processedTemplate = processTemplate(template, {
-    resumeUrl,
-    candidateId,
-    recipientEmail
-  });
-  
-  return {
-    to: recipientEmail,
-    subject: customSubject || processedTemplate.subject,
-    text: processedTemplate.textBody,
-    html: processedTemplate.htmlBody,
-    candidateId: candidateId,
-    resumeUrl
-  };
 };

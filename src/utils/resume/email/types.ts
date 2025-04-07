@@ -1,19 +1,25 @@
 
 /**
- * Interface for the email data needed to send a resume
+ * Types for email functionality
  */
-export interface SendResumeEmailData {
+
+export interface SendResumeEmailOptions {
   recipientEmail: string;
   candidateId: string;
   resumeUrl: string;
-  templateId?: string;      // Optional template ID to use
-  customSubject?: string;   // Optional custom subject line
+  useConfidential?: boolean;
 }
 
-/**
- * Response interface for email sending operations
- */
-export interface EmailSendResponse {
-  success: boolean;
-  message?: string;
+export interface EmailContent {
+  to: string;
+  subject: string;
+  html: string;
+}
+
+export interface EmailData {
+  to: string;
+  subject: string;
+  resumeUrl: string;
+  candidateId: string;
+  isConfidential: boolean;
 }
