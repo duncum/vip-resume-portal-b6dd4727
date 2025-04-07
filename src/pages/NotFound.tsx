@@ -1,5 +1,6 @@
 
-import { useLocation, Link, useNavigate, useEffect } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Header from "@/components/layout/Header";
