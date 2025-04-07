@@ -23,8 +23,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   isAuthorized,
   userEmail,
   error,
-  showSetupInstructions,
-  switchToApiKeyOnlyMode
+  showSetupInstructions
 }) => {
   if (isLoading) {
     return (
@@ -54,35 +53,21 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
     );
   }
   
-  if (error && !isAuthorized && (error.includes('idpiframe_initialization_failed') || 
-     error.includes('origin') || error.includes('OAuth'))) {
+  if (error && !isAuthorized) {
     return (
       <div className="space-y-2">
         <Alert variant="destructive" className="py-2">
           <AlertCircle className="h-3 w-3 mr-2" />
           <AlertDescription className="text-xs">
-            <div className="font-medium">OAuth Configuration Error</div>
-            <div>Your Client ID is not authorized for this domain: {window.location.origin}</div>
+            <div className="font-medium">API Connection Error</div>
+            <div>{error}</div>
           </AlertDescription>
         </Alert>
-        
-        {switchToApiKeyOnlyMode && (
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={switchToApiKeyOnlyMode}
-            className="text-[10px] mt-1 py-0 h-6 w-full"
-          >
-            Switch to API Key Only Mode
-          </Button>
-        )}
       </div>
     );
   }
   
   if (isAuthorized) {
-    const isOAuthMode = localStorage.getItem('google_client_id') && localStorage.getItem('google_client_id') !== '' && 
-                         localStorage.getItem('force_api_key_only') !== 'true';
     const spreadsheetId = localStorage.getItem('google_spreadsheet_id');
     
     return (
@@ -91,16 +76,12 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
           <CheckCircle className="h-3 w-3 mr-1 text-green-500 flex-shrink-0" />
           <div>
             <div className="font-medium">
-              {isOAuthMode 
-                ? (userEmail ? `Connected as ${userEmail?.split('@')[0]}` : "OAuth connected") 
-                : "API Key connected"}
+              API Key connected
             </div>
             
-            {!isOAuthMode && (
-              <div className="text-[10px] text-amber-500 font-medium">
-                Read-only mode (API key only)
-              </div>
-            )}
+            <div className="text-[10px] text-amber-500 font-medium">
+              Read-only mode (API key only)
+            </div>
           </div>
         </div>
         

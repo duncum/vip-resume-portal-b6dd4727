@@ -7,18 +7,18 @@ import { Link } from "react-router-dom";
 
 const ApiKeyWarning = () => {
   return (
-    <Alert variant="destructive">
-      <AlertCircle className="h-4 w-4" />
-      <AlertTitle>API Key Only Mode</AlertTitle>
+    <Alert variant="warning" className="bg-amber-50 border-amber-200">
+      <AlertCircle className="h-4 w-4 text-amber-500" />
+      <AlertTitle>Read-Only Mode</AlertTitle>
       <AlertDescription className="space-y-2">
         <p>
-          You are in API key only mode which does not support adding candidates.
-          OAuth is required to write data to Google Sheets.
+          This application is configured for read-only access to Google Sheets.
+          You can view existing candidates but not add new ones.
         </p>
         <div className="mt-2">
           <Button asChild size="sm" variant="outline">
             <Link to="/admin?tab=manage">
-              View Candidates (Read Only)
+              View Candidates
             </Link>
           </Button>
         </div>

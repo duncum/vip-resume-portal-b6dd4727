@@ -31,10 +31,10 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
         <Alert variant="default" className="bg-blue-50 text-blue-800 border-blue-200">
           <AlertCircle className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-xs">
-            <span className="font-semibold">Access Modes:</span>
+            <span className="font-semibold">API Key Only Mode:</span>
             <ul className="mt-1 pl-4 list-disc">
-              <li><span className="font-medium">API Key only:</span> Read-only access (view candidates)</li>
-              <li><span className="font-medium">API Key + OAuth:</span> Full access (add/edit candidates)</li>
+              <li>Read-only access to view existing candidates</li>
+              <li>No OAuth required - simpler configuration</li>
             </ul>
           </AlertDescription>
         </Alert>
@@ -55,25 +55,6 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
         <p className="text-xs text-slate-500 mt-1">
           Required for all Google Sheet operations. Enable the Google Sheets API in Google Cloud Console.
         </p>
-      </div>
-      
-      <div className="space-y-1">
-        <Label htmlFor="clientId" className="text-xs flex items-center">
-          OAuth Client ID <span className="text-amber-500 ml-1">(Required for adding candidates)</span>
-        </Label>
-        <Input 
-          id="clientId"
-          placeholder="Enter 353615110421-8o1i2nfo0tp97btrvhmjghvu3hk24c2a.apps.googleusercontent.com" 
-          value={credentials.clientId}
-          onChange={(e) => setCredentials({...credentials, clientId: e.target.value})}
-          className="text-xs h-8"
-        />
-        <div className="flex items-start text-xs text-slate-500 mt-1">
-          <Info className="h-3 w-3 mr-1 mt-0.5 flex-shrink-0" />
-          <p>
-            Must be configured with <span className="font-mono bg-slate-100 px-1">{window.location.origin}</span> as an authorized JavaScript origin.
-          </p>
-        </div>
       </div>
       
       <div className="space-y-1">

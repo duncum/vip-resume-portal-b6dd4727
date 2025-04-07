@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useCallback } from 'react';
-import { CLIENT_ID, API_KEY } from '@/utils/google';
+import { API_KEY } from '@/utils/google';
 import { SPREADSHEET_ID } from '@/utils/sheets';
 import { toast } from 'sonner';
 
@@ -22,7 +23,7 @@ export const useGoogleCredentials = () => {
   });
 
   const [missingCredentials, setMissingCredentials] = useState<MissingCredentials>({
-    clientId: false, // Changed to false since it's optional now
+    clientId: false,
     apiKey: true
   });
 
@@ -30,36 +31,31 @@ export const useGoogleCredentials = () => {
 
   // Load saved credentials from localStorage only once when component mounts
   useEffect(() => {
-    const savedClientId = localStorage.getItem('google_client_id');
     const savedApiKey = localStorage.getItem('google_api_key');
     const savedSpreadsheetId = localStorage.getItem('google_spreadsheet_id');
     
-    if (savedClientId || savedApiKey || savedSpreadsheetId) {
+    if (savedApiKey || savedSpreadsheetId) {
       setCredentials({
-        clientId: savedClientId || '',
+        clientId: '', // Always empty, never needed
         apiKey: savedApiKey || '',
         spreadsheetId: savedSpreadsheetId || ''
       });
       
-      // Set missing credentials state - only API key is required
+      // Set missing credentials state
       setMissingCredentials({
-        clientId: false, // Always false as it's optional
+        clientId: false, // Always false as it's never needed
         apiKey: !savedApiKey // Only API key is required
       });
     }
+    
+    // Ensure we're always in API key only mode
+    localStorage.setItem('force_api_key_only', 'true');
   }, []);
 
   const handleCredentialSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     
     // Store credentials in localStorage
-    if (credentials.clientId) {
-      localStorage.setItem('google_client_id', credentials.clientId);
-    } else {
-      // Clear the client ID if it's removed
-      localStorage.removeItem('google_client_id');
-    }
-    
     if (credentials.apiKey) {
       localStorage.setItem('google_api_key', credentials.apiKey);
     } else {
@@ -72,38 +68,42 @@ export const useGoogleCredentials = () => {
       localStorage.removeItem('google_spreadsheet_id');
     }
     
+    // Remove any client ID if previously set
+    localStorage.removeItem('google_client_id');
+    
+    // Ensure API key only mode
+    localStorage.setItem('force_api_key_only', 'true');
+    
     setMissingCredentials({
-      clientId: false, // Always false as it's optional
-      apiKey: !credentials.apiKey // Only API key is required
+      clientId: false,
+      apiKey: !credentials.apiKey
     });
     
     setShowCredentialsForm(false);
-    toast.success('Credentials saved');
+    toast.success('API credentials saved');
     
     // Return true to indicate successful submission
     return true;
   }, [credentials]);
 
-  // Clear client ID but keep API key
-  const clearClientId = useCallback(() => {
-    localStorage.removeItem('google_client_id');
-    setCredentials(prev => ({
-      ...prev,
-      clientId: ''
-    }));
-    toast.success('Client ID removed, using API Key only mode');
-    return true;
-  }, []);
+  // Removed clearClientId since it's not needed anymore
 
   const showSetupInstructions = useCallback(() => {
     toast.info(
-      'You need to set up your Google API credentials. Open the browser console (F12) to see detailed instructions.',
+      'You need to set up your Google API key. Please provide a valid API key in the settings.',
       { duration: 8000 }
     );
-    // This will trigger the detailed instructions to be printed in the console
-    import('@/utils/google/config').then(module => {
-      module.printOAuthSetupInstructions();
-    });
+    // Print simplified instructions focused on API key
+    console.log(
+      `Google Sheets API Key Setup Instructions:
+      
+      1. You need to get an API Key from Google Cloud Console
+      2. Enable the Google Sheets API in your Google Cloud project
+      3. Input the API Key in the settings form
+      4. Your Spreadsheet ID is found in your Google Sheet URL:
+         https://docs.google.com/spreadsheets/d/[YOUR_SPREADSHEET_ID]/edit
+      `
+    );
   }, []);
 
   return {
@@ -114,6 +114,7 @@ export const useGoogleCredentials = () => {
     setShowCredentialsForm,
     handleCredentialSubmit,
     showSetupInstructions,
-    clearClientId
+    // Since we don't use OAuth, we don't need clearClientId
+    clearClientId: () => true
   };
 };
