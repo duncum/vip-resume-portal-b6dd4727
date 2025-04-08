@@ -5,6 +5,7 @@ import GoogleIcon from './google/GoogleIcon';
 import StatusDisplay from './google/StatusDisplay';
 import CredentialsToggle from './google/CredentialsToggle';
 import ConnectionButton from './google/ConnectionButton';
+import EmailJSConfig from './google/EmailJSConfig';
 import { useGoogleIntegration } from './google/useGoogleIntegration';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -89,7 +90,7 @@ const GoogleIntegrationStatus = () => {
       <CardHeader className="py-2 px-4 bg-gray-50">
         <CardTitle className="text-sm flex items-center text-gray-900">
           <GoogleIcon className="h-3 w-3 mr-1" />
-          Google API Connection
+          Google Workspace Connection
         </CardTitle>
       </CardHeader>
       
@@ -154,6 +155,9 @@ const GoogleIntegrationStatus = () => {
             onSignIn={handleSignIn}
           />
         </div>
+        
+        {/* Add EmailJS Configuration Section */}
+        <EmailJSConfig />
       </CardContent>
     </Card>
   );

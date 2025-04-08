@@ -73,7 +73,7 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
       ) : (
         <>
           <GoogleIcon className="h-3 w-3 mr-1" />
-          Connect API
+          Connect Workspace
         </>
       )}
     </Button>

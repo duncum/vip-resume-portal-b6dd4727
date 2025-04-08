@@ -17,7 +17,7 @@ export const createConfidentialTemplate = (resumeUrl: string): string => {
         <a href="${resumeUrl}" style="display: inline-block; background-color: #daa520; color: #000; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Confidential Resume</a>
       </div>
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #777; text-align: center;">
-        <p>This email was sent via CRE Recruitment. If you have any questions, please contact our team.</p>
+        <p>This is a confidential document. For any questions, please contact our team.</p>
       </div>
     </div>
   </div>`;
@@ -26,7 +26,7 @@ export const createConfidentialTemplate = (resumeUrl: string): string => {
 export const createStandardTemplate = (resumeUrl: string): string => {
   return `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
     <div style="background-color: #daa520; padding: 15px; text-align: center;">
-      <h2 style="color: #fff; margin: 0;">Resume from CRE Recruitment</h2>
+      <h2 style="color: #fff; margin: 0;">Resume</h2>
     </div>
     <div style="padding: 20px; border: 1px solid #e0e0e0; background-color: #ffffff;">
       <p style="color: #333; font-size: 16px; line-height: 1.5;">Thank you for your interest in our candidate. You can view or download the resume using the link below:</p>
@@ -34,7 +34,7 @@ export const createStandardTemplate = (resumeUrl: string): string => {
         <a href="${resumeUrl}" style="display: inline-block; background-color: #daa520; color: #000; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Resume</a>
       </div>
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #777; text-align: center;">
-        <p>This email was sent via CRE Recruitment. If you have any questions, please contact our team.</p>
+        <p>For any questions about this resume, please contact our team.</p>
       </div>
     </div>
   </div>`;
@@ -48,7 +48,7 @@ export const createEmail = (options: { to: string; subject: string; html: string
   
   // Create email headers with specific from address
   const headers = [
-    `From: Michelle CRE Confidential <michelle@creconfidential.org>`,
+    `From: Confidential Resume <confidential@example.com>`,
     `To: ${to}`,
     `Subject: ${subject}`,
     'Content-Type: text/html; charset=utf-8',
