@@ -1,11 +1,12 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import GoogleIcon from './google/GoogleIcon';
-import StatusDisplay from './google/StatusDisplay';
-import CredentialsToggle from './google/CredentialsToggle';
-import ConnectionButton from './google/ConnectionButton';
+import GoogleIcon from './GoogleIcon';
+import StatusDisplay from './StatusDisplay';
+import CredentialsToggle from './CredentialsToggle';
+import ConnectionButton from './ConnectionButton';
 import EmailJSConfig from './emailjs/EmailJSConfig';
-import { useGoogleIntegration } from './google/useGoogleIntegration';
+import { useGoogleIntegration } from './useGoogleIntegration';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
