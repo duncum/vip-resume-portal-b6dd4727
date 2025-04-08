@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import GoogleIcon from './GoogleIcon';
+import { Loader2 } from 'lucide-react';
 
 type ConnectionButtonProps = {
   missingCredentials: {
@@ -29,7 +30,7 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
         size="sm" 
         variant="outline" 
         onClick={onShowCredentials}
-        className="text-xs px-2 py-1 h-7 whitespace-nowrap text-gray-900 bg-white"
+        className="text-xs px-2 py-1 h-7 whitespace-nowrap text-gray-900 bg-white hover:bg-gray-100"
       >
         API Settings
       </Button>
@@ -43,11 +44,11 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
         variant="outline" 
         onClick={onSignOut} 
         disabled={isLoading}
-        className="text-xs px-2 py-1 h-7 whitespace-nowrap text-gray-900 bg-white"
+        className="text-xs px-2 py-1 h-7 whitespace-nowrap text-gray-900 bg-white hover:bg-gray-100"
       >
         {isLoading ? (
           <>
-            <div className="h-3 w-3 mr-1 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
             Disconnecting...
           </>
         ) : (
@@ -66,7 +67,7 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
     >
       {isLoading ? (
         <>
-          <div className="h-3 w-3 mr-1 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
           Connecting...
         </>
       ) : (

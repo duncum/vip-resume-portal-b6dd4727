@@ -5,20 +5,38 @@
 
 export const createConfidentialTemplate = (resumeUrl: string): string => {
   return `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    <h2 style="color: #333;">Confidential Resume</h2>
-    <p>This resume is being shared on a confidential basis.</p>
-    <div style="background-color: #fff4e5; border-left: 4px solid #daa520; padding: 12px; margin: 15px 0;">
-      <p style="margin: 0; color: #333;"><strong>Important:</strong> Please do not redistribute this resume without permission.</p>
+    <div style="background-color: #daa520; padding: 15px; text-align: center;">
+      <h2 style="color: #fff; margin: 0;">Confidential Resume</h2>
     </div>
-    <p><a href="${resumeUrl}" style="display: inline-block; background-color: #daa520; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Confidential Resume</a></p>
+    <div style="padding: 20px; border: 1px solid #e0e0e0; background-color: #ffffff;">
+      <p style="color: #333; font-size: 16px; line-height: 1.5;">This resume is being shared on a confidential basis.</p>
+      <div style="background-color: #fff4e5; border-left: 4px solid #daa520; padding: 12px; margin: 15px 0;">
+        <p style="margin: 0; color: #333;"><strong>Important:</strong> Please do not redistribute this resume without permission.</p>
+      </div>
+      <div style="margin-top: 25px; text-align: center;">
+        <a href="${resumeUrl}" style="display: inline-block; background-color: #daa520; color: #000; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Confidential Resume</a>
+      </div>
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #777; text-align: center;">
+        <p>This email was sent via CRE Recruitment. If you have any questions, please contact our team.</p>
+      </div>
+    </div>
   </div>`;
 };
 
 export const createStandardTemplate = (resumeUrl: string): string => {
   return `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    <h2 style="color: #333;">Resume from CRE Recruitment</h2>
-    <p>Thank you for your interest in our candidate. You can view or download the resume using the link below:</p>
-    <p><a href="${resumeUrl}" style="display: inline-block; background-color: #daa520; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Resume</a></p>
+    <div style="background-color: #daa520; padding: 15px; text-align: center;">
+      <h2 style="color: #fff; margin: 0;">Resume from CRE Recruitment</h2>
+    </div>
+    <div style="padding: 20px; border: 1px solid #e0e0e0; background-color: #ffffff;">
+      <p style="color: #333; font-size: 16px; line-height: 1.5;">Thank you for your interest in our candidate. You can view or download the resume using the link below:</p>
+      <div style="margin-top: 25px; text-align: center;">
+        <a href="${resumeUrl}" style="display: inline-block; background-color: #daa520; color: #000; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Resume</a>
+      </div>
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 12px; color: #777; text-align: center;">
+        <p>This email was sent via CRE Recruitment. If you have any questions, please contact our team.</p>
+      </div>
+    </div>
   </div>`;
 };
 
@@ -46,4 +64,3 @@ export const createEmail = (options: { to: string; subject: string; html: string
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 };
-

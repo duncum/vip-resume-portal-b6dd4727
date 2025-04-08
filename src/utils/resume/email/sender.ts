@@ -15,6 +15,9 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
     
     if (!isAuthorized || !window.gapi?.client) {
       console.log("Google API not authorized, using fallback email sender");
+      toast.warning("Google API not connected", {
+        description: "Using alternative email method. Connect Google API for better delivery."
+      });
       return fallbackEmailSending(emailData);
     }
 
@@ -36,7 +39,7 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
             errorMsg.includes('PERMISSION_DENIED')) {
           console.warn("Gmail requires OAuth authentication with proper scopes");
           toast.warning("Gmail API requires OAuth authentication", {
-            description: "Please ensure Gmail API is enabled in your Google Cloud Console and you've logged in with OAuth"
+            description: "Please ensure Gmail API is enabled in your Google Cloud Console"
           });
           return fallbackEmailSending(emailData);
         }
@@ -46,8 +49,6 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
     }
     
     // Verify we have the correct OAuth scope for Gmail
-    // Since we can't directly check scopes, we'll attempt a simple operation
-    // that requires the gmail.send scope to verify permissions
     try {
       // Safe check if we can access Gmail API messages endpoint
       if (!window.gapi.client.gmail?.users?.messages) {
@@ -73,13 +74,10 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
           // If we reach here without error, we have the correct scope
         } catch (draftError) {
           console.warn("Could not create draft, might not have proper permissions:", draftError);
-          // Try sending a simple message instead of creating a draft
           throw draftError; // Propagate error to outer catch block
         }
       } else {
-        // If drafts endpoint is unavailable, we'll try a different approach
         console.warn("Gmail API drafts endpoint not available, skipping scope test");
-        // We'll proceed and let the actual send operation determine if we have permissions
       }
     } catch (error) {
       console.error("Gmail scope verification error:", error);
