@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 const EmailJSConfig: React.FC = () => {
@@ -32,24 +32,16 @@ const EmailJSConfig: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate input fields
+    if (!credentials.serviceId || !credentials.templateId || !credentials.userId) {
+      toast.error("All fields are required");
+      return;
+    }
+    
     // Store credentials in localStorage
-    if (credentials.serviceId) {
-      localStorage.setItem('emailjs_service_id', credentials.serviceId);
-    } else {
-      localStorage.removeItem('emailjs_service_id');
-    }
-    
-    if (credentials.templateId) {
-      localStorage.setItem('emailjs_template_id', credentials.templateId);
-    } else {
-      localStorage.removeItem('emailjs_template_id');
-    }
-    
-    if (credentials.userId) {
-      localStorage.setItem('emailjs_user_id', credentials.userId);
-    } else {
-      localStorage.removeItem('emailjs_user_id');
-    }
+    localStorage.setItem('emailjs_service_id', credentials.serviceId);
+    localStorage.setItem('emailjs_template_id', credentials.templateId);
+    localStorage.setItem('emailjs_user_id', credentials.userId);
     
     toast.success('Backup email system configured successfully');
     setConfigOpen(false);
@@ -88,16 +80,24 @@ const EmailJSConfig: React.FC = () => {
       {configOpen && (
         <form onSubmit={handleSubmit} className="mt-3 space-y-3 p-3 border border-gray-200 rounded-md bg-gray-50">
           <div className="text-xs text-gray-600 mb-2">
-            Configure EmailJS as a fallback system for when Google Workspace isn't available.
-            This ensures email delivery even if Google services are interrupted.
-            <a 
-              href="https://www.emailjs.com/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline block mt-1"
-            >
-              Sign up for EmailJS (free tier available)
-            </a>
+            <div className="flex items-start mb-2">
+              <AlertCircle className="h-3 w-3 text-amber-500 mr-1 mt-0.5 flex-shrink-0" />
+              <p>Gmail API requires additional scopes for sending emails. Configure EmailJS as a reliable alternative.</p>
+            </div>
+            <ol className="list-decimal ml-4 space-y-1">
+              <li>
+                <a 
+                  href="https://www.emailjs.com/docs/tutorial/creating-email-template/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline inline-flex items-center"
+                >
+                  Create an EmailJS template <ExternalLink className="h-2.5 w-2.5 ml-0.5" />
+                </a>
+              </li>
+              <li>Use <code className="bg-gray-100 px-1">{"{{to_email}}"}</code>, <code className="bg-gray-100 px-1">{"{{subject}}"}</code>, and <code className="bg-gray-100 px-1">{"{{message_html}}"}</code> variables in your template</li>
+              <li>Enter your credentials below</li>
+            </ol>
           </div>
           
           <div className="space-y-1">

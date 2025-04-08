@@ -15,30 +15,14 @@ export const fallbackEmailSending = async (emailData: EmailData): Promise<boolea
     const userId = localStorage.getItem('emailjs_user_id');
 
     if (!serviceId || !templateId || !userId) {
-      // If no EmailJS credentials, just simulate email sending for development
-      console.log("Missing EmailJS credentials - simulating email send");
-      toast.loading("Email delivery simulation");
-      
-      // Log what would have been sent
-      console.log("Would send email:", {
-        to: emailData.to,
-        subject: emailData.subject,
-        isConfidential: emailData.isConfidential,
-        resumeUrl: emailData.resumeUrl
+      // If no EmailJS credentials, show error
+      console.error("EmailJS credentials not found");
+      toast.error("Backup email system not configured", {
+        description: "Please set up EmailJS credentials in the admin panel"
       });
-      
-      // Simulate a delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Show success notification
-      toast.success("Email delivery simulated", {
-        description: `Would be sent to ${emailData.to}`
-      });
-      
-      return true; // This is just a simulation, so return success
+      return false;
     }
     
-    // At this point we have EmailJS credentials, so let's try to send
     const sendingToast = toast.loading("Sending email via fallback system...");
     
     // Prepare HTML content based on confidentiality
@@ -47,7 +31,7 @@ export const fallbackEmailSending = async (emailData: EmailData): Promise<boolea
       : createStandardTemplate(emailData.resumeUrl);
     
     // Maximum retry attempts
-    const maxRetries = 3;
+    const maxRetries = 2;
     let attempt = 0;
     let success = false;
     let lastError;
@@ -60,7 +44,13 @@ export const fallbackEmailSending = async (emailData: EmailData): Promise<boolea
         // Import EmailJS dynamically to avoid bundling when not needed
         const emailjs = await import('emailjs-com');
         
-        // Send the email
+        console.log(`EmailJS attempt ${attempt} with credentials:`, {
+          serviceId,
+          templateId,
+          userId: userId.substring(0, 5) + '...' // Log partial ID for debugging
+        });
+        
+        // Send the email with specific template parameters
         const response = await emailjs.send(
           serviceId,
           templateId,
@@ -73,6 +63,8 @@ export const fallbackEmailSending = async (emailData: EmailData): Promise<boolea
           userId
         );
         
+        console.log("EmailJS response:", response);
+        
         if (response.status === 200) {
           success = true;
         } else {
@@ -84,7 +76,7 @@ export const fallbackEmailSending = async (emailData: EmailData): Promise<boolea
         
         // Only wait if we're going to retry
         if (attempt < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Brief delay before retry
         }
       }
     }
@@ -96,15 +88,15 @@ export const fallbackEmailSending = async (emailData: EmailData): Promise<boolea
       return true;
     } else {
       console.error("All EmailJS attempts failed:", lastError);
-      toast.error("Fallback email system failed after multiple attempts", {
-        description: "Please check your email configuration"
+      toast.error("Email delivery failed", {
+        description: "Please verify your EmailJS configuration"
       });
       return false;
     }
   } catch (error) {
     console.error("Critical error in fallback email sending:", error);
-    toast.error("Critical email system failure", {
-      description: "Please check your network connection and try again"
+    toast.error("Email system failure", {
+      description: "Please check your configuration and try again"
     });
     return false;
   }
