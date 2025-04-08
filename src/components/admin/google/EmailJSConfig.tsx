@@ -159,16 +159,16 @@ const EmailJSConfig: React.FC = () => {
                 </li>
                 <li className="font-semibold">Important: Your template MUST include these exact variables:</li>
                 <li className="ml-2 font-mono bg-white p-1 rounded border border-gray-200">
-                  {"{{to_email}}"} - Recipient email address
+                  {"\{\{to_email\}\}"} - Recipient email address
                 </li>
                 <li className="ml-2 font-mono bg-white p-1 rounded border border-gray-200">
-                  {"{{subject}}"} - Email subject line
+                  {"\{\{subject\}\}"} - Email subject line
                 </li>
                 <li className="ml-2 font-mono bg-white p-1 rounded border border-gray-200">
-                  {"{{message_html}}"} - Main email content
+                  {"\{\{message_html\}\}"} - Main email content
                 </li>
                 <li className="ml-2 font-mono bg-white p-1 rounded border border-gray-200">
-                  {"{{resume_url}}"} - Link to resume
+                  {"\{\{resume_url\}\}"} - Link to resume
                 </li>
                 <li>
                   <a 
