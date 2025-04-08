@@ -54,7 +54,16 @@ export const sendViaGmail = async (emailData: EmailData): Promise<boolean> => {
       
       // Provide specific error feedback 
       const errorMsg = String(error);
-      if (errorMsg.includes("The user does not have sufficient permissions")) {
+      
+      if (errorMsg.includes("insufficient authentication") || 
+          errorMsg.includes("scope") || 
+          errorMsg.includes("412") ||
+          errorMsg.includes("Gmail_API")) {
+        toast.error("Gmail permission error", {
+          description: "Your account doesn't have permission to send emails via Gmail"
+        });
+        console.error("Gmail insufficient permissions error:", errorMsg);
+      } else if (errorMsg.includes("The user does not have sufficient permissions")) {
         toast.error("Gmail permission error", {
           description: "Your Google account doesn't have permission to send emails"
         });

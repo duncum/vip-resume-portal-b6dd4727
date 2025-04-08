@@ -18,6 +18,12 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
   });
 
   try {
+    // Check if the fallback method is configured
+    const hasEmailJSFallback = 
+      localStorage.getItem('emailjs_service_id') && 
+      localStorage.getItem('emailjs_template_id') && 
+      localStorage.getItem('emailjs_user_id');
+    
     // First check if Google API is authorized
     const isAuthorizedPromise = isUserAuthorized().catch(err => {
       console.warn("Error checking authorization:", err);
@@ -36,18 +42,8 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
     try {
       // Check if Gmail API is already loaded
       if (!window.gapi.client.gmail) {
-        try {
-          // Try loading Gmail API with timeout protection
-          const loadGmailPromise = window.gapi.client.load('gmail', 'v1');
-          await Promise.race([
-            loadGmailPromise,
-            new Promise((_, reject) => setTimeout(() => reject(new Error("Gmail API loading timed out")), 5000))
-          ]);
-          console.log("Gmail API loaded successfully");
-        } catch (error) {
-          console.warn("Could not load Gmail API, falling back:", error);
-          return fallbackEmailSending(emailData);
-        }
+        console.log("Gmail API not loaded, using fallback email sender");
+        return fallbackEmailSending(emailData);
       }
       
       // Gmail API is loaded, attempt to send email
@@ -65,6 +61,20 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
       
     } catch (error) {
       console.warn("Error in Gmail sending flow:", error);
+      
+      // Check for specific Gmail auth errors
+      const errorMessage = String(error);
+      if (errorMessage.includes("insufficient authentication scopes") || 
+          errorMessage.includes("Request had insufficient authentication") ||
+          errorMessage.includes("scope") ||
+          errorMessage.includes("412") ||
+          errorMessage.includes("Gmail_API")) {
+        console.error("Gmail permission error detected:", error);
+        toast.error("Gmail permission error", {
+          description: "Your Google account doesn't have the right permissions to send emails. Using backup method."
+        });
+      }
+      
       return fallbackEmailSending(emailData);
     }
   } catch (error) {
