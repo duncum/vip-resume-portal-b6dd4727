@@ -6,140 +6,78 @@ import { fallbackEmailSending } from './fallback';
 import { toast } from "sonner";
 
 /**
- * Send the email using Google Workspace API or fallback
+ * Send the email using Google Workspace API or fallback with enhanced reliability
  */
 export const sendEmailWithService = async (emailData: EmailData): Promise<boolean> => {
+  // Set up a timeout promise to ensure we don't hang forever
+  const timeoutPromise = new Promise<boolean>((resolve) => {
+    setTimeout(() => {
+      console.warn("Email sending operation timed out, trying fallback");
+      resolve(false);
+    }, 15000); // 15 seconds timeout
+  });
+
   try {
     // First check if Google API is authorized
-    const isAuthorized = await isUserAuthorized();
+    const isAuthorizedPromise = isUserAuthorized().catch(err => {
+      console.warn("Error checking authorization:", err);
+      return false;
+    });
+    
+    // Race the authorization check against the timeout
+    const isAuthorized = await Promise.race([isAuthorizedPromise, timeoutPromise]);
     
     if (!isAuthorized || !window.gapi?.client) {
-      console.log("Google API not authorized, using fallback email sender");
-      toast.warning("Google API not connected", {
-        description: "Using alternative email method. Connect Google API for better delivery."
-      });
+      console.log("Google API not available, using fallback email sender");
       return fallbackEmailSending(emailData);
     }
 
-    // Check if Gmail API is loaded
-    if (!window.gapi.client.gmail) {
-      try {
-        // Try loading Gmail API
-        console.log("Attempting to load Gmail API...");
-        await window.gapi.client.load('gmail', 'v1');
-        console.log("Gmail API loaded successfully");
-      } catch (error) {
-        console.error("Failed to load Gmail API:", error);
-        
-        // Check for specific Gmail API errors
-        const errorMsg = String(error);
-        
-        // Handle API key authentication error (Gmail requires OAuth)
-        if (errorMsg.includes('API_KEY_SERVICE_BLOCKED') || 
-            errorMsg.includes('PERMISSION_DENIED')) {
-          console.warn("Gmail requires OAuth authentication with proper scopes");
-          toast.warning("Gmail API requires OAuth authentication", {
-            description: "Please ensure Gmail API is enabled in your Google Cloud Console"
-          });
+    // Try to use Gmail if available
+    try {
+      // Check if Gmail API is already loaded
+      if (!window.gapi.client.gmail) {
+        try {
+          // Try loading Gmail API with timeout protection
+          const loadGmailPromise = window.gapi.client.load('gmail', 'v1');
+          await Promise.race([
+            loadGmailPromise,
+            new Promise((_, reject) => setTimeout(() => reject(new Error("Gmail API loading timed out")), 5000))
+          ]);
+          console.log("Gmail API loaded successfully");
+        } catch (error) {
+          console.warn("Could not load Gmail API, falling back:", error);
           return fallbackEmailSending(emailData);
         }
-        
-        return fallbackEmailSending(emailData);
-      }
-    }
-    
-    // Verify we have the correct OAuth scope for Gmail
-    try {
-      // Safe check if we can access Gmail API messages endpoint
-      if (!window.gapi.client.gmail?.users?.messages) {
-        console.warn("Gmail API messages endpoint not available");
-        return fallbackEmailSending(emailData);
       }
       
-      // Create a simple test email
-      const testEmail = createTestEmail();
+      // Gmail API is loaded, attempt to send email
+      // But wrap in a timeout to prevent hanging
+      const sendGmailPromise = sendViaGmail(emailData);
+      const gmailResult = await Promise.race([sendGmailPromise, timeoutPromise]);
       
-      // Check if drafts endpoint exists before trying to use it
-      if (window.gapi.client.gmail.users.drafts) {
-        try {
-          // This will throw an error if scope is missing
-          await window.gapi.client.gmail.users.drafts.create({
-            userId: 'me',
-            resource: {
-              message: {
-                raw: testEmail
-              }
-            }
-          });
-          // If we reach here without error, we have the correct scope
-        } catch (draftError) {
-          console.warn("Could not create draft, might not have proper permissions:", draftError);
-          throw draftError; // Propagate error to outer catch block
-        }
-      } else {
-        console.warn("Gmail API drafts endpoint not available, skipping scope test");
+      if (gmailResult === true) {
+        return true; // Successfully sent via Gmail
       }
+      
+      // If we got here, either sendViaGmail returned false or the timeout was triggered
+      console.log("Gmail API failed or timed out, using fallback");
+      return fallbackEmailSending(emailData);
+      
     } catch (error) {
-      console.error("Gmail scope verification error:", error);
-      const errorMsg = String(error);
-      
-      if (errorMsg.includes('insufficient permission') || 
-          errorMsg.includes('scope') || 
-          errorMsg.includes('permission')) {
-        toast.warning("Gmail requires the gmail.send OAuth scope", {
-          description: "Please check your OAuth consent screen configuration"
-        });
-        return fallbackEmailSending(emailData);
-      }
-    }
-    
-    // Attempt to send via Gmail API
-    try {
-      const success = await sendViaGmail(emailData);
-      if (success) {
-        return true;
-      } else {
-        console.log("Gmail API sending failed, using fallback");
-        return fallbackEmailSending(emailData);
-      }
-    } catch (error) {
-      console.error("Error sending email via Gmail API:", error);
-      
-      // Check for specific Gmail API errors
-      const errorMsg = String(error);
-      if (errorMsg.includes('Permission denied') || 
-          errorMsg.includes('insufficient permission') ||
-          errorMsg.includes('not authorized')) {
-        toast.warning("Gmail requires specific OAuth permissions", {
-          description: "Make sure Gmail API is enabled in Google Cloud Console"
-        });
-      }
-      
+      console.warn("Error in Gmail sending flow:", error);
       return fallbackEmailSending(emailData);
     }
   } catch (error) {
-    console.error("Error in email service:", error);
-    return fallbackEmailSending(emailData);
+    console.error("Critical error in email service:", error);
+    // Even if we encounter a critical error, try the fallback as a last resort
+    try {
+      return fallbackEmailSending(emailData);
+    } catch (finalError) {
+      console.error("Both primary and fallback email systems failed:", finalError);
+      toast.error("All email systems failed", {
+        description: "Please check your configuration and try again later"
+      });
+      return false;
+    }
   }
 };
-
-/**
- * Create a minimal test email for scope testing
- */
-function createTestEmail(): string {
-  // Create simple email headers with a test subject
-  const headers = [
-    'Subject: SCOPE_TEST',
-    'MIME-Version: 1.0',
-    'Content-Type: text/plain; charset=utf-8'
-  ];
-  
-  // Create minimal email content
-  const email = headers.join('\r\n') + '\r\n\r\n' + 'This is a scope test.';
-  
-  // Encode as base64
-  return btoa(unescape(encodeURIComponent(email)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-}

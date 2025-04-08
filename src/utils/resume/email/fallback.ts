@@ -4,7 +4,8 @@ import { createEmail, createConfidentialTemplate, createStandardTemplate } from 
 import { toast } from "sonner";
 
 /**
- * EmailJS sender (fallback when Gmail API is unavailable)
+ * Enhanced EmailJS sender (fallback when Gmail API is unavailable)
+ * With added retry logic and error handling
  */
 export const fallbackEmailSending = async (emailData: EmailData): Promise<boolean> => {
   try {
@@ -38,41 +39,72 @@ export const fallbackEmailSending = async (emailData: EmailData): Promise<boolea
     }
     
     // At this point we have EmailJS credentials, so let's try to send
-    const sendingToast = toast.loading("Sending email via EmailJS...");
+    const sendingToast = toast.loading("Sending email via fallback system...");
     
     // Prepare HTML content based on confidentiality
     const htmlContent = emailData.isConfidential
       ? createConfidentialTemplate(emailData.resumeUrl)
       : createStandardTemplate(emailData.resumeUrl);
     
-    // Import EmailJS dynamically to avoid bundling when not needed
-    const emailjs = await import('emailjs-com');
+    // Maximum retry attempts
+    const maxRetries = 3;
+    let attempt = 0;
+    let success = false;
+    let lastError;
     
-    // Send the email
-    const response = await emailjs.send(
-      serviceId,
-      templateId,
-      {
-        to_email: emailData.to,
-        subject: emailData.subject,
-        message_html: htmlContent,
-        resume_url: emailData.resumeUrl
-      },
-      userId
-    );
+    // Try to send with retries
+    while (attempt < maxRetries && !success) {
+      attempt++;
+      
+      try {
+        // Import EmailJS dynamically to avoid bundling when not needed
+        const emailjs = await import('emailjs-com');
+        
+        // Send the email
+        const response = await emailjs.send(
+          serviceId,
+          templateId,
+          {
+            to_email: emailData.to,
+            subject: emailData.subject,
+            message_html: htmlContent,
+            resume_url: emailData.resumeUrl
+          },
+          userId
+        );
+        
+        if (response.status === 200) {
+          success = true;
+        } else {
+          throw new Error(`EmailJS returned status ${response.status}`);
+        }
+      } catch (error) {
+        lastError = error;
+        console.warn(`EmailJS attempt ${attempt} failed:`, error);
+        
+        // Only wait if we're going to retry
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+        }
+      }
+    }
     
     toast.dismiss(sendingToast);
     
-    if (response.status === 200) {
-      toast.success("Email sent successfully via EmailJS");
+    if (success) {
+      toast.success("Email sent successfully via fallback system");
       return true;
     } else {
-      throw new Error(`EmailJS returned status ${response.status}`);
+      console.error("All EmailJS attempts failed:", lastError);
+      toast.error("Fallback email system failed after multiple attempts", {
+        description: "Please check your email configuration"
+      });
+      return false;
     }
   } catch (error) {
-    console.error("Error in fallback email sending:", error);
-    toast.error("Failed to send email via fallback system", {
-      description: "Please check your email configuration"
+    console.error("Critical error in fallback email sending:", error);
+    toast.error("Critical email system failure", {
+      description: "Please check your network connection and try again"
     });
     return false;
   }

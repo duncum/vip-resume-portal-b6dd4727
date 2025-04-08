@@ -46,9 +46,9 @@ export const createStandardTemplate = (resumeUrl: string): string => {
 export const createEmail = (options: { to: string; subject: string; html: string }): string => {
   const { to, subject, html } = options;
   
-  // Create email headers with specific from address
+  // Create email headers with generic from address
   const headers = [
-    `From: Confidential Resume <confidential@example.com>`,
+    `From: Resume Service <resume-service@example.com>`,
     `To: ${to}`,
     `Subject: ${subject}`,
     'Content-Type: text/html; charset=utf-8',

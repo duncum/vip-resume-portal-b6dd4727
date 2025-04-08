@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail } from 'lucide-react';
+import { Mail, CheckCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const EmailJSConfig: React.FC = () => {
@@ -51,7 +51,7 @@ const EmailJSConfig: React.FC = () => {
       localStorage.removeItem('emailjs_user_id');
     }
     
-    toast.success('EmailJS configuration saved successfully');
+    toast.success('Backup email system configured successfully');
     setConfigOpen(false);
   };
   
@@ -64,29 +64,39 @@ const EmailJSConfig: React.FC = () => {
   return (
     <div className="mt-3">
       <div className="flex justify-between items-center">
-        <h3 className="text-xs font-medium text-gray-900">Fallback Email Service</h3>
+        <h3 className="text-xs font-medium text-gray-900">Backup Email System</h3>
         <Button
           size="sm"
-          variant="outline"
+          variant={isConfigured ? "outline" : "secondary"}
           onClick={() => setConfigOpen(!configOpen)}
-          className="text-xs h-6"
+          className={`text-xs h-6 ${isConfigured ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' : ''}`}
         >
-          <Mail className="h-3 w-3 mr-1" />
-          {isConfigured ? "Edit EmailJS" : "Setup EmailJS"}
+          {isConfigured ? (
+            <>
+              <CheckCircle className="h-3 w-3 mr-1" />
+              EmailJS Ready
+            </>
+          ) : (
+            <>
+              <AlertCircle className="h-3 w-3 mr-1" />
+              Setup Backup
+            </>
+          )}
         </Button>
       </div>
       
       {configOpen && (
         <form onSubmit={handleSubmit} className="mt-3 space-y-3 p-3 border border-gray-200 rounded-md bg-gray-50">
           <div className="text-xs text-gray-600 mb-2">
-            Configure EmailJS as a fallback when Google Workspace isn't available.
+            Configure EmailJS as a fallback system for when Google Workspace isn't available.
+            This ensures email delivery even if Google services are interrupted.
             <a 
               href="https://www.emailjs.com/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline block mt-1"
             >
-              Sign up for EmailJS
+              Sign up for EmailJS (free tier available)
             </a>
           </div>
           

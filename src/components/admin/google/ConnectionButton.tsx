@@ -44,15 +44,15 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
         variant="outline" 
         onClick={onSignOut} 
         disabled={isLoading}
-        className="text-xs px-2 py-1 h-7 whitespace-nowrap text-gray-900 bg-white hover:bg-gray-100"
+        className="text-xs px-2 py-1 h-7 whitespace-nowrap text-green-700 bg-green-50 hover:bg-green-100 border-green-200"
       >
         {isLoading ? (
           <>
             <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-            Disconnecting...
+            Working...
           </>
         ) : (
-          "Disconnect"
+          "Connected"
         )}
       </Button>
     );
