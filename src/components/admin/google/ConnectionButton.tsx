@@ -29,7 +29,7 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
         size="sm" 
         variant="outline" 
         onClick={onShowCredentials}
-        className="text-xs px-2 py-1 h-7 whitespace-nowrap"
+        className="text-xs px-2 py-1 h-7 whitespace-nowrap text-gray-900 bg-white"
       >
         API Settings
       </Button>
@@ -43,7 +43,7 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
         variant="outline" 
         onClick={onSignOut} 
         disabled={isLoading}
-        className="text-xs px-2 py-1 h-7 whitespace-nowrap"
+        className="text-xs px-2 py-1 h-7 whitespace-nowrap text-gray-900 bg-white"
       >
         {isLoading ? (
           <>

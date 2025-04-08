@@ -86,14 +86,14 @@ const GoogleIntegrationStatus = () => {
 
   return (
     <Card className="border-dashed shadow-sm">
-      <CardHeader className="py-2 px-4">
-        <CardTitle className="text-sm flex items-center">
+      <CardHeader className="py-2 px-4 bg-gray-50">
+        <CardTitle className="text-sm flex items-center text-gray-900">
           <GoogleIcon className="h-3 w-3 mr-1" />
           Google API Connection
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="p-3">
+      <CardContent className="p-3 bg-white">
         <StatusDisplay 
           isLoading={status.isLoading}
           missingCredentials={missingCredentials}
@@ -108,24 +108,24 @@ const GoogleIntegrationStatus = () => {
         {!status.isAuthorized && missingCredentials.apiKey && (
           <form onSubmit={handleQuickApiKeySubmit} className="mt-3 p-2 bg-gray-50 rounded-md space-y-2">
             <div className="space-y-1">
-              <label className="text-xs">Google API Key:</label>
+              <label className="text-xs text-gray-900 font-medium">Google API Key:</label>
               <Input 
                 name="apiKey" 
                 placeholder="Enter your Google API Key" 
-                className="h-7 text-xs" 
+                className="h-7 text-xs text-gray-900" 
                 required
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs">Spreadsheet ID:</label>
+              <label className="text-xs text-gray-900 font-medium">Spreadsheet ID:</label>
               <Input 
                 name="spreadsheetId" 
                 placeholder="Your Google Sheet ID" 
-                className="h-7 text-xs"
+                className="h-7 text-xs text-gray-900"
                 defaultValue={currentSpreadsheetId !== "1RICk5q_nQr8JHKvlYi-1tdlVwzM57UGbRdDNOdMwOFk" ? currentSpreadsheetId : ""}
               />
               {currentSpreadsheetId && (
-                <p className="text-[10px] text-gray-500 mt-1">
+                <p className="text-[10px] text-gray-700 mt-1">
                   Current ID: {currentSpreadsheetId.substring(0, 15)}...
                 </p>
               )}

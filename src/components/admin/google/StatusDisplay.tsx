@@ -31,7 +31,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   
   if (isLoading) {
     return (
-      <div className="flex items-center space-x-2 text-xs text-slate-600">
+      <div className="flex items-center space-x-2 text-xs text-gray-800">
         <Loader2 className="h-3 w-3 animate-spin" />
         <span>Checking connection status...</span>
       </div>
@@ -41,11 +41,11 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   if (anyCredentialsMissing) {
     return (
       <div className="text-xs">
-        <div className="flex items-center space-x-2 text-amber-600">
+        <div className="flex items-center space-x-2 text-amber-600 font-semibold">
           <AlertTriangle className="h-3 w-3" />
-          <span className="font-medium">Credentials Required</span>
+          <span>Credentials Required</span>
         </div>
-        <p className="mt-1 text-slate-600 text-xs">
+        <p className="mt-1 text-gray-800 text-xs">
           API Key {missingCredentials.apiKey ? 
             <Badge variant="outline" className="text-[10px] h-4 bg-red-50 border-red-200 text-red-600">Missing</Badge> : 
             <Badge variant="outline" className="text-[10px] h-4 bg-green-50 border-green-200 text-green-600">Set</Badge>}
@@ -83,11 +83,11 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   if (error) {
     return (
       <div className="text-xs">
-        <div className="flex items-center space-x-2 text-red-600">
+        <div className="flex items-center space-x-2 text-red-600 font-semibold">
           <XCircle className="h-3 w-3" />
-          <span className="font-medium">Connection Error</span>
+          <span>Connection Error</span>
         </div>
-        <p className="mt-1 text-slate-600 text-xs">{error}</p>
+        <p className="mt-1 text-gray-800 text-xs">{error}</p>
       </div>
     );
   }
@@ -95,14 +95,14 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   if (isAuthorized) {
     return (
       <div className="text-xs">
-        <div className="flex items-center space-x-2 text-green-600">
+        <div className="flex items-center space-x-2 text-green-600 font-semibold">
           <CheckCircle className="h-3 w-3" />
-          <span className="font-medium">Connected</span>
+          <span>Connected</span>
         </div>
         {userEmail ? (
-          <p className="mt-1 text-slate-600 text-xs">Signed in as <span className="font-medium">{userEmail}</span></p>
+          <p className="mt-1 text-gray-800 text-xs">Signed in as <span className="font-medium">{userEmail}</span></p>
         ) : (
-          <p className="mt-1 text-slate-600 text-xs">
+          <p className="mt-1 text-gray-800 text-xs">
             {clientIdPresent ? 'Connected with full access' : 'Connected with read-only access'}
           </p>
         )}
@@ -112,11 +112,11 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
   
   return (
     <div className="text-xs">
-      <div className="flex items-center space-x-2 text-slate-600">
+      <div className="flex items-center space-x-2 text-gray-800 font-semibold">
         <XCircle className="h-3 w-3" />
-        <span className="font-medium">Not Connected</span>
+        <span>Not Connected</span>
       </div>
-      <p className="mt-1 text-slate-600 text-xs">
+      <p className="mt-1 text-gray-800 text-xs">
         Sign in to access Google Sheets data
       </p>
     </div>

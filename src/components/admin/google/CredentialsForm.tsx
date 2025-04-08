@@ -53,7 +53,7 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
       </div>
       
       <div className="space-y-1">
-        <Label htmlFor="clientId" className="text-xs">
+        <Label htmlFor="clientId" className="text-xs text-gray-900">
           OAuth Client ID
         </Label>
         <Input 
@@ -61,15 +61,15 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
           placeholder="Your Google OAuth Client ID" 
           value={credentials.clientId}
           onChange={(e) => setCredentials({...credentials, clientId: e.target.value})}
-          className="text-xs h-8"
+          className="text-xs h-8 text-gray-900"
         />
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-gray-700 mt-1">
           Required for OAuth authentication (Gmail, full Sheets access).
         </p>
       </div>
       
       <div className="space-y-1">
-        <Label htmlFor="apiKey" className="text-xs">
+        <Label htmlFor="apiKey" className="text-xs text-gray-900">
           API Key <span className="text-red-500">*</span>
         </Label>
         <Input 
@@ -77,16 +77,16 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
           placeholder="Your Google API Key" 
           value={credentials.apiKey}
           onChange={(e) => setCredentials({...credentials, apiKey: e.target.value})}
-          className="text-xs h-8"
+          className="text-xs h-8 text-gray-900"
           required
         />
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-gray-700 mt-1">
           Required for all Google Sheet operations. Enable the Google Sheets API in Google Cloud Console.
         </p>
       </div>
       
       <div className="space-y-1">
-        <Label htmlFor="spreadsheetId" className="text-xs">
+        <Label htmlFor="spreadsheetId" className="text-xs text-gray-900">
           Spreadsheet ID <span className="text-red-500">*</span>
         </Label>
         <Input 
@@ -94,10 +94,10 @@ const CredentialsForm: React.FC<CredentialsFormProps> = ({
           placeholder="Your Google Spreadsheet ID" 
           value={credentials.spreadsheetId}
           onChange={(e) => setCredentials({...credentials, spreadsheetId: e.target.value})}
-          className="text-xs h-8"
+          className="text-xs h-8 text-gray-900"
           required
         />
-        <p className="text-xs text-slate-500 mt-1">
+        <p className="text-xs text-gray-700 mt-1">
           Found in your Google Sheet URL: docs.google.com/spreadsheets/d/<span className="font-bold">spreadsheet-id</span>/edit
         </p>
       </div>
