@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import GoogleIcon from './GoogleIcon';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Key } from 'lucide-react';
 
 type ConnectionButtonProps = {
   missingCredentials: {
@@ -37,6 +37,9 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
     );
   }
   
+  // Check if we're in API key only mode (no client ID)
+  const isApiKeyOnly = missingCredentials.clientId;
+  
   if (isAuthorized) {
     return (
       <Button 
@@ -52,7 +55,10 @@ const ConnectionButton: React.FC<ConnectionButtonProps> = ({
             Working...
           </>
         ) : (
-          "Connected"
+          <>
+            {isApiKeyOnly && <Key className="h-3 w-3 mr-1" />}
+            {isApiKeyOnly ? "API Connected" : "Connected"}
+          </>
         )}
       </Button>
     );
