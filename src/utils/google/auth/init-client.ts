@@ -29,8 +29,9 @@ export const initializeClient = async (): Promise<boolean> => {
           return;
         }
         
-        // Always use API key only mode
-        console.log("Using API key only mode permanently");
+        // Always use API key only mode - this is what's available in 
+        // the standard version of the app
+        console.log("Using API key only mode");
         
         // Create API configuration
         const initConfig = createApiConfig(apiKey);
@@ -42,10 +43,11 @@ export const initializeClient = async (): Promise<boolean> => {
           return;
         }
         
-        // Explicitly load the Sheets API with retries
+        // Explicitly load the Sheets API with retries - this is the core API we need
         let sheetsLoaded = await loadSheetsApi();
         
-        // Try to load Gmail API if available
+        // Try to load Gmail API if available, but don't consider it a failure if it doesn't load
+        // Note: In API key only mode, this will always return false
         await loadGmailApi();
         
         if (!sheetsLoaded) {

@@ -103,7 +103,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({
           <p className="mt-1 text-gray-800 text-xs">Signed in as <span className="font-medium">{userEmail}</span></p>
         ) : (
           <p className="mt-1 text-gray-800 text-xs">
-            {clientIdPresent ? 'Connected with full access' : 'Connected with read-only access'}
+            {clientIdPresent ? 'Connected with full access' : 'Connected with read-only access (email uses backup)'}
           </p>
         )}
       </div>

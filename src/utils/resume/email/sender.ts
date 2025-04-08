@@ -1,4 +1,3 @@
-
 import { isUserAuthorized } from "@/utils/google";
 import { EmailData } from './types';
 import { sendViaGmail } from './gmail';
@@ -24,7 +23,15 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
       localStorage.getItem('emailjs_template_id') && 
       localStorage.getItem('emailjs_user_id');
     
-    // First check if Google API is authorized
+    // If EmailJS is configured and we're in API key only mode (no client ID),
+    // just use the fallback method directly without trying Gmail
+    const clientId = localStorage.getItem('google_client_id');
+    if (hasEmailJSFallback && !clientId) {
+      console.log("API key only mode with EmailJS configured - using fallback directly");
+      return fallbackEmailSending(emailData);
+    }
+    
+    // Otherwise try OAuth method if authorized
     const isAuthorizedPromise = isUserAuthorized().catch(err => {
       console.warn("Error checking authorization:", err);
       return false;

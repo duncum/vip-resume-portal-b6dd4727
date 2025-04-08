@@ -31,16 +31,25 @@ export async function loadSheetsApi(): Promise<boolean> {
 }
 
 /**
- * Load Gmail API
+ * Load Gmail API - gracefully handle permission errors
+ * The API key-only approach doesn't have sufficient permissions for Gmail
  */
 export async function loadGmailApi(): Promise<boolean> {
   try {
+    // Check if we're in API key only mode
+    const clientId = localStorage.getItem('google_client_id');
+    if (!clientId) {
+      console.log("API key only mode - skipping Gmail API loading (requires OAuth)");
+      return false;
+    }
+    
     console.log("Loading Gmail API...");
     await window.gapi.client.load('gmail', 'v1');
     console.log("Gmail API loaded successfully");
     return true;
   } catch (gmailError) {
-    console.warn("Gmail API not loaded, email sending may use fallback:", gmailError);
+    // Don't show errors about Gmail API when it's expected to fail
+    console.warn("Gmail API not loaded, email sending will use fallback:", gmailError);
     return false;
   }
 }
