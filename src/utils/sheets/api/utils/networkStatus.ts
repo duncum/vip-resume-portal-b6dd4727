@@ -26,7 +26,7 @@ export const handleOfflineState = (): boolean => {
       duration: 3000
     });
   } else {
-    toast.warning("You're offline. Using demo data until connection is restored.", {
+    toast.error("You're offline. No cached data is available.", {
       duration: 4000
     });
   }
