@@ -11,12 +11,25 @@ import { getIsGapiInitialized } from '../../google/auth/initialize';
 let consecutiveFailures = 0;
 const MAX_FAILURES_BEFORE_RESET = 3;
 
+// Track last attempt time for rate limiting
+let lastAttemptTime = 0;
+const MIN_ATTEMPT_INTERVAL = 2000; // 2 seconds
+
 /**
  * Fetch all candidates from Google Sheets API
  */
 export const fetchCandidates = async (): Promise<Candidate[]> => {
   // Check if we have proper authorization
   console.log("Starting fetchCandidates...");
+  
+  // Rate limit requests to prevent API abuse
+  const now = Date.now();
+  if (now - lastAttemptTime < MIN_ATTEMPT_INTERVAL) {
+    console.log(`Request too frequent, throttling. Last attempt was ${now - lastAttemptTime}ms ago`);
+    // Don't increment failures for throttled requests
+    return mockCandidates;
+  }
+  lastAttemptTime = now;
   
   // Log critical configuration values
   const apiKey = localStorage.getItem('google_api_key');
@@ -34,6 +47,12 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
     consecutiveFailures = 0;
   }
   
+  // Clear previous authorization state if API is not available
+  if (!window.gapi?.client?.sheets && getIsGapiInitialized()) {
+    console.log("API was marked as initialized but Sheets API is unavailable - resetting state");
+    resetAuthState();
+  }
+  
   const isAuthorized = await ensureAuthorization();
   console.log("Authorization check result:", isAuthorized);
   
@@ -49,7 +68,7 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
     }
     
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 300));
     return mockCandidates;
   }
   
@@ -116,7 +135,7 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
       range: CANDIDATES_RANGE
     });
     
-    console.log("Response received from Google Sheets:", response);
+    console.log("Response received from Google Sheets");
     const rows = response.result.values;
     
     if (!rows || rows.length === 0) {
@@ -129,18 +148,32 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
     
     // Convert rows to candidate objects
     console.log(`Found ${rows.length} candidates in the sheet`);
-    const candidates = rows.map(rowToCandidate);
+    const candidates = rows.map(row => {
+      try {
+        return rowToCandidate(row);
+      } catch (error) {
+        console.error("Error parsing row:", row, error);
+        // Return a minimal valid candidate to prevent crashes
+        return {
+          id: "error",
+          headline: "Error parsing data",
+          sectors: [],
+          tags: [],
+          category: "Error"
+        } as Candidate;
+      }
+    });
+    
+    // Filter out error entries
+    const validCandidates = candidates.filter(c => c.id !== "error");
     
     // Reset failure counter on success
     consecutiveFailures = 0;
     
-    // Clear any error messages now that we've successfully loaded data
-    const errorAlert = document.querySelector('.alert.variant-destructive');
-    if (errorAlert) {
-      errorAlert.remove();
-    }
+    // Log success
+    console.log(`Successfully converted ${validCandidates.length} candidates from ${rows.length} rows`);
     
-    return candidates;
+    return validCandidates;
   } catch (error: any) {
     console.error("Error fetching candidates from Google Sheets:", error);
     console.log("Error details:", JSON.stringify(error, null, 2));

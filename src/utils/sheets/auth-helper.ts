@@ -2,12 +2,13 @@
 // Helper functions for managing Google authentication for Sheets API
 import { signInToGoogle } from '../google';
 import { toast } from 'sonner';
-import { getIsGapiInitialized } from '../google/auth/initialize';
+import { getIsGapiInitialized, setGapiInitialized } from '../google/auth/initialize';
 
 // Track failed attempts to avoid infinite retry loops
 let failedAttempts = 0;
 const MAX_RETRIES = 3;
 let lastAttemptTime = 0;
+const MIN_ATTEMPT_INTERVAL = 2000; // 2 seconds
 
 /**
  * Ensure API is initialized for accessing Google Sheets
@@ -16,6 +17,15 @@ let lastAttemptTime = 0;
 export const ensureAuthorization = async (): Promise<boolean> => {
   try {
     console.log("Checking authorization status...");
+    
+    // Rate limit authorization attempts
+    const now = Date.now();
+    if (now - lastAttemptTime < MIN_ATTEMPT_INTERVAL) {
+      console.log(`Authorization attempt too frequent, throttling. Last attempt was ${now - lastAttemptTime}ms ago`);
+      // If we think we're initialized, tentatively return true
+      return getIsGapiInitialized();
+    }
+    lastAttemptTime = now;
     
     // Check if we have an API key
     const apiKey = localStorage.getItem('google_api_key');
@@ -29,22 +39,26 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     
     console.log("API key found, proceeding to check Google Sheets API initialization");
 
-    // Check if API is already initialized properly
+    // Check if API is already initialized properly and Sheets API is available
     if (window.gapi?.client?.sheets && getIsGapiInitialized()) {
       console.log("Google Sheets API already initialized");
       // Reset failure counter on success
       failedAttempts = 0;
       return true;
     }
+    
+    // If we think we're initialized but Sheets API is not available,
+    // update our state to match reality
+    if (getIsGapiInitialized() && !window.gapi?.client?.sheets) {
+      console.log("State says initialized but Sheets API is not available - correcting state");
+      setGapiInitialized(false);
+    }
 
     // Rate limit retries to prevent excessive API calls
-    const now = Date.now();
     if (failedAttempts >= MAX_RETRIES && (now - lastAttemptTime) < 60000) {
       console.log(`Too many failed attempts (${failedAttempts}). Waiting before retrying.`);
       return false;
     }
-    
-    lastAttemptTime = now;
     
     // Use signInToGoogle which will handle initialization
     const isInitialized = await signInToGoogle();
@@ -150,5 +164,6 @@ export const resetAuthState = (): void => {
   // Clear saved initialization state
   if (typeof window !== 'undefined') {
     localStorage.setItem('gapi_initialized', 'false');
+    setGapiInitialized(false);
   }
 };

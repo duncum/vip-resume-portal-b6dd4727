@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CandidateSearch from "@/components/candidates/CandidateSearch";
@@ -15,6 +15,7 @@ const Index = () => {
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [usedMockData, setUsedMockData] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const isMobile = useIsMobile();
@@ -32,7 +33,7 @@ const Index = () => {
   ];
 
   // Function to load candidates with retry logic
-  const loadCandidates = async (retry = false) => {
+  const loadCandidates = useCallback(async (retry = false) => {
     try {
       if (!retry) {
         setIsLoading(true);
@@ -52,7 +53,9 @@ const Index = () => {
       // Fetch data from API
       const data = await fetchCandidates();
       setCandidates(data);
-      setFilteredCandidates(data);
+      
+      // Apply any existing filters
+      applyFilters(data, searchQuery, activeCategory);
       
       // Detect if we're using mock data by checking candidate IDs 
       // (all mock data has predefined IDs 1-7)
@@ -101,7 +104,57 @@ const Index = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery, activeCategory]);
+
+  // Apply filters to candidate data
+  const applyFilters = useCallback((data: Candidate[], query: string, category: string) => {
+    console.log(`Filtering with query: "${query}", category: "${category}"`);
+    console.log(`Data to filter: ${data.length} candidates`);
+    
+    let filtered = [...data];
+    
+    // Apply text search if query exists
+    if (query) {
+      const lowerQuery = query.toLowerCase();
+      filtered = filtered.filter(
+        (candidate) => {
+          // For debugging: check what's being matched in console
+          const matchesHeadline = candidate.headline?.toLowerCase().includes(lowerQuery);
+          const matchesSectors = candidate.sectors?.some((sector) => sector.toLowerCase().includes(lowerQuery));
+          const matchesTags = candidate.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery));
+          const matchesTitle = (candidate.title || "").toLowerCase().includes(lowerQuery);
+          const matchesSummary = (candidate.summary || "").toLowerCase().includes(lowerQuery);
+          const matchesLocation = (candidate.location || "").toLowerCase().includes(lowerQuery);
+          const matchesEmployers = (candidate.notableEmployers || "").toLowerCase().includes(lowerQuery);
+          const matchesResume = (candidate.resumeText || "").toLowerCase().includes(lowerQuery);
+          
+          const matches = matchesHeadline || matchesSectors || matchesTags || matchesTitle || 
+                         matchesSummary || matchesLocation || matchesEmployers || matchesResume;
+          
+          if (matches) {
+            console.log(`Search match found for candidate ${candidate.id}: ${candidate.headline}`);
+          }
+          
+          return matches;
+        }
+      );
+    }
+    
+    // Apply category filter if not "All"
+    if (category !== "All") {
+      console.log(`Filtering by category: ${category}`);
+      filtered = filtered.filter((candidate) => {
+        const matches = candidate.category === category;
+        if (matches) {
+          console.log(`Category match found for candidate ${candidate.id}: ${candidate.category}`);
+        }
+        return matches;
+      });
+    }
+    
+    console.log(`Filter results: ${filtered.length} candidates`);
+    setFilteredCandidates(filtered);
+  }, []);
 
   // Initial load and window focus event to refresh data
   useEffect(() => {
@@ -123,51 +176,21 @@ const Index = () => {
     return () => {
       window.removeEventListener('focus', handleFocus);
     };
-  }, [usedMockData]);
+  }, [loadCandidates, usedMockData]);
+
+  // When search or category changes, apply filters
+  useEffect(() => {
+    applyFilters(candidates, searchQuery, activeCategory);
+  }, [candidates, searchQuery, activeCategory, applyFilters]);
 
   const handleSearch = (query: string) => {
-    if (!query && activeCategory === "All") {
-      setFilteredCandidates(candidates);
-      return;
-    }
-
-    let filtered = candidates;
-
-    // Apply text search if query exists
-    if (query) {
-      const lowerQuery = query.toLowerCase();
-      filtered = filtered.filter(
-        (candidate) =>
-          candidate.headline.toLowerCase().includes(lowerQuery) ||
-          candidate.sectors.some((sector) => sector.toLowerCase().includes(lowerQuery)) ||
-          candidate.tags.some((tag) => tag.toLowerCase().includes(lowerQuery)) ||
-          (candidate.title || "").toLowerCase().includes(lowerQuery) ||
-          (candidate.summary || "").toLowerCase().includes(lowerQuery) ||
-          (candidate.location || "").toLowerCase().includes(lowerQuery) ||
-          (candidate.notableEmployers || "").toLowerCase().includes(lowerQuery) ||
-          // Search in resume text if available
-          (candidate.resumeText || "").toLowerCase().includes(lowerQuery)
-      );
-    }
-    
-    // Apply category filter if not "All"
-    if (activeCategory !== "All") {
-      filtered = filtered.filter((candidate) => candidate.category === activeCategory);
-    }
-    
-    setFilteredCandidates(filtered);
+    console.log(`Search query changed to: "${query}"`);
+    setSearchQuery(query);
   };
 
   const handleCategoryChange = (category: string) => {
+    console.log(`Category changed to: "${category}"`);
     setActiveCategory(category);
-    
-    if (category === "All") {
-      setFilteredCandidates(candidates);
-      return;
-    }
-    
-    const filtered = candidates.filter((candidate) => candidate.category === category);
-    setFilteredCandidates(filtered);
   };
 
   return (

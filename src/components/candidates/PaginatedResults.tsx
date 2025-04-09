@@ -1,70 +1,90 @@
 
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginatedResultsProps<T> {
   items: T[];
   itemsPerPage: number;
-  renderItems: (items: T[]) => React.ReactNode;
+  renderItems: (currentItems: T[]) => React.ReactNode;
 }
 
-const PaginatedResults = <T,>({ 
-  items, 
-  itemsPerPage, 
-  renderItems 
+const PaginatedResults = <T extends {id?: string | number}>({
+  items,
+  itemsPerPage,
+  renderItems,
 }: PaginatedResultsProps<T>) => {
   const [currentPage, setCurrentPage] = useState(1);
   
-  const totalPages = Math.ceil(items.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
+  // Reset to page 1 when items change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [items]);
+
+  // Calculate total pages
+  const totalPages = Math.max(1, Math.ceil(items.length / itemsPerPage));
+  
+  // Ensure current page is within valid range
+  const validPage = Math.min(Math.max(1, currentPage), totalPages);
+  if (validPage !== currentPage) {
+    setCurrentPage(validPage);
+  }
+
+  // Calculate pagination indexes
+  const indexOfLastItem = validPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
-  
-  const handlePrevPage = () => {
-    setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(Math.min(Math.max(1, pageNumber), totalPages));
+    // Scroll to top on page change for better UX
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  
-  const handleNextPage = () => {
-    setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-  
-  // If there's only 1 page, don't show pagination controls
-  if (totalPages <= 1) {
-    return <>{renderItems(currentItems)}</>;
-  }
-  
+
   return (
-    <div className="space-y-8">
+    <div>
       {renderItems(currentItems)}
       
-      <div className="flex justify-center items-center gap-6 pt-4">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handlePrevPage}
-          disabled={currentPage === 1}
-          className="h-9 w-9 border-grey-700"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        
-        <div className="text-sm text-grey-300">
-          {currentPage} / {totalPages}
+      {/* Only show pagination if we have multiple pages */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-8 gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="text-grey-400"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          
+          {/* Generate unique keys using page number */}
+          {Array.from({ length: totalPages }).map((_, index) => {
+            const pageNumber = index + 1;
+            return (
+              <Button
+                key={`page-${pageNumber}`}
+                variant={pageNumber === currentPage ? "default" : "outline"}
+                size="sm"
+                onClick={() => paginate(pageNumber)}
+                className={pageNumber === currentPage ? "bg-gold hover:bg-gold-dark" : ""}
+              >
+                {pageNumber}
+              </Button>
+            );
+          })}
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="text-grey-400"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
-        
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages}
-          className="h-9 w-9 border-grey-700"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </Button>
-      </div>
+      )}
     </div>
   );
 };
