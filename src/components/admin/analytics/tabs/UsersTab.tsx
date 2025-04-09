@@ -5,31 +5,35 @@ import { AnalyticsProps } from "../types";
 import MetricCard from "../components/MetricCard";
 import { EmptyState } from "../components/EmptyState";
 
-const UsersTab = ({ analyticsData, hasData }: AnalyticsProps) => {
+interface UsersTabProps {
+  analyticsData?: AnalyticsProps["analyticsData"];
+  hasData?: boolean;
+}
+
+const UsersTab = ({ analyticsData, hasData = false }: UsersTabProps) => {
   // Calculate average interactions per user
-  const avgInteractions = Math.round((analyticsData.totalViews || 0) / Math.max(1, analyticsData.userInteractions?.length || 1));
+  const avgInteractions = analyticsData 
+    ? Math.round((analyticsData.totalViews || 0) / Math.max(1, analyticsData.userInteractions?.length || 1))
+    : 0;
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <MetricCard 
-          value={analyticsData.userInteractions?.length || 0} 
-          label="Unique Users" 
-          color="text-indigo-600"
+          title="Unique Users" 
+          value={analyticsData?.userInteractions?.length || 0} 
         />
         <MetricCard 
-          value={analyticsData.totalViews || 0} 
-          label="Total Interactions" 
-          color="text-indigo-600"
+          title="Total Interactions" 
+          value={analyticsData?.totalViews || 0} 
         />
         <MetricCard 
+          title="Avg. Interactions/User" 
           value={avgInteractions} 
-          label="Avg. Interactions/User" 
-          color="text-indigo-600"
         />
       </div>
       
-      {hasData && analyticsData.userInteractions?.length > 0 ? (
+      {hasData && analyticsData?.userInteractions?.length ? (
         <>
           <h3 className="text-lg font-medium mb-3">User Activity</h3>
           <Table>

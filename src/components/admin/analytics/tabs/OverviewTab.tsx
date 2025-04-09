@@ -1,7 +1,7 @@
 
 import { Card } from "@/components/ui/card";
-import { ChartSection } from "../components/ChartSection";
-import { MetricCard } from "../components/MetricCard";
+import ChartSection from "../components/ChartSection";
+import MetricCard from "../components/MetricCard";
 import { EmptyState } from "../components/EmptyState";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Database, Eye, Users } from "lucide-react";

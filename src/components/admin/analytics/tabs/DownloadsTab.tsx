@@ -1,18 +1,17 @@
 
 import { Download } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChartContainer } from "@/components/ui/chart";
 import { Bar, BarChart, Tooltip, XAxis, YAxis } from "recharts";
 import MetricCard from "../components/MetricCard";
 import { EmptyState } from "../components/EmptyState";
 import ChartSection from "../components/ChartSection";
 
-interface DownloadsTabProps {
+export interface DownloadsTabProps {
   hasData: boolean;
   downloadsCount: number;
 }
 
-const DownloadsTab = ({ hasData, downloadsCount }: DownloadsTabProps) => {
+const DownloadsTab = ({ hasData = false, downloadsCount = 0 }: DownloadsTabProps) => {
   // Sample chart data for demonstration
   const downloadsChartData = [
     { name: 'Mon', downloads: 1 },
@@ -28,14 +27,12 @@ const DownloadsTab = ({ hasData, downloadsCount }: DownloadsTabProps) => {
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <MetricCard 
-          value={downloadsCount} 
-          label="Total Downloads" 
-          color="text-gold"
+          title="Total Downloads" 
+          value={downloadsCount}
         />
         <MetricCard 
+          title="Unique Downloaders" 
           value={0} 
-          label="Unique Downloaders" 
-          color="text-gold"
         />
       </div>
       
@@ -58,13 +55,14 @@ const DownloadsTab = ({ hasData, downloadsCount }: DownloadsTabProps) => {
             </TableBody>
           </Table>
           
-          <ChartSection 
-            title="Downloads Over Time"
-            chartData={downloadsChartData}
-            dataKey="downloads"
-            color="downloads"
-            colorValue="hsl(210, 75%, 60%)"
-          />
+          <ChartSection title="Downloads Over Time">
+            <BarChart width={500} height={300} data={downloadsChartData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="downloads" fill="#8884d8" />
+            </BarChart>
+          </ChartSection>
         </>
       ) : (
         <EmptyState 

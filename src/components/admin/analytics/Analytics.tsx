@@ -54,6 +54,12 @@ const Analytics = () => {
     loadAnalyticsData();
   }, [toast]);
 
+  // Calculate number of downloads (mock data for now)
+  const downloadsCount = analyticsData.userInteractions.reduce(
+    (total, user: any) => total + (user.downloads || 0), 
+    0
+  );
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -78,19 +84,28 @@ const Analytics = () => {
                 </TabsContent>
                 
                 <TabsContent value="engagement" className="m-0">
-                  <EngagementTab />
+                  <EngagementTab 
+                    analyticsData={analyticsData}
+                    hasData={hasData}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="users" className="m-0">
-                  <UsersTab />
+                  <UsersTab 
+                    analyticsData={analyticsData}
+                    hasData={hasData}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="downloads" className="m-0">
-                  <DownloadsTab />
+                  <DownloadsTab 
+                    hasData={hasData}
+                    downloadsCount={downloadsCount}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="sources" className="m-0">
-                  <SourcesTab />
+                  <SourcesTab hasData={hasData} />
                 </TabsContent>
               </CardContent>
             </Card>

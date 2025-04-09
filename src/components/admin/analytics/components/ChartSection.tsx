@@ -1,33 +1,17 @@
 
-import { ChartContainer } from "@/components/ui/chart";
-import { Bar, BarChart, Tooltip, XAxis, YAxis } from "recharts";
+import { ReactNode } from 'react';
 
 interface ChartSectionProps {
   title: string;
-  chartData: any[];
-  dataKey: string;
-  color: string;
-  colorValue: string;
+  children: ReactNode;
 }
 
-const ChartSection = ({ title, chartData, dataKey, color, colorValue }: ChartSectionProps) => {
+const ChartSection = ({ title, children }: ChartSectionProps) => {
   return (
-    <div className="mt-8">
+    <div className="mt-6">
       <h3 className="text-lg font-medium mb-3">{title}</h3>
-      <div className="h-64 bg-grey-50 rounded-lg">
-        <ChartContainer
-          config={{
-            [color]: { color: colorValue }
-          }}
-          className="p-2"
-        >
-          <BarChart data={chartData}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey={dataKey} fill={`var(--color-${color})`} />
-          </BarChart>
-        </ChartContainer>
+      <div className="p-4 border border-gray-200 rounded-lg">
+        {children}
       </div>
     </div>
   );

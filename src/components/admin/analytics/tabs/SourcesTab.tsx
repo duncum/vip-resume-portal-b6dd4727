@@ -2,7 +2,11 @@
 import { BarChart } from "lucide-react";
 import { EmptyState } from "../components/EmptyState";
 
-const SourcesTab = () => {
+interface SourcesTabProps {
+  hasData?: boolean;
+}
+
+const SourcesTab = ({ hasData = false }: SourcesTabProps) => {
   return (
     <EmptyState 
       icon={<BarChart className="mx-auto h-12 w-12 text-grey-400 mb-3" />}
