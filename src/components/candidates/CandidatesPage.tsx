@@ -26,7 +26,6 @@ const CandidatesPage = () => {
     candidates, 
     loadCandidates, 
     isLoading, 
-    usedMockData, 
     loadError 
   } = useCandidates();
   
@@ -41,10 +40,8 @@ const CandidatesPage = () => {
     loadCandidates();
     
     const handleFocus = () => {
-      if (usedMockData) {
-        console.log("Window gained focus, refreshing candidates data");
-        loadCandidates();
-      }
+      console.log("Window gained focus, refreshing candidates data");
+      loadCandidates();
     };
     
     window.addEventListener('focus', handleFocus);
@@ -52,7 +49,7 @@ const CandidatesPage = () => {
     return () => {
       window.removeEventListener('focus', handleFocus);
     };
-  }, [loadCandidates, usedMockData]);
+  }, [loadCandidates]);
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
@@ -68,7 +65,7 @@ const CandidatesPage = () => {
           </p>
         </div>
 
-        {usedMockData && loadError && (
+        {loadError && (
           <ErrorAlert 
             message={loadError} 
             actionLink="/admin?tab=google" 
