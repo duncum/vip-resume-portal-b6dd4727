@@ -14,11 +14,31 @@ const ResumeActions = ({ resumeUrl, candidateId }: ResumeActionsProps) => {
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
   
   const handleDownload = () => {
+    // Validate the URL before proceeding
+    if (!resumeUrl || resumeUrl === "Missing") {
+      console.error("Invalid resume URL:", resumeUrl);
+      return;
+    }
+    
     // Track download action
     trackDownload(candidateId);
     
+    // Clean up the URL if needed (sometimes Google Drive URLs need adjustment)
+    let downloadUrl = resumeUrl;
+    
+    // Handle Google Drive URLs - ensure they trigger download
+    if (downloadUrl.includes('drive.google.com/file/d/')) {
+      // Convert view URLs to direct download URLs
+      downloadUrl = downloadUrl.replace('/view', '/preview');
+      if (!downloadUrl.includes('/preview')) {
+        downloadUrl += '/preview';
+      }
+    }
+    
+    console.log("Opening resume URL for download:", downloadUrl);
+    
     // Open the URL in a new tab (this will trigger download for PDFs and other downloadable files)
-    window.open(resumeUrl, '_blank');
+    window.open(downloadUrl, '_blank');
   };
   
   const handlePrint = () => {

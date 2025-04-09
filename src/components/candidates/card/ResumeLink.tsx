@@ -17,6 +17,12 @@ const ResumeLink = ({ resumeUrl, candidateId }: ResumeLinkProps) => {
     return null;
   }
   
+  // Don't render if the resume URL is "Missing" or invalid
+  if (resumeUrl === "Missing" || !resumeUrl.trim()) {
+    console.log("Invalid resume URL for candidate:", candidateId);
+    return null;
+  }
+  
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -25,7 +31,7 @@ const ResumeLink = ({ resumeUrl, candidateId }: ResumeLinkProps) => {
     const cleanId = candidateId.split(',')[0].trim();
     
     // Track the click interaction
-    trackIpAddress(cleanId, 'card-click');
+    trackIpAddress(cleanId, 'resume-click');
     
     // Log the navigation attempt
     console.log(`Navigating to candidate view with ID: ${cleanId}, URL: ${resumeUrl}`);

@@ -1,8 +1,9 @@
+
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import { CategoryBadge, SectorBadges, SkillBadges, LocationInfo, RelocationBadge, NotableEmployers, CandidateSummary } from "./card";
+import { CategoryBadge, SectorBadges, SkillBadges, LocationInfo, RelocationBadge, NotableEmployers, CandidateSummary, ResumeLink } from "./card";
 import { trackIpAddress } from "@/utils/tracking";
 
 interface CandidateCardProps {
@@ -63,7 +64,7 @@ const CandidateCard = ({
         </div>
       </CardContent>
       
-      <CardFooter className="px-6 py-4 border-t border-grey-800/50 bg-grey-900/30">
+      <CardFooter className="px-6 py-4 border-t border-grey-800/50 bg-grey-900/30 flex flex-col gap-3">
         <Button 
           variant="default" 
           className="w-full bg-gold hover:bg-gold/90 text-black"
@@ -75,6 +76,8 @@ const CandidateCard = ({
             View Profile
           </Link>
         </Button>
+        
+        {resumeUrl && resumeUrl !== "Missing" && <ResumeLink resumeUrl={resumeUrl} candidateId={cleanId} />}
       </CardFooter>
     </Card>
   );
