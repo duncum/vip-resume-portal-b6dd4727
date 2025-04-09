@@ -2,7 +2,7 @@
 import React from 'react';
 import GoogleIntegrationStatus from './google/GoogleIntegrationStatus';
 import SyncControl from './sync/SyncControl';
-import Analytics from './Analytics';
+import Analytics from './analytics';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const AdminControls = () => {
