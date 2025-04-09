@@ -46,6 +46,15 @@ export const fetchCandidateByIdFromSupabase = async (id: string): Promise<Candid
     
     if (error) throw error
     
+    // Record the view in tracking
+    const userId = localStorage.getItem('user_id') || 'anonymous';
+    recordActivity('view', {
+      candidateId: id,
+      action: 'fetch',
+      source: 'supabase',
+      userId
+    });
+    
     return data as Candidate
   } catch (error) {
     handleSupabaseError(error, `fetching candidate ${id}`)
@@ -80,12 +89,16 @@ export const upsertCandidateToSupabase = async (candidate: Candidate): Promise<b
     
     if (error) throw error
     
+    // Get user ID if available
+    const userId = localStorage.getItem('user_id') || 'anonymous';
+    
     // Record the activity in Google Sheets (as backup)
     // Using 'view' as TrackingType and adding data object with additional info
     recordActivity('view', {
       candidateId: candidate.id,
       action: 'saved',
-      source: 'supabase'
+      source: 'supabase',
+      userId
     })
     
     return true
@@ -109,12 +122,16 @@ export const deleteCandidateFromSupabase = async (id: string): Promise<boolean> 
     
     if (error) throw error
     
+    // Get user ID if available
+    const userId = localStorage.getItem('user_id') || 'anonymous';
+    
     // Record the activity in Google Sheets (as backup)
     // Using 'view' as TrackingType and adding data object with additional info
     recordActivity('view', {
       candidateId: id,
       action: 'deleted',
-      source: 'supabase'
+      source: 'supabase',
+      userId
     })
     
     return true

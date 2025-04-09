@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
 import { CategoryBadge, SectorBadges, SkillBadges, LocationInfo, RelocationBadge, NotableEmployers, CandidateSummary } from "./card";
+import { trackIpAddress } from "@/utils/ipTracker";
 
 interface CandidateCardProps {
   id: string;
@@ -35,6 +36,11 @@ const CandidateCard = ({
   // Clean ID to ensure it ONLY includes the ID part and nothing else
   const cleanId = id?.trim().split(',')[0] || "";
   
+  const handleCardClick = () => {
+    // Track card view
+    trackIpAddress(cleanId, 'view-profile');
+  };
+  
   return (
     <Card className="h-full flex flex-col bg-grey-900/20 hover:bg-grey-900/40 border border-grey-800 transition-colors text-white overflow-hidden backdrop-blur-sm">
       <CardContent className="flex-grow p-6 space-y-4">
@@ -63,6 +69,7 @@ const CandidateCard = ({
           variant="default" 
           className="w-full bg-gold hover:bg-gold/90 text-black"
           asChild
+          onClick={handleCardClick}
         >
           <Link to={`/candidate/${cleanId}`}>
             <Eye className="mr-2 h-4 w-4" />

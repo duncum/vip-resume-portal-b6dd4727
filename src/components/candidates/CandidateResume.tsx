@@ -3,6 +3,7 @@ import ResumeViewer from "@/components/candidates/ResumeViewer";
 import ResumeHeader from "./resume/ResumeHeader";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { trackIpAddress } from "@/utils/ipTracker";
 
 interface CandidateResumeProps {
   resumeUrl: string;
@@ -37,6 +38,9 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
         if (resumeUrl.includes('/d/') || resumeUrl.includes('id=')) {
           console.log("Valid Google Drive link detected");
           setValidatedUrl(resumeUrl);
+          
+          // Track resume view
+          trackIpAddress(candidateId, 'resume-view');
         } else {
           console.error("Invalid Google Drive link format:", resumeUrl);
           setIsUrlValid(false);
@@ -46,6 +50,9 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
         // For other URLs, basic validation
         new URL(resumeUrl); // This will throw if the URL is invalid
         setValidatedUrl(resumeUrl);
+        
+        // Track resume view
+        trackIpAddress(candidateId, 'resume-view');
       }
     } catch (error) {
       console.error("Invalid URL format:", error);
@@ -59,6 +66,9 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
           console.log("Fixed URL by adding https://", fixedUrl);
           setValidatedUrl(fixedUrl);
           setIsUrlValid(true);
+          
+          // Track resume view with fixed URL
+          trackIpAddress(candidateId, 'resume-view-fixed');
         } catch {
           // Still invalid
         }

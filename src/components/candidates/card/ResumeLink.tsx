@@ -1,6 +1,7 @@
 
 import { FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { trackIpAddress } from "@/utils/ipTracker";
 
 interface ResumeLinkProps {
   resumeUrl?: string;
@@ -22,6 +23,9 @@ const ResumeLink = ({ resumeUrl, candidateId }: ResumeLinkProps) => {
     
     // Ensure the candidate ID is clean (just in case)
     const cleanId = candidateId.split(',')[0].trim();
+    
+    // Track the click interaction
+    trackIpAddress(cleanId, 'card-click');
     
     // Log the navigation attempt
     console.log(`Navigating to candidate view with ID: ${cleanId}, URL: ${resumeUrl}`);

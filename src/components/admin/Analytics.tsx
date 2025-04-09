@@ -1,9 +1,8 @@
-
 import { BarChart, Download, Eye, FileText, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
-import { getAnalyticsData } from "@/utils/ipTracker";
+import { getAnalyticsData, getCandidateInteractions } from "@/utils/ipTracker";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { ChartContainer } from "../ui/chart";
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -15,7 +14,8 @@ const Analytics = () => {
     totalViews: 0,
     uniqueViewers: 0,
     recentViews: [],
-    topCandidates: []
+    topCandidates: [],
+    userInteractions: []
   });
   
   const [googleAuthStatus, setGoogleAuthStatus] = useState({
@@ -127,6 +127,7 @@ const Analytics = () => {
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="engagement">Engagement</TabsTrigger>
+            <TabsTrigger value="users">User Activity</TabsTrigger>
             <TabsTrigger value="downloads">Downloads</TabsTrigger>
             <TabsTrigger value="sources">Traffic Sources</TabsTrigger>
           </TabsList>
@@ -209,6 +210,63 @@ const Analytics = () => {
               <h3 className="text-lg font-medium mb-2">No Engagement Data Yet</h3>
               <p className="text-grey-500">Engagement metrics will show interactions with your candidate profiles.</p>
             </div>
+          </TabsContent>
+          
+          <TabsContent value="users" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="bg-grey-100 p-4 rounded-md text-center">
+                <div className="text-3xl font-bold mb-1 text-indigo-600">
+                  {analyticsData.userInteractions?.length || 0}
+                </div>
+                <div className="text-sm text-grey-600">Unique Users</div>
+              </div>
+              <div className="bg-grey-100 p-4 rounded-md text-center">
+                <div className="text-3xl font-bold mb-1 text-indigo-600">
+                  {analyticsData.totalViews || 0}
+                </div>
+                <div className="text-sm text-grey-600">Total Interactions</div>
+              </div>
+              <div className="bg-grey-100 p-4 rounded-md text-center">
+                <div className="text-3xl font-bold mb-1 text-indigo-600">
+                  {Math.round((analyticsData.totalViews || 0) / Math.max(1, analyticsData.userInteractions?.length || 1))}
+                </div>
+                <div className="text-sm text-grey-600">Avg. Interactions/User</div>
+              </div>
+            </div>
+            
+            {hasData && analyticsData.userInteractions?.length > 0 ? (
+              <>
+                <h3 className="text-lg font-medium mb-3">User Activity</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User ID</TableHead>
+                      <TableHead>Candidates Viewed</TableHead>
+                      <TableHead>Views</TableHead>
+                      <TableHead>Downloads</TableHead>
+                      <TableHead>Last Activity</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {analyticsData.userInteractions.map((user: any) => (
+                      <TableRow key={user.userId}>
+                        <TableCell className="font-mono">{user.userId}</TableCell>
+                        <TableCell>{user.candidateCount}</TableCell>
+                        <TableCell>{user.views}</TableCell>
+                        <TableCell>{user.downloads}</TableCell>
+                        <TableCell>{new Date(user.lastActivity).toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </>
+            ) : (
+              <div className="text-center py-6">
+                <Users className="mx-auto h-12 w-12 text-grey-400 mb-3" />
+                <h3 className="text-lg font-medium mb-2">No User Activity Data Yet</h3>
+                <p className="text-grey-500">User activity will appear once candidates are viewed.</p>
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="downloads" className="space-y-4">
