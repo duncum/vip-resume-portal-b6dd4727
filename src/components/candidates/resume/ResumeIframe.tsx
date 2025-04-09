@@ -21,10 +21,20 @@ const ResumeIframe = ({ embedUrl, onError, onLoad }: ResumeIframeProps) => {
   }, []);
 
   const handleLoad = () => {
+    // Log successful load
+    console.log("Resume iframe loaded successfully:", embedUrl);
+    
     // Apply security measures immediately when iframe loads
     disableDownloadButtons(iframeRef.current);
     onLoad();
   };
+
+  // Skip rendering if no URL
+  if (!embedUrl) {
+    console.error("No URL provided for resume iframe");
+    setTimeout(onError, 0);
+    return null;
+  }
 
   return (
     <iframe

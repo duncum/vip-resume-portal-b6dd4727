@@ -8,7 +8,7 @@ import { getIsGapiInitialized, setGapiInitialized } from '../google/auth/initial
 let failedAttempts = 0;
 const MAX_RETRIES = 3;
 let lastAttemptTime = 0;
-const MIN_ATTEMPT_INTERVAL = 2000; // 2 seconds
+const MIN_ATTEMPT_INTERVAL = 1000; // 1 second
 
 /**
  * Ensure API is initialized for accessing Google Sheets
@@ -32,7 +32,8 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     if (!apiKey || apiKey === '') {
       console.log("No API key found in localStorage");
       toast.error('Google API key missing. Please add an API Key in settings.', {
-        duration: 5000
+        duration: 5000,
+        id: 'missing-api-key' // Add ID to prevent duplicate toasts
       });
       return false;
     }
@@ -55,7 +56,7 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     }
 
     // Rate limit retries to prevent excessive API calls
-    if (failedAttempts >= MAX_RETRIES && (now - lastAttemptTime) < 60000) {
+    if (failedAttempts >= MAX_RETRIES && (now - lastAttemptTime) < 30000) { // 30 seconds instead of 60
       console.log(`Too many failed attempts (${failedAttempts}). Waiting before retrying.`);
       return false;
     }
@@ -73,71 +74,32 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     // Force API key only mode permanently
     localStorage.setItem('force_api_key_only', 'true');
 
-    // Always make sure Sheets API is loaded
-    try {
-      console.log("Checking if Sheets API is loaded:", !!window.gapi?.client?.sheets);
+    // Check if Sheets API is loaded
+    if (!window.gapi?.client?.sheets) {
+      console.log('Sheets API not loaded yet, attempting to load it');
       
-      if (!window.gapi?.client?.sheets) {
-        console.log('Sheets API not loaded yet, attempting to load it');
-        
-        // Try loading Sheets API with multiple retries
-        let retryCount = 0;
-        const maxRetries = 3;
-        
-        while (retryCount < maxRetries && !window.gapi?.client?.sheets) {
-          try {
-            console.log(`Loading Sheets API (attempt ${retryCount + 1})`);
-            await new Promise<void>((resolve, reject) => {
-              if (!window.gapi?.client) {
-                reject(new Error("Google API client not initialized"));
-                return;
-              }
-              
-              window.gapi.client.load('sheets', 'v4')
-                .then(() => {
-                  console.log("Sheets API loaded successfully");
-                  resolve();
-                })
-                .catch(err => {
-                  console.error(`Failed to load Sheets API (attempt ${retryCount + 1}):`, err);
-                  reject(err);
-                });
-            });
-            
-            // Break if successful
-            if (window.gapi?.client?.sheets) {
-              console.log("Sheets API loaded successfully after retry");
-              break;
-            }
-          } catch (err) {
-            console.error(`Sheets API load attempt ${retryCount + 1} failed:`, err);
-          }
-          
+      // Try loading Sheets API with multiple retries
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries && !window.gapi?.client?.sheets) {
+        try {
+          console.log(`Loading Sheets API (attempt ${retryCount + 1})`);
+          await window.gapi.client.load('sheets', 'v4');
+          console.log("Sheets API loaded successfully");
+          break; // Break if successful
+        } catch (err) {
+          console.error(`Sheets API load attempt ${retryCount + 1} failed:`, err);
           retryCount++;
-          // Wait a bit before retrying
+          // Wait before retrying
           await new Promise(resolve => setTimeout(resolve, 300 * retryCount));
         }
       }
-      
-      // In API key only mode, we can continue if the API is initialized
-      if (window.gapi?.client) {
-        console.log('Running in API key only mode with initialized client');
-        return true;
-      }
-      
-      // If we get here with initialization success, we should be good to go
-      if (isInitialized) {
-        console.log('Initialized with Google and Sheets API is available');
-        return true;
-      }
-    } catch (error) {
-      console.error("Error loading Sheets API:", error);
-      failedAttempts++;
     }
     
-    // If the client is initialized, try to continue anyway
+    // If client is initialized, we can continue
     if (window.gapi?.client) {
-      console.log('API client initialized but Sheets API may not be loaded - trying to continue');
+      console.log('API client initialized, continuing');
       return true;
     }
     
@@ -147,7 +109,7 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     console.error('Sheets authorization error:', error);
     failedAttempts++;
     
-    // Try to return true anyway if client is initialized
+    // Try to continue anyway if client is initialized
     if (window.gapi?.client) {
       console.log('API key only mode - continuing despite errors');
       return true;

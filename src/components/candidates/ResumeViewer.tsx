@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackIpAddress } from "@/utils/ipTracker";
@@ -18,7 +19,15 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   
+  // Convert URL to embed format if needed (especially for Google Drive)
   const embedUrl = getEmbedUrl(fileUrl);
+  
+  // Log both URLs for debugging
+  console.log("Resume URLs:", { 
+    original: fileUrl,
+    formatted: embedUrl,
+    candidateId
+  });
   
   useEffect(() => {
     // Track IP address when resume is viewed
@@ -39,7 +48,7 @@ const ResumeViewer = ({ fileUrl, candidateId }: ResumeViewerProps) => {
   const handleIframeError = () => {
     setIsError(true);
     setIsLoading(false);
-    console.error("Failed to load document:", embedUrl);
+    console.error("Failed to load document:", embedUrl, "Original URL:", fileUrl);
   };
 
   const handleIframeLoad = () => {

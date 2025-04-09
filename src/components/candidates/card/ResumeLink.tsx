@@ -10,7 +10,11 @@ interface ResumeLinkProps {
 const ResumeLink = ({ resumeUrl, candidateId }: ResumeLinkProps) => {
   const navigate = useNavigate();
   
-  if (!resumeUrl || !candidateId) return null;
+  // Don't render if we don't have required props
+  if (!resumeUrl || !candidateId) {
+    console.log("Missing resume data:", { candidateId, hasUrl: !!resumeUrl });
+    return null;
+  }
   
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -20,7 +24,7 @@ const ResumeLink = ({ resumeUrl, candidateId }: ResumeLinkProps) => {
     const cleanId = candidateId.split(',')[0].trim();
     
     // Log the navigation attempt
-    console.log(`Navigating to candidate view: ${cleanId}`);
+    console.log(`Navigating to candidate view with ID: ${cleanId}, URL: ${resumeUrl}`);
     
     // Navigate to candidate view page
     navigate(`/candidate/${cleanId}`);
