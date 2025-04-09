@@ -9,6 +9,7 @@ import CandidateSearch from "@/components/candidates/CandidateSearch";
 import CandidateList from "@/components/candidates/CandidateList";
 import ErrorAlert from "@/components/candidates/ErrorAlert";
 import CandidateCategories from "@/components/candidates/CandidateCategories";
+import { toast } from "sonner";
 
 const CandidatesPage = () => {
   const positionCategories = [
@@ -32,6 +33,7 @@ const CandidatesPage = () => {
   const {
     filteredCandidates,
     activeCategory,
+    searchQuery,
     handleSearch,
     handleCategoryChange
   } = useCandidateFilters(candidates);
@@ -50,6 +52,27 @@ const CandidatesPage = () => {
       window.removeEventListener('focus', handleFocus);
     };
   }, [loadCandidates]);
+
+  // Show toast when user is searching and candidates get filtered
+  useEffect(() => {
+    if (searchQuery && candidates.length > 0 && filteredCandidates.length === 0) {
+      toast.info("No matches found. Try different search terms.");
+    }
+    
+    // When we find resume content matches, show a toast
+    if (searchQuery && candidates.length > 0 && filteredCandidates.length > 0) {
+      const resumeMatches = filteredCandidates.filter(c => 
+        c.resumeText && c.resumeText.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      
+      if (resumeMatches.length > 0) {
+        toast.success(`Found ${resumeMatches.length} matches in resume content!`, {
+          id: "resume-search-success",
+          duration: 3000
+        });
+      }
+    }
+  }, [searchQuery, candidates, filteredCandidates]);
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">

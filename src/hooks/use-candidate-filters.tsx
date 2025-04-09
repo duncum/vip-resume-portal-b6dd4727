@@ -17,6 +17,7 @@ export function useCandidateFilters(candidates: Candidate[] = []) {
       const lowerQuery = query.toLowerCase();
       filtered = filtered.filter(
         (candidate) => {
+          // Check for standard fields first (these are faster to search)
           const matchesHeadline = candidate.headline?.toLowerCase().includes(lowerQuery);
           const matchesSectors = candidate.sectors?.some((sector) => sector.toLowerCase().includes(lowerQuery));
           const matchesTags = candidate.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery));
@@ -24,21 +25,31 @@ export function useCandidateFilters(candidates: Candidate[] = []) {
           const matchesSummary = (candidate.summary || "").toLowerCase().includes(lowerQuery);
           const matchesLocation = (candidate.location || "").toLowerCase().includes(lowerQuery);
           const matchesEmployers = (candidate.notableEmployers || "").toLowerCase().includes(lowerQuery);
-          const matchesResume = (candidate.resumeText || "").toLowerCase().includes(lowerQuery);
           
-          // Log when resume text matches are found
-          if (matchesResume) {
-            console.log(`Resume text match found for candidate ${candidate.id} with query "${lowerQuery}"`);
+          // If we already found a match in the standard fields, no need to search resume text
+          if (matchesHeadline || matchesSectors || matchesTags || matchesTitle || 
+              matchesSummary || matchesLocation || matchesEmployers) {
+            return true;
           }
           
-          const matches = matchesHeadline || matchesSectors || matchesTags || matchesTitle || 
-                         matchesSummary || matchesLocation || matchesEmployers || matchesResume;
-          
-          if (matches) {
-            console.log(`Search match found for candidate ${candidate.id}: ${candidate.headline}`);
+          // Handle resume text search - which might be large and potentially undefined
+          try {
+            // Only search if resumeText exists
+            if (candidate.resumeText) {
+              const matchesResume = candidate.resumeText.toLowerCase().includes(lowerQuery);
+              
+              // Log successful resume text matches
+              if (matchesResume) {
+                console.log(`Resume text match found for candidate ${candidate.id} with query "${lowerQuery}"`);
+              }
+              
+              return matchesResume;
+            }
+          } catch (error) {
+            console.error(`Error searching resume text for candidate ${candidate.id}:`, error);
           }
           
-          return matches;
+          return false;
         }
       );
     }
