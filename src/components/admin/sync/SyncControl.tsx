@@ -1,16 +1,21 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCw, Download, Upload } from 'lucide-react';
 import { importFromSheets, exportToSheets, isSupabaseAvailable } from '@/utils/supabase';
 import { toast } from 'sonner';
+import { supabase } from '@/utils/supabase/config';
 
 const SyncControl = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncDirection, setSyncDirection] = useState<'import'|'export'|null>(null);
+  const [hasSupabase, setHasSupabase] = useState(false);
   
-  const hasSupabase = isSupabaseAvailable();
+  useEffect(() => {
+    // Check Supabase connection on mount and whenever the component re-renders
+    setHasSupabase(isSupabaseAvailable() && !!supabase);
+  }, []);
 
   const handleImport = async () => {
     if (isSyncing) return;

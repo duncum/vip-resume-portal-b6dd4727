@@ -25,12 +25,17 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
   
   // Try Supabase first
   if (isSupabaseAvailable()) {
-    const supabaseData = await fetchCandidatesFromSupabase();
-    
-    // If we have data from Supabase, use it
-    if (supabaseData && supabaseData.length > 0) {
-      console.log(`Returning ${supabaseData.length} candidates from Supabase`);
-      return supabaseData;
+    try {
+      const supabaseData = await fetchCandidatesFromSupabase();
+      
+      // If we have data from Supabase, use it
+      if (supabaseData && supabaseData.length > 0) {
+        console.log(`Returning ${supabaseData.length} candidates from Supabase`);
+        return supabaseData;
+      }
+    } catch (error) {
+      console.error('Error fetching from Supabase:', error);
+      // Continue to fallback
     }
   }
   

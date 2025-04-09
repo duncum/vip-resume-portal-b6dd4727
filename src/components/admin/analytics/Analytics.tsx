@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/utils/supabase/config";
 import OverviewTab from "./tabs/OverviewTab";
 import EngagementTab from "./tabs/EngagementTab";
 import UsersTab from "./tabs/UsersTab";
