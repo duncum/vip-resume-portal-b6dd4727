@@ -127,11 +127,6 @@ const Admin = () => {
           </Alert>
         )}
         
-        {/* Admin Controls Section */}
-        <div className="max-w-5xl mx-auto mb-8">
-          <AdminControls />
-        </div>
-        
         {/* Main Tabs Section */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="max-w-5xl mx-auto">
           <TabsList className="grid w-full grid-cols-3 mb-6">
@@ -178,10 +173,24 @@ const Admin = () => {
           
           <TabsContent value="analytics">
             <Card className="p-6">
-              <AdminControls activeTab="analytics" />
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Candidate Analytics</h3>
+                <p className="text-sm text-gray-500">
+                  Track candidate engagement and interactions with your resume database.
+                </p>
+                <AdminControls activeTab="analytics" />
+              </div>
             </Card>
           </TabsContent>
         </Tabs>
+        
+        {/* Admin Controls Section - small and at the bottom */}
+        <div className="mt-12 max-w-md mx-auto opacity-80 hover:opacity-100 transition-opacity">
+          <div className="text-xs text-center text-gray-500 mb-2">System Configuration</div>
+          <div className="scale-90 origin-top">
+            <AdminControls />
+          </div>
+        </div>
       </main>
       
       <Footer />
