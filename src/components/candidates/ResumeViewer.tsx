@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { trackIpAddress } from "@/utils/ipTracker";
+import { trackIpAddress } from "@/utils/tracking";
 import { getEmbedUrl } from "@/utils/resume/urlUtils";
 import { 
   ResumeLoading, 

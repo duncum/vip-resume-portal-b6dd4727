@@ -1,7 +1,7 @@
 
 import { FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { trackIpAddress } from "@/utils/ipTracker";
+import { trackIpAddress } from "@/utils/tracking";
 
 interface ResumeLinkProps {
   resumeUrl?: string;

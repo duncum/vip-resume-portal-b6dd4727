@@ -1,10 +1,9 @@
-
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
 import { CategoryBadge, SectorBadges, SkillBadges, LocationInfo, RelocationBadge, NotableEmployers, CandidateSummary } from "./card";
-import { trackIpAddress } from "@/utils/ipTracker";
+import { trackIpAddress } from "@/utils/tracking";
 
 interface CandidateCardProps {
   id: string;

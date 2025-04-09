@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Mail, Printer } from "lucide-react";
 import { useState } from "react";
 import SimpleEmailDialog from "../SimpleEmailDialog";
-import { trackDownload } from "@/utils/ipTracker";
+import { trackDownload, trackIpAddress } from "@/utils/tracking";
 
 interface ResumeActionsProps {
   resumeUrl: string;

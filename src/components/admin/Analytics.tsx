@@ -1,8 +1,9 @@
+
 import { BarChart, Download, Eye, FileText, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEffect, useState } from "react";
-import { getAnalyticsData, getCandidateInteractions } from "@/utils/ipTracker";
+import { getAnalyticsData, getCandidateInteractions } from "@/utils/tracking";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { ChartContainer } from "../ui/chart";
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";

@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { trackDownload } from "@/utils/ipTracker";
+import { trackDownload } from "@/utils/tracking";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 

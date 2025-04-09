@@ -1,9 +1,8 @@
-
 import ResumeViewer from "@/components/candidates/ResumeViewer";
 import ResumeHeader from "./resume/ResumeHeader";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { trackIpAddress } from "@/utils/ipTracker";
+import { trackIpAddress } from "@/utils/tracking";
 
 interface CandidateResumeProps {
   resumeUrl: string;
@@ -14,12 +13,9 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
   const [validatedUrl, setValidatedUrl] = useState<string>("");
   const [isUrlValid, setIsUrlValid] = useState<boolean>(true);
   
-  // Validate and process the URL when it changes
   useEffect(() => {
-    // Log the resume info for debugging
     console.log(`Validating resume for candidate ${candidateId}`, { resumeUrl });
     
-    // Clear previous state
     setIsUrlValid(true);
     
     if (!resumeUrl) {
@@ -27,19 +23,13 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
       return;
     }
     
-    // Validate URL format
     try {
-      // Check if it's a Google Drive link
       const isGoogleDriveLink = resumeUrl.includes('drive.google.com');
       
-      // For Google Drive links, we need some extra validation
       if (isGoogleDriveLink) {
-        // Make sure we can extract a file ID
         if (resumeUrl.includes('/d/') || resumeUrl.includes('id=')) {
           console.log("Valid Google Drive link detected");
           setValidatedUrl(resumeUrl);
-          
-          // Track resume view
           trackIpAddress(candidateId, 'resume-view');
         } else {
           console.error("Invalid Google Drive link format:", resumeUrl);
@@ -47,18 +37,14 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
           toast.error("Invalid Google Drive link format", { id: "drive-link-error" });
         }
       } else {
-        // For other URLs, basic validation
-        new URL(resumeUrl); // This will throw if the URL is invalid
+        new URL(resumeUrl);
         setValidatedUrl(resumeUrl);
-        
-        // Track resume view
         trackIpAddress(candidateId, 'resume-view');
       }
     } catch (error) {
       console.error("Invalid URL format:", error);
       setIsUrlValid(false);
       
-      // If it looks like a partial URL, try to fix it
       if (resumeUrl && !resumeUrl.startsWith('http')) {
         const fixedUrl = `https://${resumeUrl}`;
         try {
@@ -66,11 +52,8 @@ const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
           console.log("Fixed URL by adding https://", fixedUrl);
           setValidatedUrl(fixedUrl);
           setIsUrlValid(true);
-          
-          // Track resume view with fixed URL
           trackIpAddress(candidateId, 'resume-view-fixed');
         } catch {
-          // Still invalid
         }
       }
     }
