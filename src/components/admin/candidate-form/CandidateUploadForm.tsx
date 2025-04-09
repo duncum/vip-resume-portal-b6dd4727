@@ -23,12 +23,6 @@ const CandidateUploadForm: React.FC<CandidateUploadFormProps> = ({
   // Check if we're in API key only mode
   const { isApiKeyOnly } = useApiKeyValidation();
   
-  // If we're in API key only mode, show the warning
-  // but only if we're not editing a candidate
-  if (isApiKeyOnly && !candidateToEdit) {
-    return <ApiKeyWarning />;
-  }
-  
   return (
     <FormProvider 
       onSuccess={onSuccess} 

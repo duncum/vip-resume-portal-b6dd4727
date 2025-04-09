@@ -7,21 +7,16 @@ import { Link } from "react-router-dom";
 
 const ApiKeyWarning = () => {
   return (
-    <Alert variant="default" className="bg-amber-50 border-amber-200">
+    <Alert variant="default" className="bg-amber-50 border-amber-200 mb-4">
       <AlertCircle className="h-4 w-4 text-amber-500" />
-      <AlertTitle>Read-Only Mode</AlertTitle>
+      <AlertTitle>API Key Only Mode</AlertTitle>
       <AlertDescription className="space-y-2">
         <p>
-          This application is configured for read-only access to Google Sheets.
-          You can view existing candidates but not add new ones.
+          This app is using API Key only mode, which has limited functionality. You can still add candidates, but some features might be restricted.
         </p>
-        <div className="mt-2">
-          <Button asChild size="sm" variant="outline">
-            <Link to="/admin?tab=manage">
-              View Candidates
-            </Link>
-          </Button>
-        </div>
+        <p className="text-sm mt-1">
+          Enter a Candidate ID below to get started with uploading a resume.
+        </p>
       </AlertDescription>
     </Alert>
   );
