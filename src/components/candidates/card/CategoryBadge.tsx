@@ -34,7 +34,7 @@ const CategoryBadge = ({ category, title }: CategoryBadgeProps) => {
           
           return (
             <Badge 
-              key={index}
+              key={`category-${index}`}
               className={`${baseColor} text-xs font-medium px-3 py-1 rounded-full shadow-sm transition-all duration-300 backdrop-blur-sm`}
             >
               {singleCategory}
@@ -47,7 +47,7 @@ const CategoryBadge = ({ category, title }: CategoryBadgeProps) => {
         <div className="flex flex-wrap gap-1.5 mt-2">
           {titles.map((singleTitle, index) => (
             <span 
-              key={index} 
+              key={`title-${index}`} 
               className="text-white hover:text-gold/90 transition-colors duration-300 text-sm font-medium tracking-wide bg-grey-800/40 px-2 py-0.5 rounded"
             >
               {singleTitle}

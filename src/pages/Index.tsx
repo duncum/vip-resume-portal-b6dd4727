@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -22,7 +21,6 @@ const Index = () => {
   const retryCount = useRef(0);
   const maxRetries = 3;
   
-  // Define position categories
   const positionCategories = [
     "All",
     "Executive",
@@ -32,7 +30,6 @@ const Index = () => {
     "One Man Army"
   ];
 
-  // Function to load candidates with retry logic
   const loadCandidates = useCallback(async (retry = false) => {
     try {
       if (!retry) {
@@ -40,20 +37,16 @@ const Index = () => {
         setLoadError(null);
       }
       
-      // Check for necessary Google configuration
       const apiKey = localStorage.getItem('google_api_key');
       const spreadsheetId = localStorage.getItem('google_spreadsheet_id');
       
       console.log("Loading candidates with API key:", !!apiKey);
       console.log("Loading candidates with spreadsheet ID:", !!spreadsheetId);
       
-      // Force API key only mode - this app doesn't need OAuth
       localStorage.setItem('force_api_key_only', 'true');
       
-      // Fetch data from API
       const data = await fetchCandidates();
       
-      // Debug the data we got
       console.log(`Loaded ${data.length} candidates:`, data.map(c => ({ 
         id: c.id, 
         category: c.category, 
@@ -62,11 +55,8 @@ const Index = () => {
       
       setCandidates(data);
       
-      // Apply any existing filters
       applyFilters(data, searchQuery, activeCategory);
       
-      // Detect if we're using mock data by checking candidate IDs 
-      // (all mock data has predefined IDs 1-7)
       const isMockData = data.some(c => ["1", "2", "3", "4", "5", "6", "7"].includes(c.id));
       setUsedMockData(isMockData);
       
@@ -79,7 +69,6 @@ const Index = () => {
         } else {
           setLoadError("Connection to Google Sheets failed - using demo data");
           
-          // Try again if we haven't exceeded max retries
           if (retryCount.current < maxRetries) {
             retryCount.current++;
             console.log(`Retry attempt ${retryCount.current}/${maxRetries} in 2 seconds...`);
@@ -90,16 +79,13 @@ const Index = () => {
           }
         }
       } else {
-        // Reset retry counter on success
         retryCount.current = 0;
-        // Show success notification
         toast.success("Candidates loaded successfully");
       }
     } catch (error) {
       console.error("Error loading candidates:", error);
       setLoadError("Failed to load candidates - using demo data");
       
-      // Try again if we haven't exceeded max retries
       if (retryCount.current < maxRetries) {
         retryCount.current++;
         console.log(`Retry attempt ${retryCount.current}/${maxRetries} in 2 seconds...`);
@@ -114,19 +100,16 @@ const Index = () => {
     }
   }, [searchQuery, activeCategory]);
 
-  // Apply filters to candidate data
   const applyFilters = useCallback((data: Candidate[], query: string, category: string) => {
     console.log(`Filtering with query: "${query}", category: "${category}"`);
     console.log(`Data to filter: ${data.length} candidates`);
     
     let filtered = [...data];
     
-    // Apply text search if query exists
     if (query) {
       const lowerQuery = query.toLowerCase();
       filtered = filtered.filter(
         (candidate) => {
-          // For debugging: check what's being matched in console
           const matchesHeadline = candidate.headline?.toLowerCase().includes(lowerQuery);
           const matchesSectors = candidate.sectors?.some((sector) => sector.toLowerCase().includes(lowerQuery));
           const matchesTags = candidate.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery));
@@ -148,14 +131,12 @@ const Index = () => {
       );
     }
     
-    // Apply category filter if not "All"
     if (category !== "All") {
       console.log(`Filtering by category: ${category}`);
       filtered = filtered.filter((candidate) => {
-        const candidateCategory = candidate.category || '';
+        if (!candidate.category) return false;
         
-        // Check if the category is part of the comma-separated list
-        const categoryList = candidateCategory.split(',').map(cat => cat.trim());
+        const categoryList = candidate.category.split(',').map(cat => cat.trim());
         const matches = categoryList.includes(category);
         
         if (matches) {
@@ -169,14 +150,10 @@ const Index = () => {
     setFilteredCandidates(filtered);
   }, []);
 
-  // Initial load and window focus event to refresh data
   useEffect(() => {
-    // Initial load
     loadCandidates();
     
-    // Set up window focus event to refresh data if needed
     const handleFocus = () => {
-      // Only refresh if we're currently showing mock data due to connection issues
       if (usedMockData) {
         console.log("Window gained focus, refreshing candidates data");
         loadCandidates();
@@ -185,13 +162,11 @@ const Index = () => {
     
     window.addEventListener('focus', handleFocus);
     
-    // Clean up
     return () => {
       window.removeEventListener('focus', handleFocus);
     };
   }, [loadCandidates, usedMockData]);
 
-  // When search or category changes, apply filters
   useEffect(() => {
     applyFilters(candidates, searchQuery, activeCategory);
   }, [candidates, searchQuery, activeCategory, applyFilters]);
@@ -205,8 +180,6 @@ const Index = () => {
     console.log(`Category changed to: "${category}"`);
     setActiveCategory(category);
     
-    // Force a reload of candidates when changing categories 
-    // to ensure we get fresh data from the API
     if (usedMockData) {
       loadCandidates();
     }
