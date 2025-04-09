@@ -22,8 +22,12 @@ export const useResumeUpload = ({
   const [isExtracting, setIsExtracting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [uploadedUrl, setUploadedUrl] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleFileSelect = async (file: File) => {
+    // Clear any previous error messages
+    setErrorMessage(null);
+    
     // Check if the file is a PDF
     if (file.type !== 'application/pdf') {
       toast.error('Only PDF files are allowed');
@@ -49,12 +53,17 @@ export const useResumeUpload = ({
   };
 
   const handleUpload = async () => {
+    // Clear previous error message
+    setErrorMessage(null);
+    
     if (!candidateId.trim()) {
+      setErrorMessage('Please enter a Candidate ID first');
       toast.error('Please enter a Candidate ID first');
       return;
     }
     
     if (!selectedFile) {
+      setErrorMessage('Please select a file to upload');
       toast.error('Please select a file to upload');
       return;
     }
@@ -93,6 +102,7 @@ export const useResumeUpload = ({
       // Clear the form state
       setSelectedFile(null);
       setUploadedUrl("");
+      setErrorMessage(null);
       
       if (onResumeUrlChange) {
         onResumeUrlChange("");
@@ -117,6 +127,7 @@ export const useResumeUpload = ({
     isExtracting,
     isDeleting,
     uploadedUrl,
+    errorMessage,
     handleFileSelect,
     handleUpload,
     resetUpload

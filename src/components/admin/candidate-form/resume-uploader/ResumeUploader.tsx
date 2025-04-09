@@ -17,6 +17,7 @@ const ResumeUploader = ({
     isExtracting,
     isDeleting,
     uploadedUrl,
+    errorMessage,
     handleFileSelect,
     handleUpload,
     resetUpload
@@ -33,10 +34,11 @@ const ResumeUploader = ({
         candidateId={candidateId}
         onCandidateIdChange={onCandidateIdChange}
         disabled={disabled}
+        errorMessage={errorMessage}
       />
       
       <div 
-        className={`border-2 border-dashed ${uploadedUrl ? 'border-green-300 bg-green-50' : 'border-grey-300'} rounded-md p-6 flex flex-col items-center justify-center ${disabled ? 'opacity-70 cursor-not-allowed' : ''}`}
+        className={`border-2 border-dashed ${uploadedUrl ? 'border-green-300 bg-green-50' : errorMessage ? 'border-red-200 bg-red-50' : 'border-grey-300'} rounded-md p-6 flex flex-col items-center justify-center ${disabled ? 'opacity-70 cursor-not-allowed' : ''}`}
       >
         {uploadedUrl ? (
           <UploadedFilePreview 

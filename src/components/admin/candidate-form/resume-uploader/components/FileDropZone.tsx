@@ -1,7 +1,6 @@
 
-import React, { useRef } from "react";
-import { Upload } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import React, { useState, useRef } from "react";
+import { Upload, FileIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FileDropZoneProps {
@@ -19,77 +18,115 @@ const FileDropZone = ({
   onUploadClick,
   isUploading,
   isExtracting,
-  disabled
+  disabled = false
 }: FileDropZoneProps) => {
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      onFileSelect(e.target.files[0]);
-    }
+  
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (!disabled) setIsDragging(true);
   };
-
+  
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+  
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    setIsDragging(false);
     
     if (disabled) return;
     
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       onFileSelect(e.dataTransfer.files[0]);
     }
   };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
+  
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      onFileSelect(e.target.files[0]);
+    }
   };
-
-  const triggerFileInput = () => {
-    if (fileInputRef.current && !disabled) {
+  
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
-
+  
   return (
-    <>
-      <div 
-        className="w-full flex flex-col items-center justify-center"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onClick={triggerFileInput}
-      >
-        <Upload className="h-10 w-10 text-grey-400 mb-2" />
-        <p className="text-sm text-grey-600 mb-1">
-          {selectedFile 
-            ? `Selected: ${selectedFile.name}` 
-            : "Drag and drop or click to upload PDF resume"}
-        </p>
-        <p className="text-xs text-grey-500 mb-4">
-          Max file size: 10MB
-        </p>
-        <Input 
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf"
-          className="hidden"
-          onChange={handleFileChange}
-          disabled={disabled}
-        />
-      </div>
+    <div
+      className={`w-full flex flex-col items-center justify-center py-4 ${isDragging ? 'bg-blue-50' : ''} transition-colors duration-200 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileInputChange}
+        accept=".pdf"
+        className="hidden"
+        disabled={disabled || isUploading || isExtracting}
+      />
       
-      {selectedFile && !disabled && (
-        <Button 
-          type="button" 
-          onClick={(e) => {
-            e.stopPropagation();
-            onUploadClick();
-          }}
-          disabled={isUploading || isExtracting || disabled}
-          className="mt-4 w-full"
+      {isExtracting ? (
+        <div className="text-center">
+          <div className="animate-spin mx-auto mb-2 h-8 w-8 rounded-full border-4 border-blue-200 border-t-blue-500"></div>
+          <p className="text-sm text-gray-500">Extracting text from PDF...</p>
+        </div>
+      ) : selectedFile ? (
+        <div className="w-full text-center">
+          <FileIcon className="mx-auto mb-2 h-8 w-8 text-blue-500" />
+          <p className="text-sm mb-2 truncate max-w-full px-4">{selectedFile.name}</p>
+          <p className="text-xs text-gray-500 mb-4">
+            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+          </p>
+          
+          <Button
+            type="button"
+            variant="default"
+            disabled={disabled || isUploading}
+            onClick={onUploadClick}
+            className="bg-gold hover:bg-gold-dark"
+          >
+            {isUploading ? (
+              <>
+                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Resume
+              </>
+            )}
+          </Button>
+          
+          <button
+            type="button"
+            className="mt-2 text-xs text-gray-500 hover:text-gray-700"
+            onClick={handleButtonClick}
+            disabled={disabled || isUploading || isExtracting}
+          >
+            Choose a different file
+          </button>
+        </div>
+      ) : (
+        <div 
+          className="w-full text-center" 
+          onClick={disabled ? undefined : handleButtonClick}
         >
-          {isUploading ? "Uploading..." : isExtracting ? "Extracting text..." : "Upload Resume"}
-        </Button>
+          <Upload className="mx-auto mb-2 h-10 w-10 text-gray-400" />
+          <p className="text-sm font-medium mb-1">
+            Drag and drop your resume, or <span className="text-blue-500">browse</span>
+          </p>
+          <p className="text-xs text-gray-500 mb-1">PDF files only (max 10MB)</p>
+          <p className="text-xs text-amber-500 font-semibold">Enter a Candidate ID above before uploading</p>
+        </div>
       )}
-    </>
+    </div>
   );
 };
 
