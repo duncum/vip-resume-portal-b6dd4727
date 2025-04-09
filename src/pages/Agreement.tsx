@@ -17,7 +17,9 @@ const Agreement = () => {
         </div>
       </header>
       
-      <ContractAgreement />
+      <div className="flex-1 flex items-center justify-center">
+        <ContractAgreement />
+      </div>
     </div>
   );
 };
