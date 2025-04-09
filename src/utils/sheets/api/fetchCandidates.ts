@@ -10,7 +10,8 @@ import { shouldThrottleRequest } from './utils/rateLimiter';
 import { 
   incrementFailures, 
   resetFailures, 
-  hasTooManyFailures 
+  hasTooManyFailures,
+  getFailureCount 
 } from './utils/failureTracker';
 import { validateSheetsConfig, isMockData } from './utils/sheetValidator';
 import { ensureSheetsApiLoaded } from './utils/sheetsLoader';
