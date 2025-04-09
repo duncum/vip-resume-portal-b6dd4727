@@ -1,18 +1,12 @@
 
-import { ReactNode, useState } from "react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginatedResultsProps<T> {
   items: T[];
   itemsPerPage: number;
-  renderItems: (currentItems: T[]) => ReactNode;
+  renderItems: (items: T[]) => React.ReactNode;
 }
 
 const PaginatedResults = <T,>({ 
@@ -22,54 +16,55 @@ const PaginatedResults = <T,>({
 }: PaginatedResultsProps<T>) => {
   const [currentPage, setCurrentPage] = useState(1);
   
-  // Calculate pagination values
   const totalPages = Math.ceil(items.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
-
-  // Generate page numbers for pagination
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
+  
+  const handlePrevPage = () => {
+    setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
+  const handleNextPage = () => {
+    setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
+  // If there's only 1 page, don't show pagination controls
+  if (totalPages <= 1) {
+    return <>{renderItems(currentItems)}</>;
   }
-
+  
   return (
-    <div>
+    <div className="space-y-8">
       {renderItems(currentItems)}
       
-      {/* Pagination controls */}
-      {totalPages > 1 && (
-        <Pagination className="mt-8">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-            
-            {pageNumbers.map((number) => (
-              <PaginationItem key={number}>
-                <PaginationLink
-                  isActive={number === currentPage}
-                  onClick={() => setCurrentPage(number)}
-                  className="cursor-pointer"
-                >
-                  {number}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            
-            <PaginationItem>
-              <PaginationNext 
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
+      <div className="flex justify-center items-center gap-6 pt-4">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handlePrevPage}
+          disabled={currentPage === 1}
+          className="h-9 w-9 border-grey-700"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Button>
+        
+        <div className="text-sm text-grey-300">
+          {currentPage} / {totalPages}
+        </div>
+        
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+          className="h-9 w-9 border-grey-700"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </Button>
+      </div>
     </div>
   );
 };

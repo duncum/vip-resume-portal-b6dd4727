@@ -42,6 +42,9 @@ const Index = () => {
         console.log("Loading candidates with API key:", !!apiKey);
         console.log("Loading candidates with spreadsheet ID:", !!spreadsheetId);
         
+        // Force API key only mode - this app doesn't need OAuth
+        localStorage.setItem('force_api_key_only', 'true');
+        
         // Fetch data from API
         const data = await fetchCandidates();
         setCandidates(data);

@@ -1,7 +1,7 @@
 
 // Google API initialization functionality - modular version
 
-// Force API key only mode permanently
+// Set API key only mode as the default
 localStorage.setItem('force_api_key_only', 'true');
 
 // Re-export everything from the modular files

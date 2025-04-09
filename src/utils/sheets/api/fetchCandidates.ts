@@ -16,11 +16,9 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
   // Log critical configuration values
   const apiKey = localStorage.getItem('google_api_key');
   const spreadsheetId = localStorage.getItem('google_spreadsheet_id') || SPREADSHEET_ID;
-  const forceApiKeyOnly = localStorage.getItem('force_api_key_only') === 'true';
   
   console.log("API Key exists:", !!apiKey);
-  console.log("Spreadsheet ID:", spreadsheetId ? "Exists" : "Missing");
-  console.log("API Key only mode forced:", forceApiKeyOnly);
+  console.log("Spreadsheet ID:", spreadsheetId);
   
   const isAuthorized = await ensureAuthorization();
   console.log("Authorization check result:", isAuthorized);
@@ -77,24 +75,19 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
         });
         return mockCandidates;
       }
-      
-      // Double-check if the API is now available
-      if (!window.gapi?.client?.sheets) {
-        console.error("Sheets API still not available after loading attempt");
-        toast.error("Google Sheets API unavailable - using demo data", {
-          duration: 5000
-        });
-        return mockCandidates;
-      }
+    }
+    
+    // Double-check if the API is now available
+    if (!window.gapi?.client?.sheets) {
+      console.error("Sheets API still not available after loading attempt");
+      toast.error("Google Sheets API unavailable - using demo data", {
+        duration: 5000
+      });
+      return mockCandidates;
     }
     
     console.log("Making API request to Google Sheets with spreadsheet ID:", spreadsheetId);
     console.log("Range:", CANDIDATES_RANGE);
-    
-    // If we're in API key only mode, log that
-    if (forceApiKeyOnly) {
-      console.log("Using API key only mode for read operation");
-    }
     
     const response = await window.gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: spreadsheetId,
@@ -115,6 +108,13 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
     // Convert rows to candidate objects
     console.log(`Found ${rows.length} candidates in the sheet`);
     const candidates = rows.map(rowToCandidate);
+    
+    // Clear any error messages now that we've successfully loaded data
+    const errorAlert = document.querySelector('.alert.variant-destructive');
+    if (errorAlert) {
+      errorAlert.remove();
+    }
+    
     return candidates;
   } catch (error: any) {
     console.error("Error fetching candidates from Google Sheets:", error);

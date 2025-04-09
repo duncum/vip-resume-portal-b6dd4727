@@ -21,7 +21,7 @@ export const ensureAuthorization = async (): Promise<boolean> => {
       return false;
     }
     
-    console.log("API key found, proceeding with Google sign-in in API key only mode");
+    console.log("API key found, proceeding to check Google Sheets API initialization");
 
     // Check if API is already initialized
     if (window.gapi?.client?.sheets) {
@@ -32,6 +32,9 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     // Use signInToGoogle which will handle initialization
     const isInitialized = await signInToGoogle();
     console.log("Google sign-in result:", isInitialized);
+    
+    // Force API key only mode permanently
+    localStorage.setItem('force_api_key_only', 'true');
 
     // Always make sure Sheets API is loaded
     try {
@@ -77,8 +80,6 @@ export const ensureAuthorization = async (): Promise<boolean> => {
           // Wait a bit before retrying
           await new Promise(resolve => setTimeout(resolve, 300 * retryCount));
         }
-        
-        console.log("After loading attempts, Sheets API available:", !!window.gapi?.client?.sheets);
       }
       
       // In API key only mode, we can continue if the API is initialized
@@ -94,17 +95,11 @@ export const ensureAuthorization = async (): Promise<boolean> => {
       }
     } catch (error) {
       console.error("Error loading Sheets API:", error);
-      
-      // In API key only mode, we'll still try to continue if client is initialized
-      if (window.gapi?.client) {
-        console.log('API key only mode - continuing despite Sheets API load error');
-        return true;
-      }
     }
     
-    // Special case for API key only mode - if API initialization worked, continue
+    // If the client is initialized, try to continue anyway
     if (window.gapi?.client) {
-      console.log('API client initialized - continuing');
+      console.log('API client initialized but Sheets API may not be loaded - trying to continue');
       return true;
     }
     
