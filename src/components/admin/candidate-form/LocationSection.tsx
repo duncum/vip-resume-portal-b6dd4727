@@ -9,7 +9,7 @@ const LocationSection = ({
   location,
   onLocationChange,
   relocationPreference,
-  onRelocationChange,
+  onRelocationPreferenceChange,
   disabled
 }: LocationSectionProps) => {
   return (
@@ -31,7 +31,7 @@ const LocationSection = ({
         <label className="text-sm font-medium">Relocation Preference</label>
         <RadioGroup 
           value={relocationPreference} 
-          onValueChange={onRelocationChange}
+          onValueChange={onRelocationPreferenceChange}
           className="flex flex-col space-y-2"
           disabled={disabled}
         >

@@ -27,7 +27,7 @@ export interface LocationSectionProps {
   location: string;
   onLocationChange: (location: string) => void;
   relocationPreference: string;
-  onRelocationChange: (preference: string) => void;
+  onRelocationPreferenceChange: (preference: string) => void;
   disabled?: boolean;
 }
 
