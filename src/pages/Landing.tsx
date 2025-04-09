@@ -1,9 +1,7 @@
-
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import SearchInput from "@/components/candidates/SearchInput"; 
 import Footer from "@/components/layout/Footer";
 
 const Landing = () => {
@@ -19,13 +17,6 @@ const Landing = () => {
       document.body.classList.remove('landing-page');
     };
   }, []);
-
-  const handleSearch = (query: string) => {
-    if (query) {
-      // Redirect to candidates page with search query
-      window.location.href = `/candidates?search=${encodeURIComponent(query)}`;
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
@@ -79,14 +70,8 @@ const Landing = () => {
             Direct connections to <span className="text-gold">exceptional executives</span> who aren't actively seeking, but are <span className="text-white font-medium">privately receptive</span> to transformative opportunities.
           </p>
           
-          {/* Search Component */}
-          <div className="w-full max-w-2xl mx-auto mb-10 md:mb-16 animate-fade-in" style={{ animationDelay: "0.6s" }}>
-            <SearchInput onSearch={handleSearch} />
-            <p className="text-sm text-grey-400 mt-2">Search our confidential network of top executives</p>
-          </div>
-          
           {/* CTA Buttons */}
-          <div className="flex flex-col md:flex-row gap-6 md:gap-8 justify-center px-4 animate-fade-in" style={{ animationDelay: "0.8s" }}>
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8 justify-center px-4 animate-fade-in" style={{ animationDelay: "0.6s" }}>
             <Button 
               className="bg-gradient-to-r from-gold-dark via-gold to-gold-light text-black font-medium text-base md:text-lg px-8 md:px-10 py-7 h-auto shadow-lg hover:shadow-xl hover:shadow-gold/20 transition-all duration-300 group relative overflow-hidden" 
               asChild
