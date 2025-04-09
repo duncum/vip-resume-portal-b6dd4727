@@ -18,11 +18,9 @@ const CategoryFilter = ({
   categoryDescriptions,
   isMobile = false,
 }: CategoryFilterProps) => {
-  // Force re-render to ensure the active button shows up correctly
   const handleCategoryClick = (category: string) => {
     console.log(`Category filter clicked: ${category}`);
-    // Add a small timeout to ensure state updates properly
-    setTimeout(() => onCategoryChange(category), 0);
+    onCategoryChange(category);
   };
 
   return (

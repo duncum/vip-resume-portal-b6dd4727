@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, X } from "lucide-react";
@@ -12,6 +12,15 @@ interface SearchInputProps {
 const SearchInput = ({ onSearch }: SearchInputProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useIsMobile();
+
+  // Trigger search on input change with small debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      onSearch(searchQuery);
+    }, 300);
+    
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, onSearch]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

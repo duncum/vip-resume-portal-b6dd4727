@@ -17,17 +17,18 @@ export const rowToCandidate = (row: any[]): Candidate => {
   console.log("Extracted ID:", id);
   
   // Map the row data to a Candidate object
+  // Corrected column mapping based on the sheet structure
   const candidate: Candidate = {
     id: id,
     headline: row[1]?.toString() || 'No headline',
     sectors: (row[2]?.toString() || '').split(',').map(s => s.trim()).filter(Boolean),
     tags: (row[3]?.toString() || '').split(',').map(t => t.trim()).filter(Boolean),
-    category: row[4]?.toString() || '',
-    title: row[5]?.toString() || '',
-    summary: row[6]?.toString() || '',
-    location: row[7]?.toString() || '',
-    relocationPreference: row[8]?.toString() || 'no',
-    resumeUrl: row[9]?.toString() || '',
+    resumeUrl: row[4]?.toString() || '',
+    category: row[5]?.toString() || '',
+    title: row[6]?.toString() || '',
+    summary: row[7]?.toString() || '',
+    location: row[8]?.toString() || '',
+    relocationPreference: row[9]?.toString() || 'no',
     notableEmployers: row[10]?.toString() || '',
     resumeText: row[11]?.toString() || '',
     salary: row[12]?.toString() || '',
@@ -43,7 +44,8 @@ export const rowToCandidate = (row: any[]): Candidate => {
   console.log("Mapped candidate:", {
     id: candidate.id,
     category: candidate.category,
-    headline: candidate.headline
+    headline: candidate.headline,
+    resumeUrl: candidate.resumeUrl ? "Present" : "Missing"
   });
 
   return candidate;

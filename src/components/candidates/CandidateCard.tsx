@@ -33,13 +33,7 @@ const CandidateCard = ({
   notableEmployers
 }: CandidateCardProps) => {
   // Clean ID to ensure it ONLY includes the ID part and nothing else
-  // Extract just the ID part without any commas or extra data
   const cleanId = id?.trim().split(',')[0] || "";
-  
-  // Add additional check to make sure we NEVER use a long ID in a URL
-  if (cleanId.length > 100) {
-    console.error("ID is suspiciously long, might contain full row data:", cleanId.substring(0, 30) + "...");
-  }
   
   return (
     <Card className="h-full flex flex-col bg-grey-900/20 hover:bg-grey-900/40 border border-grey-800 transition-colors text-white overflow-hidden backdrop-blur-sm">
@@ -51,8 +45,8 @@ const CandidateCard = ({
         {summary && <CandidateSummary summary={summary} />}
         
         <div className="pt-1 space-y-3">
-          {sectors.length > 0 && <SectorBadges sectors={sectors} />}
-          {tags.length > 0 && <SkillBadges tags={tags} />}
+          {sectors && sectors.length > 0 && <SectorBadges sectors={sectors} />}
+          {tags && tags.length > 0 && <SkillBadges tags={tags} />}
         </div>
         
         <div className="space-y-2 mt-auto pt-4">
