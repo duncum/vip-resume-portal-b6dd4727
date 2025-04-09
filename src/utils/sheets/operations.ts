@@ -180,8 +180,9 @@ export const checkSheetExists = async (
     }
     
     // Get the spreadsheet metadata
-    const response = await window.gapi.client.sheets.spreadsheets.get({
-      spreadsheetId
+    const response = await window.gapi.client.request({
+      path: `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`,
+      method: 'GET'
     });
     
     // Check if the sheet exists
@@ -211,10 +212,11 @@ export const createSheet = async (
       return false;
     }
     
-    // Create the sheet
-    await window.gapi.client.sheets.spreadsheets.batchUpdate({
-      spreadsheetId,
-      resource: {
+    // Create the sheet using the request method instead
+    await window.gapi.client.request({
+      path: `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`,
+      method: 'POST',
+      body: {
         requests: [
           {
             addSheet: {

@@ -20,6 +20,9 @@ export {
   setApiKeyOnlyMode
 } from './state';
 
+// Import the functions from state.ts to use them locally
+import { getIsGapiInitialized, setGapiInitialized } from './state';
+
 // Periodic health check and recovery function
 const performHealthCheck = () => {
   const isInitialized = getIsGapiInitialized();
