@@ -10,9 +10,12 @@ const MAX_RETRIES = 3;
 let lastAttemptTime = 0;
 const MIN_ATTEMPT_INTERVAL = 1000; // 1 second
 
+// Track authorization state
+let lastSuccessfulAuth = 0;
+const AUTH_CACHE_TIME = 300000; // 5 minutes
+
 /**
  * Ensure API is initialized for accessing Google Sheets
- * Modified to always work in API key only mode
  */
 export const ensureAuthorization = async (): Promise<boolean> => {
   try {
@@ -26,6 +29,14 @@ export const ensureAuthorization = async (): Promise<boolean> => {
       return getIsGapiInitialized();
     }
     lastAttemptTime = now;
+    
+    // Quick return if recently authorized and has all required APIs
+    if (now - lastSuccessfulAuth < AUTH_CACHE_TIME && 
+        getIsGapiInitialized() &&
+        window.gapi?.client?.sheets) {
+      console.log("Using cached authorization - recently authorized");
+      return true;
+    }
     
     // Check if we have an API key
     const apiKey = localStorage.getItem('google_api_key');
@@ -45,6 +56,7 @@ export const ensureAuthorization = async (): Promise<boolean> => {
       console.log("Google Sheets API already initialized");
       // Reset failure counter on success
       failedAttempts = 0;
+      lastSuccessfulAuth = now;
       return true;
     }
     
@@ -56,7 +68,7 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     }
 
     // Rate limit retries to prevent excessive API calls
-    if (failedAttempts >= MAX_RETRIES && (now - lastAttemptTime) < 30000) { // 30 seconds instead of 60
+    if (failedAttempts >= MAX_RETRIES && (now - lastAttemptTime) < 30000) { // 30 seconds cooldown
       console.log(`Too many failed attempts (${failedAttempts}). Waiting before retrying.`);
       return false;
     }
@@ -67,6 +79,7 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     
     if (isInitialized) {
       failedAttempts = 0; // Reset counter on success
+      lastSuccessfulAuth = now;
     } else {
       failedAttempts++; // Increment failure counter
     }
@@ -87,6 +100,7 @@ export const ensureAuthorization = async (): Promise<boolean> => {
           console.log(`Loading Sheets API (attempt ${retryCount + 1})`);
           await window.gapi.client.load('sheets', 'v4');
           console.log("Sheets API loaded successfully");
+          lastSuccessfulAuth = now;
           break; // Break if successful
         } catch (err) {
           console.error(`Sheets API load attempt ${retryCount + 1} failed:`, err);
@@ -100,6 +114,7 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     // If client is initialized, we can continue
     if (window.gapi?.client) {
       console.log('API client initialized, continuing');
+      lastSuccessfulAuth = now;
       return true;
     }
     
@@ -122,6 +137,7 @@ export const ensureAuthorization = async (): Promise<boolean> => {
 export const resetAuthState = (): void => {
   failedAttempts = 0;
   lastAttemptTime = 0;
+  lastSuccessfulAuth = 0;
   
   // Clear saved initialization state
   if (typeof window !== 'undefined') {
@@ -129,3 +145,34 @@ export const resetAuthState = (): void => {
     setGapiInitialized(false);
   }
 };
+
+/**
+ * Check if API is available for offline use
+ * @returns {boolean} True if API is available offline
+ */
+export const isOfflineModeAvailable = (): boolean => {
+  // Check if we have cached data in localStorage
+  return localStorage.getItem('cached_candidates') !== null;
+};
+
+/**
+ * Toggle auto recovery - force refresh when API becomes available
+ */
+export const enableAutoRecovery = (): void => {
+  window.addEventListener('online', () => {
+    console.log('Internet connection restored, refreshing API connection...');
+    resetAuthState();
+    setTimeout(() => {
+      ensureAuthorization().then(success => {
+        if (success) {
+          toast.success('Internet connection restored. Reconnected to Google API.');
+        }
+      });
+    }, 1000);
+  });
+};
+
+// Enable auto recovery by default
+if (typeof window !== 'undefined') {
+  enableAutoRecovery();
+}

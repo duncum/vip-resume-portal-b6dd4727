@@ -20,9 +20,41 @@ export {
   setApiKeyOnlyMode
 } from './state';
 
+// Periodic health check and recovery function
+const performHealthCheck = () => {
+  const isInitialized = getIsGapiInitialized();
+  const apiKey = localStorage.getItem('google_api_key');
+  
+  // Only perform health check if we should be initialized
+  if (isInitialized && apiKey) {
+    // Check if API client is actually available
+    if (!window.gapi?.client) {
+      console.warn("Health check: API client unavailable despite initialized state");
+      
+      // Reset initialization flag
+      setGapiInitialized(false);
+      
+      // Attempt to reinitialize if not already trying
+      if (!window._isGoogleInitializing) {
+        console.log("Health check: attempting to recover API client");
+        
+        import('./core').then(module => {
+          window._isGoogleInitializing = true;
+          module.initGoogleApi().finally(() => {
+            window._isGoogleInitializing = false;
+          });
+        });
+      }
+    } else {
+      console.log("Health check: API client is healthy");
+    }
+  }
+};
+
 // Add automatic re-initialization on window focus
 // This helps recover from cases where the API becomes unavailable
 if (typeof window !== 'undefined') {
+  // Focus event listener
   window.addEventListener('focus', () => {
     const apiKey = localStorage.getItem('google_api_key');
     if (apiKey) {
@@ -39,8 +71,18 @@ if (typeof window !== 'undefined') {
     }
   });
 
+  // Regular health checks (every 5 minutes)
+  setInterval(performHealthCheck, 300000);
+  
   // Declare property for TypeScript
   window._isGoogleInitializing = false;
+  
+  // Try to preload the core module for faster initialization
+  setTimeout(() => {
+    import('./core').catch(() => {
+      // Silent catch - just preloading for performance
+    });
+  }, 5000);
 }
 
 // Extend Window interface for TypeScript
