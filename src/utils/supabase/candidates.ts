@@ -81,7 +81,8 @@ export const upsertCandidateToSupabase = async (candidate: Candidate): Promise<b
     if (error) throw error
     
     // Record the activity in Google Sheets (as backup)
-    recordActivity(`Candidate ${candidate.id} saved to database`)
+    // Adding second parameter 'supabase' to indicate source of the operation
+    recordActivity(`Candidate ${candidate.id} saved to database`, 'supabase')
     
     return true
   } catch (error) {
@@ -105,7 +106,8 @@ export const deleteCandidateFromSupabase = async (id: string): Promise<boolean> 
     if (error) throw error
     
     // Record the activity in Google Sheets (as backup)
-    recordActivity(`Candidate ${id} deleted from database`)
+    // Adding second parameter 'supabase' to indicate source of the operation
+    recordActivity(`Candidate ${id} deleted from database`, 'supabase')
     
     return true
   } catch (error) {
