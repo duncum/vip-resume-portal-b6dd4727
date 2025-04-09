@@ -6,10 +6,9 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CandidateUploadForm } from "@/components/admin/candidate-form";
 import ManageCandidates from "@/components/admin/ManageCandidates";
-import Analytics from "@/components/admin/analytics"; // Updated import path
+import AdminControls from "@/components/admin/AdminControls";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchCandidates, fetchCandidateById, type Candidate } from "@/utils/sheets";
-import GoogleIntegrationStatus from "@/components/admin/GoogleIntegrationStatus";
 import { useSearchParams } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -128,6 +127,12 @@ const Admin = () => {
           </Alert>
         )}
         
+        {/* Admin Controls Section */}
+        <div className="max-w-5xl mx-auto mb-8">
+          <AdminControls />
+        </div>
+        
+        {/* Main Tabs Section */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="max-w-5xl mx-auto">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="upload" className="text-base py-2.5 data-[state=active]:bg-gold data-[state=active]:text-white">
@@ -172,14 +177,11 @@ const Admin = () => {
           </TabsContent>
           
           <TabsContent value="analytics">
-            <Analytics />
+            <Card className="p-6">
+              <AdminControls activeTab="analytics" />
+            </Card>
           </TabsContent>
         </Tabs>
-        
-        {/* Google Integration Status moved to the bottom */}
-        <div className="mt-8 max-w-xs mx-auto">
-          <GoogleIntegrationStatus />
-        </div>
       </main>
       
       <Footer />

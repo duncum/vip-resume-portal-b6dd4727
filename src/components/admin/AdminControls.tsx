@@ -5,10 +5,14 @@ import SyncControl from './sync/SyncControl';
 import Analytics from './analytics';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-const AdminControls = () => {
+interface AdminControlsProps {
+  activeTab?: string;
+}
+
+const AdminControls = ({ activeTab = "google" }: AdminControlsProps) => {
   return (
     <div className="space-y-4">
-      <Tabs defaultValue="google" className="w-full">
+      <Tabs defaultValue={activeTab} className="w-full">
         <TabsList className="grid grid-cols-3 mb-4">
           <TabsTrigger value="google">Google Integration</TabsTrigger>
           <TabsTrigger value="sync">Data Sync</TabsTrigger>
