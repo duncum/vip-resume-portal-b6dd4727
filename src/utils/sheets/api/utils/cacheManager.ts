@@ -49,11 +49,10 @@ export const updateCache = (candidates: Candidate[]): void => {
 };
 
 /**
- * Get candidates from localStorage or fall back to mock data
- * @param {Function} getMockData Function to get mock data if no cache exists
- * @returns {Candidate[]} Candidates from localStorage or mock data
+ * Get candidates from localStorage
+ * @returns {Candidate[] | null} Candidates from localStorage or null
  */
-export const getCachedOrMockData = (getMockData: () => Candidate[]): Candidate[] => {
+export const getCachedFromStorage = (): Candidate[] | null => {
   try {
     const cachedData = localStorage.getItem('cached_candidates');
     if (cachedData) {
@@ -82,6 +81,5 @@ export const getCachedOrMockData = (getMockData: () => Candidate[]): Candidate[]
     console.error("Error retrieving cached data:", error);
   }
   
-  console.log("No cached data available, using mock data");
-  return getMockData();
+  return null;
 };

@@ -6,5 +6,5 @@ export { addCandidate } from './addCandidate';
 export { recordActivity } from './trackActivity';
 
 // Export utility functions that may be needed elsewhere
-export { getCachedOrMockData } from './utils/cacheManager';
+export { getCachedFromStorage } from './utils/cacheManager';
 export { isOnline } from './utils/networkStatus';

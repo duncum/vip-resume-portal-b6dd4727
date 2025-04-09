@@ -3,7 +3,6 @@ import { Candidate } from '../types';
 import { ensureAuthorization } from '../auth-helper';
 import { rowToCandidate } from '../data-mapper';
 import { SPREADSHEET_ID, CANDIDATES_RANGE } from '../config';
-import { mockCandidates } from '../mock-data';
 import { getIsGapiInitialized } from '../../google/auth/initialize';
 
 // Keep track of when we last showed error toasts to prevent spam
@@ -40,29 +39,18 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
   const isAuthorized = await ensureAuthorization();
   
   if (!isAuthorized) {
-    console.log("Not authorized, using mock data for single candidate");
+    console.log("Not authorized for Google Sheets");
     
     // Limit error toasts to once per minute to avoid spam
     const now = Date.now();
     if (now - lastErrorToastTime > 60000) {
-      toast.warning("Using demo data - check Google integration settings", {
+      toast.error("Google authorization failed. Please check your Google integration settings", {
         duration: 4000
       });
       lastErrorToastTime = now;
     }
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const candidate = mockCandidates.find(c => {
-      const candidateId = c.id.split(',')[0].trim();
-      return candidateId === cleanId;
-    });
-    
-    if (!candidate) {
-      return null; // Return null instead of throwing an error
-    }
-    
-    return candidate;
+    throw new Error("Not authorized for Google Sheets");
   }
   
   try {
@@ -72,14 +60,7 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
       toast.error("Spreadsheet ID missing. Please add it in Google settings.", {
         duration: 5000
       });
-      
-      // Fall back to mock data
-      const candidate = mockCandidates.find(c => {
-        const candidateId = c.id.split(',')[0].trim();
-        return candidateId === cleanId;
-      });
-      if (!candidate) return null;
-      return candidate;
+      throw new Error("Spreadsheet ID missing");
     }
     
     // Get all candidates and filter by ID
@@ -91,18 +72,11 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
     const rows = response.result.values;
     
     if (!rows || rows.length === 0) {
-      console.log("No data found in Google Sheet, using mock data");
+      console.log("No data found in Google Sheet");
       toast.info("Your Google Sheet appears to be empty", {
         duration: 5000
       });
-      
-      // Fall back to mock data
-      const candidate = mockCandidates.find(c => {
-        const candidateId = c.id.split(',')[0].trim();
-        return candidateId === cleanId;
-      });
-      if (!candidate) return null;
-      return candidate;
+      throw new Error("No data found in Google Sheet");
     }
     
     // Find the row with the matching ID - always compare only the first segment before any comma
@@ -113,14 +87,8 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
     });
     
     if (!candidateRow) {
-      console.log("Candidate not found in sheet, checking mock data");
-      // Check mock data as fallback
-      const mockCandidate = mockCandidates.find(c => {
-        const candidateId = c.id.split(',')[0].trim();
-        return candidateId === cleanId;
-      });
-      if (!mockCandidate) return null;
-      return mockCandidate;
+      console.log("Candidate not found in sheet");
+      return null;
     }
     
     return rowToCandidate(candidateRow);
@@ -156,11 +124,6 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
       lastErrorToastTime = now;
     }
     
-    // Fall back to mock data on error
-    const candidate = mockCandidates.find(c => {
-      const candidateId = c.id.split(',')[0].trim();
-      return candidateId === cleanId;
-    });
-    return candidate || null;
+    throw error;
   }
 };

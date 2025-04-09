@@ -101,12 +101,3 @@ export const fetchSheetsData = async (
   console.log(`Successfully converted ${validCandidates.length} candidates from ${rows.length} rows`);
   return validCandidates;
 };
-
-/**
- * Check if the returned data is mock data
- * @param {Candidate[]} candidates The candidates to check
- * @returns {boolean} True if the data appears to be mock data
- */
-export const isMockData = (candidates: Candidate[]): boolean => {
-  return candidates.some(c => ["1", "2", "3", "4", "5", "6", "7"].includes(c.id));
-};

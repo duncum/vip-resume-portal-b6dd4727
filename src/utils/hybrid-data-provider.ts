@@ -34,7 +34,7 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
     }
   }
   
-  // Fall back to Google Sheets
+  // Fall back to Google Sheets - no mock data
   console.log('Falling back to Google Sheets for candidates');
   return fetchCandidatesFromSheets();
 };
@@ -56,7 +56,7 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
     }
   }
   
-  // Fall back to Google Sheets
+  // Fall back to Google Sheets - no mock data
   console.log(`Falling back to Google Sheets for candidate ${id}`);
   return fetchCandidateByIdFromSheets(id);
 };

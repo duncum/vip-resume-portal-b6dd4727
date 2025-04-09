@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Candidate } from '../types';
 import { ensureAuthorization, resetAuthState, isOfflineModeAvailable } from '../auth-helper';
 import { CANDIDATES_RANGE } from '../config';
-import { mockCandidates } from '../mock-data';
 import { getIsGapiInitialized } from '../../google/auth/initialize';
 import { shouldThrottleRequest } from './utils/rateLimiter';
 import { 
@@ -19,9 +18,9 @@ import {
 import { validateSheetsConfig } from './utils/sheetValidator';
 import { ensureSheetsApiLoaded } from './utils/sheetsLoader';
 import { handleSheetsError, handleNetworkError } from './utils/errorHandler';
-import { getCachedCandidates, getCachedOrMockData } from './utils/cacheManager';
+import { getCachedCandidates, getCachedFromStorage } from './utils/cacheManager';
 import { isOnline, handleOfflineState } from './utils/networkStatus';
-import { fetchSheetsData, isMockData } from './utils/apiRequest';
+import { fetchSheetsData } from './utils/apiRequest';
 
 /**
  * Fetch all candidates from Google Sheets API with robust error handling
@@ -37,15 +36,22 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
   
   // Rate limit requests to prevent API abuse
   if (shouldThrottleRequest()) {
-    console.log("Request throttled, using fallback data");
-    return getCachedOrMockData(() => mockCandidates);
+    console.log("Request throttled");
+    const storedCandidates = getCachedFromStorage();
+    if (storedCandidates) {
+      return storedCandidates;
+    }
+    throw new Error("Rate limited and no cached data available");
   }
   
   // Validate configuration 
   const { isValid, errorMessage } = validateSheetsConfig();
   if (!isValid) {
     console.warn(`Configuration invalid: ${errorMessage}`);
-    return getCachedOrMockData(() => mockCandidates);
+    toast.error(`Google Sheets configuration error: ${errorMessage}`, {
+      duration: 5000
+    });
+    throw new Error(errorMessage || "Invalid configuration");
   }
   
   // Log critical configuration values
@@ -56,7 +62,11 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
   // Check if we're offline
   if (!isOnline()) {
     handleOfflineState();
-    return getCachedOrMockData(() => mockCandidates);
+    const storedCandidates = getCachedFromStorage();
+    if (storedCandidates) {
+      return storedCandidates;
+    }
+    throw new Error("You're offline and no cached data is available");
   }
   
   // If we have too many consecutive failures, reset the auth state
@@ -77,17 +87,17 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
   console.log("Authorization check result:", isAuthorized);
   
   if (!isAuthorized) {
-    console.log("Not authorized, using fallback data for candidates");
+    console.log("Not authorized for Google Sheets");
     incrementFailures();
     
     // Only show toast if not too many failures (to prevent toast spam)
     if (getFailureCount() < 3) {
-      toast.warning("Using demo data - check Google integration settings", {
+      toast.error("Google authorization failed. Please check your Google integration settings", {
         duration: 4000
       });
     }
     
-    return getCachedOrMockData(() => mockCandidates);
+    throw new Error("Not authorized for Google Sheets");
   }
   
   try {
@@ -99,33 +109,23 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
       toast.error("Spreadsheet ID missing. Please add it in Google settings.", {
         duration: 5000
       });
-      return getCachedOrMockData(() => mockCandidates);
+      throw new Error("Spreadsheet ID missing");
     }
     
     // Ensure Sheets API is loaded
     const sheetsLoaded = await ensureSheetsApiLoaded();
     if (!sheetsLoaded) {
       incrementFailures();
-      toast.error("Failed to load Google Sheets API - using fallback data instead", {
+      toast.error("Failed to load Google Sheets API", {
         duration: 5000
       });
-      return getCachedOrMockData(() => mockCandidates);
+      throw new Error("Failed to load Google Sheets API");
     }
     
     // Fetch data from the API
     const candidates = await fetchSheetsData(spreadsheetId, CANDIDATES_RANGE);
-    
-    // Check if it's mock data 
-    const usingMockData = isMockData(candidates);
-    if (usingMockData) {
-      console.log("Using mock data - check Google configuration");
-      if (!localStorage.getItem('google_api_key')) {
-        incrementFailures();
-        return getCachedOrMockData(() => mockCandidates);
-      }
-    }
-    
     return candidates;
+    
   } catch (error: any) {
     incrementFailures();
     
@@ -142,6 +142,14 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
       resetFailures();
     }
     
-    return getCachedOrMockData(() => mockCandidates); // Fall back to cached or mock data on error
+    // Try to use cached data if available
+    const storedCandidates = getCachedFromStorage();
+    if (storedCandidates) {
+      console.log("Returning cached data after API error");
+      return storedCandidates;
+    }
+    
+    // No cached data, throw the error
+    throw error;
   }
 };
