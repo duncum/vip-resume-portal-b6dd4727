@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CandidateUploadForm } from "@/components/admin/candidate-form";
 import ManageCandidates from "@/components/admin/ManageCandidates";
-import Analytics from "@/components/admin/Analytics";
+import Analytics from "@/components/admin/analytics"; // Updated import path
 import { useToast } from "@/components/ui/use-toast";
 import { fetchCandidates, fetchCandidateById, type Candidate } from "@/utils/sheets";
 import GoogleIntegrationStatus from "@/components/admin/GoogleIntegrationStatus";
