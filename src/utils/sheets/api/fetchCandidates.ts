@@ -1,12 +1,15 @@
 
+/**
+ * Main utility for fetching candidate data from Google Sheets
+ */
+
 import { toast } from "sonner";
 import { Candidate } from '../types';
 import { ensureAuthorization, resetAuthState, isOfflineModeAvailable } from '../auth-helper';
-import { rowToCandidate } from '../data-mapper';
-import { SPREADSHEET_ID, CANDIDATES_RANGE } from '../config';
+import { CANDIDATES_RANGE } from '../config';
 import { mockCandidates } from '../mock-data';
 import { getIsGapiInitialized } from '../../google/auth/initialize';
-import { shouldThrottleRequest, getBackoffDelay } from './utils/rateLimiter';
+import { shouldThrottleRequest } from './utils/rateLimiter';
 import { 
   incrementFailures, 
   resetFailures, 
@@ -16,15 +19,9 @@ import {
 import { validateSheetsConfig } from './utils/sheetValidator';
 import { ensureSheetsApiLoaded } from './utils/sheetsLoader';
 import { handleSheetsError, handleNetworkError } from './utils/errorHandler';
-
-// Track retry attempts
-let retryCount = 0;
-const MAX_RETRIES = 3;
-
-// Cache for reducing API calls
-let cachedCandidates: Candidate[] | null = null;
-let lastCacheTime = 0;
-const CACHE_DURATION = 60000; // 1 minute cache
+import { getCachedCandidates, getCachedOrMockData } from './utils/cacheManager';
+import { isOnline, handleOfflineState } from './utils/networkStatus';
+import { fetchSheetsData, isMockData } from './utils/apiRequest';
 
 /**
  * Fetch all candidates from Google Sheets API with robust error handling
@@ -33,45 +30,33 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
   console.log("Starting fetchCandidates...");
   
   // Check cache first
-  const now = Date.now();
-  if (cachedCandidates && (now - lastCacheTime < CACHE_DURATION)) {
-    console.log("Using cached candidates data");
-    return cachedCandidates;
+  const cachedData = getCachedCandidates();
+  if (cachedData) {
+    return cachedData;
   }
   
   // Rate limit requests to prevent API abuse
   if (shouldThrottleRequest()) {
     console.log("Request throttled, using fallback data");
-    return getCachedOrMockData();
+    return getCachedOrMockData(() => mockCandidates);
   }
   
   // Validate configuration 
   const { isValid, errorMessage } = validateSheetsConfig();
   if (!isValid) {
     console.warn(`Configuration invalid: ${errorMessage}`);
-    return getCachedOrMockData();
+    return getCachedOrMockData(() => mockCandidates);
   }
   
   // Log critical configuration values
-  const spreadsheetId = localStorage.getItem('google_spreadsheet_id') || SPREADSHEET_ID;
+  const spreadsheetId = localStorage.getItem('google_spreadsheet_id') || '';
   console.log("API initialized according to state:", getIsGapiInitialized());
   console.log("Sheets API available:", !!window.gapi?.client?.sheets);
   
   // Check if we're offline
-  if (!navigator.onLine) {
-    console.log("Browser is offline, using offline data");
-    
-    if (isOfflineModeAvailable()) {
-      toast.info("You're offline. Using previously cached data.", {
-        duration: 3000
-      });
-    } else {
-      toast.warning("You're offline. Using demo data until connection is restored.", {
-        duration: 4000
-      });
-    }
-    
-    return getCachedOrMockData();
+  if (!isOnline()) {
+    handleOfflineState();
+    return getCachedOrMockData(() => mockCandidates);
   }
   
   // If we have too many consecutive failures, reset the auth state
@@ -102,7 +87,7 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
       });
     }
     
-    return getCachedOrMockData();
+    return getCachedOrMockData(() => mockCandidates);
   }
   
   try {
@@ -114,7 +99,7 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
       toast.error("Spreadsheet ID missing. Please add it in Google settings.", {
         duration: 5000
       });
-      return getCachedOrMockData();
+      return getCachedOrMockData(() => mockCandidates);
     }
     
     // Ensure Sheets API is loaded
@@ -124,100 +109,28 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
       toast.error("Failed to load Google Sheets API - using fallback data instead", {
         duration: 5000
       });
-      return getCachedOrMockData();
+      return getCachedOrMockData(() => mockCandidates);
     }
     
-    console.log("Making API request to Google Sheets with spreadsheet ID:", spreadsheetId);
-    console.log("Range:", CANDIDATES_RANGE);
+    // Fetch data from the API
+    const candidates = await fetchSheetsData(spreadsheetId, CANDIDATES_RANGE);
     
-    // Implement retry with exponential backoff
-    let response;
-    let attemptCount = 0;
-    let lastError;
-    
-    while (attemptCount <= MAX_RETRIES) {
-      try {
-        response = await window.gapi.client.sheets.spreadsheets.values.get({
-          spreadsheetId: spreadsheetId,
-          range: CANDIDATES_RANGE
-        });
-        break; // Success! Exit the retry loop
-      } catch (error) {
-        lastError = error;
-        attemptCount++;
-        
-        if (attemptCount <= MAX_RETRIES) {
-          // Wait with exponential backoff before retrying
-          const delay = getBackoffDelay(attemptCount - 1);
-          console.log(`API request failed, retrying (${attemptCount}/${MAX_RETRIES}) after ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-        } else {
-          console.error(`API request failed after ${MAX_RETRIES} retries`);
-          throw error; // Rethrow to be caught by the outer catch block
-        }
+    // Check if it's mock data 
+    const usingMockData = isMockData(candidates);
+    if (usingMockData) {
+      console.log("Using mock data - check Google configuration");
+      if (!localStorage.getItem('google_api_key')) {
+        incrementFailures();
+        return getCachedOrMockData(() => mockCandidates);
       }
     }
     
-    if (!response) {
-      throw lastError || new Error("Failed to get response from Google Sheets");
-    }
-    
-    console.log("Response received from Google Sheets");
-    const rows = response.result.values;
-    
-    if (!rows || rows.length === 0) {
-      console.log("No data found in Google Sheet");
-      toast.info("Your Google Sheet appears to be empty", {
-        duration: 5000
-      });
-      return getCachedOrMockData(); // Return mock data if sheet is empty
-    }
-    
-    // Convert rows to candidate objects
-    console.log(`Found ${rows.length} candidates in the sheet`);
-    const candidates = rows.map(row => {
-      try {
-        const candidate = rowToCandidate(row);
-        return candidate;
-      } catch (error) {
-        console.error("Error parsing row:", row, error);
-        // Return a minimal valid candidate to prevent crashes
-        return {
-          id: "error",
-          headline: "Error parsing data",
-          sectors: [],
-          tags: [],
-          category: "Error"
-        } as Candidate;
-      }
-    });
-    
-    // Filter out error entries
-    const validCandidates = candidates.filter(c => c.id !== "error");
-    
-    // Reset failure counter on success
-    resetFailures();
-    
-    // Update cache
-    cachedCandidates = validCandidates;
-    lastCacheTime = Date.now();
-    
-    // Also store in localStorage for offline fallback
-    try {
-      localStorage.setItem('cached_candidates', JSON.stringify(validCandidates));
-      localStorage.setItem('cached_candidates_time', lastCacheTime.toString());
-    } catch (cacheError) {
-      console.warn("Failed to cache candidates in localStorage:", cacheError);
-    }
-    
-    // Log success
-    console.log(`Successfully converted ${validCandidates.length} candidates from ${rows.length} rows`);
-    return validCandidates;
+    return candidates;
   } catch (error: any) {
     incrementFailures();
     
     // Check if it's a network error vs. a Google API error
-    if (!navigator.onLine || error.message?.includes('network') || error.name === 'TypeError') {
+    if (!isOnline() || error.message?.includes('network') || error.name === 'TypeError') {
       handleNetworkError(error);
     } else {
       handleSheetsError(error);
@@ -229,40 +142,6 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
       resetFailures();
     }
     
-    return getCachedOrMockData(); // Fall back to cached or mock data on error
+    return getCachedOrMockData(() => mockCandidates); // Fall back to cached or mock data on error
   }
 };
-
-/**
- * Helper to get cached data from localStorage or fall back to mock data
- */
-function getCachedOrMockData(): Candidate[] {
-  try {
-    const cachedData = localStorage.getItem('cached_candidates');
-    if (cachedData) {
-      const cachedTimeStr = localStorage.getItem('cached_candidates_time');
-      const cachedTime = cachedTimeStr ? parseInt(cachedTimeStr, 10) : 0;
-      const age = Date.now() - cachedTime;
-      
-      // Check if cache is too old (over 1 day)
-      if (age > 86400000) { // 24 hours
-        console.log("Cached data is over 24 hours old");
-        // Still return it but inform user
-        if (navigator.onLine) {
-          toast.info("Using older cached data while attempting to refresh", {
-            duration: 3000
-          });
-        }
-      } else {
-        console.log("Using cached data from localStorage");
-      }
-      
-      return JSON.parse(cachedData);
-    }
-  } catch (error) {
-    console.error("Error retrieving cached data:", error);
-  }
-  
-  console.log("No cached data available, using mock data");
-  return mockCandidates;
-}
