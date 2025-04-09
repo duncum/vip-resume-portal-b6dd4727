@@ -1,10 +1,15 @@
 
 import { toast } from "sonner";
 import { Candidate } from '../types';
-import { ensureAuthorization } from '../auth-helper';
+import { ensureAuthorization, resetAuthState } from '../auth-helper';
 import { rowToCandidate } from '../data-mapper';
 import { SPREADSHEET_ID, CANDIDATES_RANGE } from '../config';
 import { mockCandidates } from '../mock-data';
+import { getIsGapiInitialized } from '../../google/auth/initialize';
+
+// Track repeated failures to prevent constant error messages
+let consecutiveFailures = 0;
+const MAX_FAILURES_BEFORE_RESET = 3;
 
 /**
  * Fetch all candidates from Google Sheets API
@@ -19,15 +24,30 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
   
   console.log("API Key exists:", !!apiKey);
   console.log("Spreadsheet ID:", spreadsheetId);
+  console.log("API initialized according to state:", getIsGapiInitialized());
+  console.log("Sheets API available:", !!window.gapi?.client?.sheets);
+  
+  // If we have too many consecutive failures, reset the auth state
+  if (consecutiveFailures >= MAX_FAILURES_BEFORE_RESET) {
+    console.log("Too many consecutive failures, resetting auth state");
+    resetAuthState();
+    consecutiveFailures = 0;
+  }
   
   const isAuthorized = await ensureAuthorization();
   console.log("Authorization check result:", isAuthorized);
   
   if (!isAuthorized) {
     console.log("Not authorized, using mock data for candidates");
-    toast.warning("Using demo data - check Google integration settings", {
-      duration: 4000
-    });
+    consecutiveFailures++;
+    
+    // Only show toast if not too many failures (to prevent toast spam)
+    if (consecutiveFailures < 3) {
+      toast.warning("Using demo data - check Google integration settings", {
+        duration: 4000
+      });
+    }
+    
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 500));
     return mockCandidates;
@@ -70,6 +90,7 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
         });
       } catch (error) {
         console.error("Failed to load Sheets API:", error);
+        consecutiveFailures++;
         toast.error("Failed to load Google Sheets API - using demo data instead", {
           duration: 5000
         });
@@ -80,6 +101,7 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
     // Double-check if the API is now available
     if (!window.gapi?.client?.sheets) {
       console.error("Sheets API still not available after loading attempt");
+      consecutiveFailures++;
       toast.error("Google Sheets API unavailable - using demo data", {
         duration: 5000
       });
@@ -109,6 +131,9 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
     console.log(`Found ${rows.length} candidates in the sheet`);
     const candidates = rows.map(rowToCandidate);
     
+    // Reset failure counter on success
+    consecutiveFailures = 0;
+    
     // Clear any error messages now that we've successfully loaded data
     const errorAlert = document.querySelector('.alert.variant-destructive');
     if (errorAlert) {
@@ -119,6 +144,7 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
   } catch (error: any) {
     console.error("Error fetching candidates from Google Sheets:", error);
     console.log("Error details:", JSON.stringify(error, null, 2));
+    consecutiveFailures++;
     
     // More detailed error message based on the error type
     if (error.result?.error?.status === "PERMISSION_DENIED") {
@@ -133,6 +159,12 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
       toast.error("Failed to load data from Google Sheets - using demo data instead", {
         duration: 5000
       });
+    }
+    
+    // If too many failures in a row, reset auth state
+    if (consecutiveFailures >= MAX_FAILURES_BEFORE_RESET) {
+      resetAuthState();
+      consecutiveFailures = 0;
     }
     
     return mockCandidates; // Fall back to mock data on error

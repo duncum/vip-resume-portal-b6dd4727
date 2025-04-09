@@ -2,6 +2,12 @@
 // Helper functions for managing Google authentication for Sheets API
 import { signInToGoogle } from '../google';
 import { toast } from 'sonner';
+import { getIsGapiInitialized } from '../google/auth/initialize';
+
+// Track failed attempts to avoid infinite retry loops
+let failedAttempts = 0;
+const MAX_RETRIES = 3;
+let lastAttemptTime = 0;
 
 /**
  * Ensure API is initialized for accessing Google Sheets
@@ -23,15 +29,32 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     
     console.log("API key found, proceeding to check Google Sheets API initialization");
 
-    // Check if API is already initialized
-    if (window.gapi?.client?.sheets) {
+    // Check if API is already initialized properly
+    if (window.gapi?.client?.sheets && getIsGapiInitialized()) {
       console.log("Google Sheets API already initialized");
+      // Reset failure counter on success
+      failedAttempts = 0;
       return true;
     }
 
+    // Rate limit retries to prevent excessive API calls
+    const now = Date.now();
+    if (failedAttempts >= MAX_RETRIES && (now - lastAttemptTime) < 60000) {
+      console.log(`Too many failed attempts (${failedAttempts}). Waiting before retrying.`);
+      return false;
+    }
+    
+    lastAttemptTime = now;
+    
     // Use signInToGoogle which will handle initialization
     const isInitialized = await signInToGoogle();
     console.log("Google sign-in result:", isInitialized);
+    
+    if (isInitialized) {
+      failedAttempts = 0; // Reset counter on success
+    } else {
+      failedAttempts++; // Increment failure counter
+    }
     
     // Force API key only mode permanently
     localStorage.setItem('force_api_key_only', 'true');
@@ -95,6 +118,7 @@ export const ensureAuthorization = async (): Promise<boolean> => {
       }
     } catch (error) {
       console.error("Error loading Sheets API:", error);
+      failedAttempts++;
     }
     
     // If the client is initialized, try to continue anyway
@@ -107,11 +131,24 @@ export const ensureAuthorization = async (): Promise<boolean> => {
     return false;
   } catch (error) {
     console.error('Sheets authorization error:', error);
+    failedAttempts++;
+    
     // Try to return true anyway if client is initialized
     if (window.gapi?.client) {
       console.log('API key only mode - continuing despite errors');
       return true;
     }
     return false;
+  }
+};
+
+// Reset the auth state - can be called to force re-authentication
+export const resetAuthState = (): void => {
+  failedAttempts = 0;
+  lastAttemptTime = 0;
+  
+  // Clear saved initialization state
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('gapi_initialized', 'false');
   }
 };

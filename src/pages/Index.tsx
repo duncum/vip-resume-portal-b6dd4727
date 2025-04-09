@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CandidateSearch from "@/components/candidates/CandidateSearch";
@@ -18,6 +18,8 @@ const Index = () => {
   const [usedMockData, setUsedMockData] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const isMobile = useIsMobile();
+  const retryCount = useRef(0);
+  const maxRetries = 3;
   
   // Define position categories
   const positionCategories = [
@@ -29,56 +31,99 @@ const Index = () => {
     "One Man Army"
   ];
 
-  useEffect(() => {
-    const loadCandidates = async () => {
-      try {
+  // Function to load candidates with retry logic
+  const loadCandidates = async (retry = false) => {
+    try {
+      if (!retry) {
         setIsLoading(true);
         setLoadError(null);
-        
-        // Check for necessary Google configuration
-        const apiKey = localStorage.getItem('google_api_key');
-        const spreadsheetId = localStorage.getItem('google_spreadsheet_id');
-        
-        console.log("Loading candidates with API key:", !!apiKey);
-        console.log("Loading candidates with spreadsheet ID:", !!spreadsheetId);
-        
-        // Force API key only mode - this app doesn't need OAuth
-        localStorage.setItem('force_api_key_only', 'true');
-        
-        // Fetch data from API
-        const data = await fetchCandidates();
-        setCandidates(data);
-        setFilteredCandidates(data);
-        
-        // Detect if we're using mock data by checking candidate IDs 
-        // (all mock data has predefined IDs 1-7)
-        const isMockData = data.some(c => ["1", "2", "3", "4", "5", "6", "7"].includes(c.id));
-        setUsedMockData(isMockData);
-        
-        if (isMockData) {
-          console.log("Using mock data - check Google configuration");
-          if (!apiKey) {
-            setLoadError("Google API key is missing");
-          } else if (!spreadsheetId) {
-            setLoadError("Google Spreadsheet ID is missing");
-          } else {
-            setLoadError("Connection to Google Sheets failed - using demo data");
-          }
+      }
+      
+      // Check for necessary Google configuration
+      const apiKey = localStorage.getItem('google_api_key');
+      const spreadsheetId = localStorage.getItem('google_spreadsheet_id');
+      
+      console.log("Loading candidates with API key:", !!apiKey);
+      console.log("Loading candidates with spreadsheet ID:", !!spreadsheetId);
+      
+      // Force API key only mode - this app doesn't need OAuth
+      localStorage.setItem('force_api_key_only', 'true');
+      
+      // Fetch data from API
+      const data = await fetchCandidates();
+      setCandidates(data);
+      setFilteredCandidates(data);
+      
+      // Detect if we're using mock data by checking candidate IDs 
+      // (all mock data has predefined IDs 1-7)
+      const isMockData = data.some(c => ["1", "2", "3", "4", "5", "6", "7"].includes(c.id));
+      setUsedMockData(isMockData);
+      
+      if (isMockData) {
+        console.log("Using mock data - check Google configuration");
+        if (!apiKey) {
+          setLoadError("Google API key is missing");
+        } else if (!spreadsheetId) {
+          setLoadError("Google Spreadsheet ID is missing");
         } else {
-          // Show success notification
-          toast.success("Candidates loaded successfully");
+          setLoadError("Connection to Google Sheets failed - using demo data");
+          
+          // Try again if we haven't exceeded max retries
+          if (retryCount.current < maxRetries) {
+            retryCount.current++;
+            console.log(`Retry attempt ${retryCount.current}/${maxRetries} in 2 seconds...`);
+            setTimeout(() => loadCandidates(true), 2000);
+          } else {
+            console.log("Max retries reached");
+            retryCount.current = 0;
+          }
         }
-      } catch (error) {
-        console.error("Error loading candidates:", error);
-        setLoadError("Failed to load candidates - using demo data");
-        toast.error("Failed to load candidates");
-      } finally {
-        setIsLoading(false);
+      } else {
+        // Reset retry counter on success
+        retryCount.current = 0;
+        // Show success notification
+        toast.success("Candidates loaded successfully");
+      }
+    } catch (error) {
+      console.error("Error loading candidates:", error);
+      setLoadError("Failed to load candidates - using demo data");
+      
+      // Try again if we haven't exceeded max retries
+      if (retryCount.current < maxRetries) {
+        retryCount.current++;
+        console.log(`Retry attempt ${retryCount.current}/${maxRetries} in 2 seconds...`);
+        setTimeout(() => loadCandidates(true), 2000);
+      } else {
+        console.log("Max retries reached");
+        retryCount.current = 0;
+        toast.error("Failed to load candidates after multiple attempts");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initial load and window focus event to refresh data
+  useEffect(() => {
+    // Initial load
+    loadCandidates();
+    
+    // Set up window focus event to refresh data if needed
+    const handleFocus = () => {
+      // Only refresh if we're currently showing mock data due to connection issues
+      if (usedMockData) {
+        console.log("Window gained focus, refreshing candidates data");
+        loadCandidates();
       }
     };
-
-    loadCandidates();
-  }, []);
+    
+    window.addEventListener('focus', handleFocus);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [usedMockData]);
 
   const handleSearch = (query: string) => {
     if (!query && activeCategory === "All") {

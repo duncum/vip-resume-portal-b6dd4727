@@ -1,10 +1,13 @@
-
 import { toast } from "sonner";
 import { Candidate } from '../types';
 import { ensureAuthorization } from '../auth-helper';
 import { rowToCandidate } from '../data-mapper';
 import { SPREADSHEET_ID, CANDIDATES_RANGE } from '../config';
 import { mockCandidates } from '../mock-data';
+import { getIsGapiInitialized } from '../../google/auth/initialize';
+
+// Keep track of when we last showed error toasts to prevent spam
+let lastErrorToastTime = 0;
 
 /**
  * Fetch a single candidate by ID from Google Sheets API
@@ -29,14 +32,25 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
   console.log("Fetching candidate with original ID param:", id);
   console.log("Using clean ID for search:", cleanId);
   
+  // Log API state 
+  console.log("API initialized according to state:", getIsGapiInitialized());
+  console.log("Sheets API available:", !!window.gapi?.client?.sheets);
+  
   // Check if we have proper authorization
   const isAuthorized = await ensureAuthorization();
   
   if (!isAuthorized) {
     console.log("Not authorized, using mock data for single candidate");
-    toast.warning("Using demo data - check Google integration settings", {
-      duration: 4000
-    });
+    
+    // Limit error toasts to once per minute to avoid spam
+    const now = Date.now();
+    if (now - lastErrorToastTime > 60000) {
+      toast.warning("Using demo data - check Google integration settings", {
+        duration: 4000
+      });
+      lastErrorToastTime = now;
+    }
+    
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 500));
     const candidate = mockCandidates.find(c => {
@@ -118,23 +132,28 @@ export const fetchCandidateById = async (id: string): Promise<Candidate | null> 
     console.log("Current spreadsheet ID:", localStorage.getItem('google_spreadsheet_id') || SPREADSHEET_ID);
     console.log("API Key exists:", !!localStorage.getItem('google_api_key'));
     
-    // Better error messages for the user
-    if (error.result?.error?.status === "PERMISSION_DENIED") {
-      toast.error("Permission denied - make sure your sheet is shared publicly or with the service account", {
-        duration: 6000
-      });
-    } else if (error.result?.error?.status === "NOT_FOUND") {
-      toast.error("Spreadsheet not found - check your Spreadsheet ID", {
-        duration: 5000
-      });
-    } else if (!window.gapi?.client?.sheets) {
-      toast.error("Google Sheets API not available - check API key and connection", {
-        duration: 5000
-      });
-    } else {
-      toast.error("Failed to load candidate details", {
-        duration: 5000
-      });
+    // Limit error toasts to once per minute to avoid spam
+    const now = Date.now();
+    if (now - lastErrorToastTime > 60000) {
+      // Better error messages for the user
+      if (error.result?.error?.status === "PERMISSION_DENIED") {
+        toast.error("Permission denied - make sure your sheet is shared publicly or with the service account", {
+          duration: 6000
+        });
+      } else if (error.result?.error?.status === "NOT_FOUND") {
+        toast.error("Spreadsheet not found - check your Spreadsheet ID", {
+          duration: 5000
+        });
+      } else if (!window.gapi?.client?.sheets) {
+        toast.error("Google Sheets API not available - check API key and connection", {
+          duration: 5000
+        });
+      } else {
+        toast.error("Failed to load candidate details", {
+          duration: 5000
+        });
+      }
+      lastErrorToastTime = now;
     }
     
     // Fall back to mock data on error
