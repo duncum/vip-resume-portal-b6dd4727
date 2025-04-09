@@ -37,10 +37,15 @@ export const useSimpleEmailForm = ({ open, onOpenChange, candidateId, resumeUrl 
     setIsLoading(true);
     
     try {
-      // Check if Gmail integration is enabled
-      const isAuthorized = await isUserAuthorized();
-      if (isAuthorized && !showGmailHelp) {
-        setShowGmailHelp(true);
+      // Check if we're in API key only mode
+      const clientId = localStorage.getItem('google_client_id');
+      
+      // Only check Gmail integration if not in API key only mode
+      if (clientId) {
+        const isAuthorized = await isUserAuthorized();
+        if (isAuthorized && !showGmailHelp) {
+          setShowGmailHelp(true);
+        }
       }
       
       const success = await sendResumeEmail({

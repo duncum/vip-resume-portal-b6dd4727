@@ -12,11 +12,22 @@ export const API_KEY =
   import.meta.env.VITE_GOOGLE_API_KEY || 
   "";
 
-export const DISCOVERY_DOCS = [
-  "https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest",
-  "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
-  "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"
-];
+// Determine if we're in API key only mode
+const isApiKeyOnly = typeof window !== 'undefined' && 
+  (!window.localStorage.getItem('google_client_id') || 
+   window.localStorage.getItem('google_client_id') === '');
+
+// Only include Gmail in discovery docs if we have a client ID
+export const DISCOVERY_DOCS = isApiKeyOnly ? 
+  [
+    "https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest",
+    "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"
+  ] : 
+  [
+    "https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest",
+    "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
+    "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"
+  ];
 
 // Make sure the Gmail scope is included
 export const SCOPES = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/gmail.send';

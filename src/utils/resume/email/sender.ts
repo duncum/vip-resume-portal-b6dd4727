@@ -31,6 +31,12 @@ export const sendEmailWithService = async (emailData: EmailData): Promise<boolea
       return fallbackEmailSending(emailData);
     }
     
+    // Check if we're in API key only mode
+    if (!clientId) {
+      console.log("API key only mode - skipping Gmail API, using fallback directly");
+      return fallbackEmailSending(emailData);
+    }
+    
     // Otherwise try OAuth method if authorized
     const isAuthorizedPromise = isUserAuthorized().catch(err => {
       console.warn("Error checking authorization:", err);
