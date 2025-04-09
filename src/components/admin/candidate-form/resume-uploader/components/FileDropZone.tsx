@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from "react";
-import { Upload, FileIcon } from "lucide-react";
+import { Upload, FileIcon, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FileDropZoneProps {
@@ -10,6 +10,7 @@ interface FileDropZoneProps {
   isUploading: boolean;
   isExtracting: boolean;
   disabled?: boolean;
+  candidateIdEntered?: boolean;
 }
 
 const FileDropZone = ({
@@ -18,7 +19,8 @@ const FileDropZone = ({
   onUploadClick,
   isUploading,
   isExtracting,
-  disabled = false
+  disabled = false,
+  candidateIdEntered = false
 }: FileDropZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +56,21 @@ const FileDropZone = ({
       fileInputRef.current.click();
     }
   };
+
+  // If Candidate ID is not entered, show a clear message
+  if (!candidateIdEntered) {
+    return (
+      <div className="w-full text-center py-6">
+        <AlertCircle className="mx-auto mb-3 h-10 w-10 text-amber-500" />
+        <p className="text-sm font-medium mb-2 text-gray-700">
+          Please enter a Candidate ID first
+        </p>
+        <p className="text-xs text-gray-500">
+          You must provide a Candidate ID before uploading a resume
+        </p>
+      </div>
+    );
+  }
   
   return (
     <div
@@ -123,7 +140,6 @@ const FileDropZone = ({
             Drag and drop your resume, or <span className="text-blue-500">browse</span>
           </p>
           <p className="text-xs text-gray-500 mb-1">PDF files only (max 10MB)</p>
-          <p className="text-xs text-amber-500 font-semibold">Enter a Candidate ID above before uploading</p>
         </div>
       )}
     </div>
