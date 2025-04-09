@@ -1,92 +1,123 @@
 
-import { Eye } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChartContainer } from "@/components/ui/chart";
-import { Bar, BarChart, Tooltip, XAxis, YAxis } from "recharts";
-import { AnalyticsProps } from "../types";
-import MetricCard from "../components/MetricCard";
-import ChartSection from "../components/ChartSection";
+import { Card } from "@/components/ui/card";
+import { ChartSection } from "../components/ChartSection";
+import { MetricCard } from "../components/MetricCard";
+import { EmptyState } from "../components/EmptyState";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Database, Eye, Users } from "lucide-react";
+import type { AnalyticsProps } from "../types";
 
-interface OverviewTabProps extends AnalyticsProps {
-  downloadsCount: number;
+interface OverviewTabProps {
+  analyticsData: AnalyticsProps["analyticsData"];
+  hasData: boolean;
+  isLoading: boolean;
 }
 
-const OverviewTab = ({ analyticsData, hasData, downloadsCount }: OverviewTabProps) => {
-  // Sample chart data for demonstration
-  const viewsChartData = [
-    { name: 'Mon', views: 3 },
-    { name: 'Tue', views: 5 },
-    { name: 'Wed', views: 2 },
-    { name: 'Thu', views: 8 },
-    { name: 'Fri', views: 4 },
-    { name: 'Sat', views: 1 },
-    { name: 'Sun', views: 6 },
+const OverviewTab = ({ analyticsData, hasData, isLoading }: OverviewTabProps) => {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-pulse flex flex-col items-center space-y-4">
+          <div className="h-12 w-12 bg-gray-200 rounded-full"></div>
+          <div className="h-4 w-32 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasData) {
+    return (
+      <EmptyState 
+        icon={<Database className="mx-auto h-12 w-12 text-grey-400 mb-3" />}
+        title="No Analytics Data Yet"
+        description="Start adding candidates and tracking user interactions to see analytics data."
+      />
+    );
+  }
+
+  // Mock data for the charts
+  const viewsData = [
+    { name: "Mon", views: 15 },
+    { name: "Tue", views: 20 },
+    { name: "Wed", views: 18 },
+    { name: "Thu", views: 25 },
+    { name: "Fri", views: 30 },
+    { name: "Sat", views: 12 },
+    { name: "Sun", views: 10 },
   ];
 
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <MetricCard 
-          value={analyticsData.totalViews} 
-          label="Total Views" 
-          color="text-gold"
+          title="Total Views" 
+          value={analyticsData.totalViews}
+          icon={<Eye className="h-4 w-4" />}
+          trend="+12% from last week"
+          trendUp={true}
         />
+        
         <MetricCard 
-          value={analyticsData.uniqueViewers} 
-          label="Unique Visitors" 
-          color="text-gold"
+          title="Unique Viewers" 
+          value={analyticsData.uniqueViewers}
+          icon={<Users className="h-4 w-4" />}
+          trend="+5% from last week"
+          trendUp={true}
         />
+        
         <MetricCard 
-          value={downloadsCount} 
-          label="Downloads" 
-          color="text-gold"
+          title="Candidates" 
+          value={analyticsData.topCandidates.length}
+          icon={<Database className="h-4 w-4" />}
+          trend="0% change"
+          trendUp={false}
         />
       </div>
       
-      {hasData ? (
-        <>
-          <h3 className="text-lg font-medium mb-3">Top Viewed Candidates</h3>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Candidate ID</TableHead>
-                <TableHead className="text-right">Views</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {analyticsData.topCandidates.length > 0 ? (
-                analyticsData.topCandidates.map((candidate: any) => (
-                  <TableRow key={candidate.id}>
-                    <TableCell className="font-mono">{candidate.id}</TableCell>
-                    <TableCell className="text-right">{candidate.views}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={2} className="text-center py-4 text-grey-500">
-                    No candidate view data yet
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          
-          <ChartSection 
-            title="Views Over Time"
-            chartData={viewsChartData}
-            dataKey="views"
-            color="views"
-            colorValue="hsl(48, 95%, 53%)"
-          />
-        </>
-      ) : (
-        <div className="text-center py-6">
-          <Eye className="mx-auto h-12 w-12 text-grey-400 mb-3" />
-          <h3 className="text-lg font-medium mb-2">No View Data Available</h3>
-          <p className="text-grey-500">Analytics will appear once resumes are viewed.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ChartSection title="Views Over Time">
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={viewsData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartSection>
+        
+        <ChartSection title="Top Candidates">
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={analyticsData.topCandidates}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="id" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="viewCount" fill="#8884d8" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartSection>
+      </div>
+      
+      <ChartSection title="Recent Activity">
+        <div className="space-y-2">
+          {analyticsData.recentViews.map((view, index) => (
+            <Card key={index} className="p-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-medium">{view.headline}</p>
+                  <p className="text-xs text-muted-foreground">ID: {view.id}</p>
+                </div>
+                <div className="text-sm">
+                  {new Date(view.viewedAt).toLocaleDateString()}
+                </div>
+              </div>
+            </Card>
+          ))}
         </div>
-      )}
-    </>
+      </ChartSection>
+    </div>
   );
 };
 

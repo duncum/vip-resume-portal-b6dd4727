@@ -1,150 +1,107 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
-import { getAnalyticsData } from "@/utils/tracking";
-import { initGoogleApi, isUserAuthorized, signInToGoogle } from "@/utils/googleAuth";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import OverviewTab from "./tabs/OverviewTab";
 import EngagementTab from "./tabs/EngagementTab";
 import UsersTab from "./tabs/UsersTab";
 import DownloadsTab from "./tabs/DownloadsTab";
 import SourcesTab from "./tabs/SourcesTab";
+import SyncControl from "@/components/admin/sync/SyncControl";
+import { fetchAnalyticsData } from "./utils/analyticsData";
+import type { AnalyticsProps } from "./types";
 
 const Analytics = () => {
-  const [analyticsData, setAnalyticsData] = useState({
+  const [activeTab, setActiveTab] = useState("overview");
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsProps["analyticsData"]>({
     totalViews: 0,
     uniqueViewers: 0,
     recentViews: [],
     topCandidates: [],
     userInteractions: []
   });
-  
-  const [googleAuthStatus, setGoogleAuthStatus] = useState({
-    isInitialized: false,
-    isAuthorized: false,
-    isLoading: true
-  });
-  
-  // Mock downloads data until we implement the full feature
-  const downloadsCount = 0;
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasData, setHasData] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Get data from tracker
-    const data = getAnalyticsData();
-    setAnalyticsData(data);
-    
-    // Check Google API status
-    const checkGoogleAuth = async () => {
+    const loadAnalyticsData = async () => {
       try {
-        await initGoogleApi();
-        const authorized = await isUserAuthorized();
+        setIsLoading(true);
+        const data = await fetchAnalyticsData();
         
-        setGoogleAuthStatus({
-          isInitialized: true,
-          isAuthorized: authorized,
-          isLoading: false
-        });
+        setAnalyticsData(data);
+        setHasData(
+          data.totalViews > 0 || 
+          data.uniqueViewers > 0 || 
+          data.recentViews.length > 0 || 
+          data.topCandidates.length > 0
+        );
       } catch (error) {
-        console.error("Error checking Google auth:", error);
-        setGoogleAuthStatus({
-          isInitialized: false,
-          isAuthorized: false,
-          isLoading: false
+        console.error("Error loading analytics data:", error);
+        toast({
+          title: "Error loading analytics",
+          description: "Could not load analytics data. Please try again later.",
+          variant: "destructive",
         });
+      } finally {
+        setIsLoading(false);
       }
     };
-    
-    checkGoogleAuth();
-  }, []);
-  
-  const handleGoogleSignIn = async () => {
-    setGoogleAuthStatus(prev => ({ ...prev, isLoading: true }));
-    
-    try {
-      const success = await signInToGoogle();
-      
-      setGoogleAuthStatus({
-        isInitialized: true,
-        isAuthorized: success,
-        isLoading: false
-      });
-    } catch (error) {
-      console.error("Error signing in:", error);
-      setGoogleAuthStatus(prev => ({ ...prev, isLoading: false }));
-    }
-  };
-  
-  // Check if we have any data to display
-  const hasData = analyticsData.totalViews > 0;
+
+    loadAnalyticsData();
+  }, [toast]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-xl">View Analytics</CardTitle>
-        <CardDescription>
-          Track resume views and engagement statistics.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {!googleAuthStatus.isAuthorized && !googleAuthStatus.isLoading && (
-          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-md">
-            <h3 className="text-amber-800 text-sm font-medium mb-2">Google Integration Required</h3>
-            <p className="text-amber-700 text-xs mb-3">
-              Connect to Google to access detailed analytics and resume storage features.
-            </p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleGoogleSignIn}
-              className="bg-white"
-            >
-              Connect Google Account
-            </Button>
-          </div>
-        )}
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="col-span-3">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-5 w-full">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="engagement">Engagement</TabsTrigger>
+              <TabsTrigger value="users">Users</TabsTrigger>
+              <TabsTrigger value="downloads">Downloads</TabsTrigger>
+              <TabsTrigger value="sources">Sources</TabsTrigger>
+            </TabsList>
+
+            <Card className="mt-6">
+              <CardContent className="pt-6">
+                <TabsContent value="overview" className="m-0">
+                  <OverviewTab 
+                    analyticsData={analyticsData} 
+                    hasData={hasData} 
+                    isLoading={isLoading} 
+                  />
+                </TabsContent>
+                
+                <TabsContent value="engagement" className="m-0">
+                  <EngagementTab />
+                </TabsContent>
+                
+                <TabsContent value="users" className="m-0">
+                  <UsersTab />
+                </TabsContent>
+                
+                <TabsContent value="downloads" className="m-0">
+                  <DownloadsTab />
+                </TabsContent>
+                
+                <TabsContent value="sources" className="m-0">
+                  <SourcesTab />
+                </TabsContent>
+              </CardContent>
+            </Card>
+          </Tabs>
+        </div>
         
-        <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="engagement">Engagement</TabsTrigger>
-            <TabsTrigger value="users">User Activity</TabsTrigger>
-            <TabsTrigger value="downloads">Downloads</TabsTrigger>
-            <TabsTrigger value="sources">Traffic Sources</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="overview" className="mt-0">
-            <OverviewTab 
-              analyticsData={analyticsData} 
-              hasData={hasData} 
-              downloadsCount={downloadsCount} 
-            />
-          </TabsContent>
-          
-          <TabsContent value="engagement">
-            <EngagementTab />
-          </TabsContent>
-          
-          <TabsContent value="users">
-            <UsersTab 
-              analyticsData={analyticsData} 
-              hasData={hasData} 
-            />
-          </TabsContent>
-          
-          <TabsContent value="downloads">
-            <DownloadsTab 
-              hasData={hasData} 
-              downloadsCount={downloadsCount} 
-            />
-          </TabsContent>
-          
-          <TabsContent value="sources">
-            <SourcesTab />
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+        <div className="col-span-1">
+          <SyncControl />
+        </div>
+      </div>
+    </div>
   );
 };
 
