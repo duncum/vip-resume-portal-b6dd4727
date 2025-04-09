@@ -11,6 +11,46 @@ import { recordActivity } from '../sheets/api/trackActivity'
 const CANDIDATES_TABLE = 'candidates'
 
 /**
+ * Map database record to Candidate type
+ */
+const mapDbRecordToCandidate = (record: any): Candidate => {
+  return {
+    id: record.id,
+    headline: record.headline || '',
+    sectors: record.sectors || [],
+    tags: record.tags || [],
+    resumeUrl: record.resumeurl || '', // Map resumeurl (DB) -> resumeUrl (app)
+    category: record.category || '',
+    title: record.title || '',
+    summary: record.summary || '',
+    location: record.location || '',
+    relocationPreference: record.relocationpreference || '',
+    notableEmployers: record.notableemployers || '',
+    // Map any other fields as needed
+  };
+};
+
+/**
+ * Map Candidate to database record format
+ */
+const mapCandidateToDbRecord = (candidate: Candidate): any => {
+  return {
+    id: candidate.id,
+    headline: candidate.headline,
+    sectors: candidate.sectors,
+    tags: candidate.tags,
+    resumeurl: candidate.resumeUrl, // Map resumeUrl (app) -> resumeurl (DB)
+    category: candidate.category,
+    title: candidate.title,
+    summary: candidate.summary,
+    location: candidate.location,
+    relocationpreference: candidate.relocationPreference,
+    notableemployers: candidate.notableEmployers,
+    // Map any other fields as needed
+  };
+};
+
+/**
  * Fetch all candidates from Supabase
  */
 export const fetchCandidatesFromSupabase = async (): Promise<Candidate[]> => {
@@ -24,7 +64,8 @@ export const fetchCandidatesFromSupabase = async (): Promise<Candidate[]> => {
     
     if (error) throw error
     
-    return data as Candidate[]
+    // Map database records to Candidate type
+    return data ? data.map(record => mapDbRecordToCandidate(record)) : [];
   } catch (error) {
     handleSupabaseError(error, 'fetching candidates')
     return []
@@ -55,7 +96,8 @@ export const fetchCandidateByIdFromSupabase = async (id: string): Promise<Candid
       userId
     });
     
-    return data as Candidate
+    // Map database record to Candidate type
+    return data ? mapDbRecordToCandidate(data) : null;
   } catch (error) {
     handleSupabaseError(error, `fetching candidate ${id}`)
     return null
@@ -74,15 +116,15 @@ export const upsertCandidateToSupabase = async (candidate: Candidate): Promise<b
       throw new Error('Candidate must have an ID')
     }
     
+    // Convert Candidate to DB format
+    const dbRecord = mapCandidateToDbRecord(candidate);
+    
     // Add timestamp for tracking
-    const candidateWithTimestamp = {
-      ...candidate,
-      updated_at: new Date().toISOString()
-    }
+    dbRecord.updated_at = new Date().toISOString();
     
     const { error } = await supabase
       .from(CANDIDATES_TABLE)
-      .upsert(candidateWithTimestamp, { 
+      .upsert(dbRecord, { 
         onConflict: 'id',
         ignoreDuplicates: false 
       })
