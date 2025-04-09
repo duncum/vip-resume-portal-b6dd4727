@@ -13,9 +13,17 @@ const ResumeLink = ({ resumeUrl, candidateId }: ResumeLinkProps) => {
   if (!resumeUrl || !candidateId) return null;
   
   const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    // Navigate to candidate view page instead of opening in new tab
-    navigate(`/candidate/${candidateId}`);
+    
+    // Ensure the candidate ID is clean (just in case)
+    const cleanId = candidateId.split(',')[0].trim();
+    
+    // Log the navigation attempt
+    console.log(`Navigating to candidate view: ${cleanId}`);
+    
+    // Navigate to candidate view page
+    navigate(`/candidate/${cleanId}`);
   };
   
   return (

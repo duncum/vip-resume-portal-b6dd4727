@@ -52,6 +52,14 @@ const Index = () => {
       
       // Fetch data from API
       const data = await fetchCandidates();
+      
+      // Debug the data we got
+      console.log(`Loaded ${data.length} candidates:`, data.map(c => ({ 
+        id: c.id, 
+        category: c.category, 
+        headline: c.headline 
+      })));
+      
       setCandidates(data);
       
       // Apply any existing filters
@@ -144,7 +152,8 @@ const Index = () => {
     if (category !== "All") {
       console.log(`Filtering by category: ${category}`);
       filtered = filtered.filter((candidate) => {
-        const matches = candidate.category === category;
+        const candidateCategory = candidate.category || '';
+        const matches = candidateCategory === category;
         if (matches) {
           console.log(`Category match found for candidate ${candidate.id}: ${candidate.category}`);
         }
@@ -191,6 +200,12 @@ const Index = () => {
   const handleCategoryChange = (category: string) => {
     console.log(`Category changed to: "${category}"`);
     setActiveCategory(category);
+    
+    // Force a reload of candidates when changing categories 
+    // to ensure we get fresh data from the API
+    if (usedMockData) {
+      loadCandidates();
+    }
   };
 
   return (

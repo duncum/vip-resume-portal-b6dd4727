@@ -13,7 +13,7 @@ const MAX_FAILURES_BEFORE_RESET = 3;
 
 // Track last attempt time for rate limiting
 let lastAttemptTime = 0;
-const MIN_ATTEMPT_INTERVAL = 2000; // 2 seconds
+const MIN_ATTEMPT_INTERVAL = 1000; // 1 second - reduced to improve responsiveness
 
 /**
  * Fetch all candidates from Google Sheets API
@@ -22,10 +22,13 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
   // Check if we have proper authorization
   console.log("Starting fetchCandidates...");
   
-  // Rate limit requests to prevent API abuse
+  // Rate limit requests to prevent API abuse, but allow immediate retries for user-initiated actions
   const now = Date.now();
-  if (now - lastAttemptTime < MIN_ATTEMPT_INTERVAL) {
-    console.log(`Request too frequent, throttling. Last attempt was ${now - lastAttemptTime}ms ago`);
+  const timeSinceLastAttempt = now - lastAttemptTime;
+  
+  // Only apply throttling for very frequent calls (less than 1 second apart)
+  if (timeSinceLastAttempt < MIN_ATTEMPT_INTERVAL) {
+    console.log(`Request too frequent, throttling. Last attempt was ${timeSinceLastAttempt}ms ago`);
     // Don't increment failures for throttled requests
     return mockCandidates;
   }
@@ -53,6 +56,7 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
     resetAuthState();
   }
   
+  // Attempt to ensure authorization
   const isAuthorized = await ensureAuthorization();
   console.log("Authorization check result:", isAuthorized);
   
@@ -67,8 +71,6 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
       });
     }
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 300));
     return mockCandidates;
   }
   
@@ -150,7 +152,9 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
     console.log(`Found ${rows.length} candidates in the sheet`);
     const candidates = rows.map(row => {
       try {
-        return rowToCandidate(row);
+        const candidate = rowToCandidate(row);
+        console.log(`Parsed candidate: ID=${candidate.id}, Category=${candidate.category}`);
+        return candidate;
       } catch (error) {
         console.error("Error parsing row:", row, error);
         // Return a minimal valid candidate to prevent crashes
@@ -172,7 +176,6 @@ export const fetchCandidates = async (): Promise<Candidate[]> => {
     
     // Log success
     console.log(`Successfully converted ${validCandidates.length} candidates from ${rows.length} rows`);
-    
     return validCandidates;
   } catch (error: any) {
     console.error("Error fetching candidates from Google Sheets:", error);

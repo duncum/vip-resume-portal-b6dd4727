@@ -1,68 +1,65 @@
 
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CategoryFilterProps {
   categories: string[];
   activeCategory: string;
   onCategoryChange: (category: string) => void;
-  categoryDescriptions: Record<string, string>;
+  categoryDescriptions?: Record<string, string>;
   isMobile?: boolean;
 }
 
-const CategoryFilter = ({ 
-  categories, 
-  activeCategory, 
+const CategoryFilter = ({
+  categories,
+  activeCategory,
   onCategoryChange,
   categoryDescriptions,
-  isMobile = false
+  isMobile = false,
 }: CategoryFilterProps) => {
-  // For mobile, only show the first 3 categories by default plus a "More" dropdown
-  const displayCategories = categories;
-  
+  // Force re-render to ensure the active button shows up correctly
+  const handleCategoryClick = (category: string) => {
+    console.log(`Category filter clicked: ${category}`);
+    // Add a small timeout to ensure state updates properly
+    setTimeout(() => onCategoryChange(category), 0);
+  };
+
   return (
-    <div className="flex flex-wrap gap-1.5 md:gap-2 mb-4 md:mb-6 justify-center md:justify-start">
-      {displayCategories.map((category) => (
-        <TooltipProvider key={category}>
-          {category !== "All" && !isMobile ? (
-            <Tooltip delayDuration={300}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant={activeCategory === category ? "default" : "outline"}
-                  className={
-                    activeCategory === category 
-                      ? "bg-gold hover:bg-gold-dark text-black border border-gold px-2 md:px-3 py-1 h-auto text-xs md:text-sm" 
-                      : "bg-transparent text-white border border-grey-700 hover:border-gold px-2 md:px-3 py-1 h-auto text-xs md:text-sm"
-                  }
-                  onClick={() => onCategoryChange(category)}
-                >
-                  {category}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs bg-grey-900 text-white border border-gold/20 px-3 py-1.5 shadow-lg text-xs">
-                <p>{categoryDescriptions[category]}</p>
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Button
-              variant={activeCategory === category ? "default" : "outline"}
-              className={
-                activeCategory === category 
-                  ? "bg-gold hover:bg-gold-dark text-black border border-gold px-2 md:px-3 py-1 h-auto text-xs md:text-sm" 
-                  : "bg-transparent text-white border border-grey-700 hover:border-gold px-2 md:px-3 py-1 h-auto text-xs md:text-sm"
-              }
-              onClick={() => onCategoryChange(category)}
-            >
-              {category}
-            </Button>
-          )}
-        </TooltipProvider>
-      ))}
+    <div className="mb-6">
+      <ScrollArea className="w-full whitespace-nowrap pb-3">
+        <div className={`flex ${isMobile ? 'gap-1.5' : 'gap-2'} w-full`}>
+          {categories.map((category) => {
+            const isActive = category === activeCategory;
+            
+            return (
+              <TooltipProvider key={`category-button-${category}`}>
+                <Tooltip delayDuration={300}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={isActive ? "default" : "outline"}
+                      size={isMobile ? "sm" : "default"}
+                      onClick={() => handleCategoryClick(category)}
+                      className={
+                        isActive
+                          ? "bg-gold hover:bg-gold-dark"
+                          : "hover:bg-gold/10 hover:text-gold hover:border-gold/30"
+                      }
+                    >
+                      {category}
+                    </Button>
+                  </TooltipTrigger>
+                  {categoryDescriptions && categoryDescriptions[category] && (
+                    <TooltipContent side="bottom" className="max-w-[250px] text-center">
+                      <p>{categoryDescriptions[category]}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
+        </div>
+      </ScrollArea>
     </div>
   );
 };

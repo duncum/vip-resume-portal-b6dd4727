@@ -58,12 +58,12 @@ const PaginatedResults = <T extends {id?: string | number}>({
             <ChevronLeft className="h-4 w-4" />
           </Button>
           
-          {/* Generate unique keys using page number */}
+          {/* Generate page buttons with properly unique keys */}
           {Array.from({ length: totalPages }).map((_, index) => {
             const pageNumber = index + 1;
             return (
               <Button
-                key={`page-${pageNumber}`}
+                key={`pagination-page-${pageNumber}`}
                 variant={pageNumber === currentPage ? "default" : "outline"}
                 size="sm"
                 onClick={() => paginate(pageNumber)}
