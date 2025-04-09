@@ -21,6 +21,13 @@ export interface Candidate {
   skills?: string[];
   assetTypes?: string[];
   titles?: Record<string, string[]>;
+  salary?: string;
+  contactEmail?: string;
+  linkedInUrl?: string;
+  appliedDate?: string;
+  status?: string;
+  source?: string;
+  notes?: string;
 }
 
 /**
