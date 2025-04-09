@@ -26,6 +26,11 @@ export function useCandidateFilters(candidates: Candidate[] = []) {
           const matchesEmployers = (candidate.notableEmployers || "").toLowerCase().includes(lowerQuery);
           const matchesResume = (candidate.resumeText || "").toLowerCase().includes(lowerQuery);
           
+          // Log when resume text matches are found
+          if (matchesResume) {
+            console.log(`Resume text match found for candidate ${candidate.id} with query "${lowerQuery}"`);
+          }
+          
           const matches = matchesHeadline || matchesSectors || matchesTags || matchesTitle || 
                          matchesSummary || matchesLocation || matchesEmployers || matchesResume;
           

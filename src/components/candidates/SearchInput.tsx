@@ -38,7 +38,7 @@ const SearchInput = ({ onSearch }: SearchInputProps) => {
         <Search className="absolute left-2 md:left-3 top-1/2 transform -translate-y-1/2 text-grey-400" size={isMobile ? 16 : 18} />
         <Input
           type="text"
-          placeholder={isMobile ? "Search..." : "Search by skills, position, or keywords..."}
+          placeholder={isMobile ? "Search..." : "Search by skills, resume content, or keywords..."}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-8 md:pl-10 bg-white/5 text-sm md:text-base border-2 border-grey-800 focus:border-gold h-9 md:h-10"
