@@ -40,7 +40,7 @@ const CategoryFilter = ({
                       onClick={() => handleCategoryClick(category)}
                       className={
                         isActive
-                          ? "bg-gold hover:bg-gold-dark"
+                          ? "bg-gold hover:bg-gold-dark text-black"
                           : "hover:bg-gold/10 hover:text-gold hover:border-gold/30"
                       }
                     >

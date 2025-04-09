@@ -153,7 +153,11 @@ const Index = () => {
       console.log(`Filtering by category: ${category}`);
       filtered = filtered.filter((candidate) => {
         const candidateCategory = candidate.category || '';
-        const matches = candidateCategory === category;
+        
+        // Check if the category is part of the comma-separated list
+        const categoryList = candidateCategory.split(',').map(cat => cat.trim());
+        const matches = categoryList.includes(category);
+        
         if (matches) {
           console.log(`Category match found for candidate ${candidate.id}: ${candidate.category}`);
         }
