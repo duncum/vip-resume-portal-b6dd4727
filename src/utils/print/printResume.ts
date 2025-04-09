@@ -7,9 +7,9 @@ import { extractGoogleDriveFileId } from "../resume/urlUtils";
 /**
  * Opens a new window with the resume content and watermark for printing
  */
-export const printResume = (resumeUrl: string, candidateId: string) => {
+export const printResume = async (resumeUrl: string, candidateId: string) => {
   // Track the print action
-  trackDownload(candidateId);
+  await trackDownload(candidateId);
   toast.info("Preparing document for printing...");
   
   try {

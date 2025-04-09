@@ -5,14 +5,16 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { recordActivity } from "@/utils/sheets/api/trackActivity";
 
 const ContractAgreement = () => {
   const [name, setName] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!name.trim()) {
@@ -24,20 +26,36 @@ const ContractAgreement = () => {
       return;
     }
 
-    // Save agreement in localStorage
-    localStorage.setItem("contract-agreed", "true");
-    localStorage.setItem("contract-name", name);
-    localStorage.setItem("contract-timestamp", new Date().toISOString());
+    setIsSubmitting(true);
     
-    // Show success toast
-    toast({
-      title: "Agreement Accepted",
-      description: "Thank you for accepting the terms.",
-    });
-    
-    // Redirect to main portal
-    navigate("/candidates");
-    setAgreed(true);
+    try {
+      // Save agreement in localStorage
+      localStorage.setItem("contract-agreed", "true");
+      localStorage.setItem("contract-name", name);
+      localStorage.setItem("contract-timestamp", new Date().toISOString());
+      
+      // Also record to Google Sheets
+      await recordActivity('agreement', { name });
+      
+      // Show success toast
+      toast({
+        title: "Agreement Accepted",
+        description: "Thank you for accepting the terms.",
+      });
+      
+      // Redirect to main portal
+      navigate("/candidates");
+      setAgreed(true);
+    } catch (error) {
+      console.error("Error saving agreement:", error);
+      toast({
+        title: "Error",
+        description: "There was an issue saving your agreement. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -92,8 +110,9 @@ const ContractAgreement = () => {
             <Button 
               type="submit" 
               className="w-full bg-gold hover:bg-gold-dark text-black font-medium"
+              disabled={isSubmitting}
             >
-              I Agree to These Terms
+              {isSubmitting ? "Processing..." : "I Agree to These Terms"}
             </Button>
             <p className="text-xs text-grey-500 text-center">
               By clicking "I Agree", you confirm that you have read, understood, and agree to the

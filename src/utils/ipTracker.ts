@@ -1,4 +1,6 @@
 
+import { recordActivity } from "./sheets/api/trackActivity";
+
 // Define types for tracking data
 interface ViewData {
   candidateId: string;
@@ -6,7 +8,7 @@ interface ViewData {
   ipAddress?: string;
 }
 
-// In-memory storage for tracked views (in a real app, this would be a database)
+// In-memory storage for tracked views (used alongside Google Sheets)
 const viewsHistory: ViewData[] = [];
 
 /**
@@ -21,7 +23,7 @@ export const trackIpAddress = async (candidateId: string) => {
     // For this demo, we'll create a simulated IP address
     const simulatedIp = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
     
-    // Store the view data
+    // Store the view data locally
     const viewData: ViewData = {
       candidateId,
       timestamp,
@@ -32,12 +34,8 @@ export const trackIpAddress = async (candidateId: string) => {
     
     console.log(`Resume view tracked - Candidate ID: ${candidateId}, IP: ${simulatedIp}, Timestamp: ${timestamp}`);
     
-    // In a production app, you would make an API call like:
-    // await fetch('/api/track-view', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ candidateId, ipAddress, timestamp })
-    // });
+    // Record to Google Sheets
+    await recordActivity('view', { candidateId });
     
     return true;
   } catch (error) {
@@ -59,6 +57,9 @@ export const trackDownload = async (candidateId: string) => {
     const simulatedIp = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
     
     console.log(`Resume download tracked - Candidate ID: ${candidateId}, IP: ${simulatedIp}, Timestamp: ${timestamp}`);
+    
+    // Record to Google Sheets
+    await recordActivity('print', { candidateId });
     
     return true;
   } catch (error) {

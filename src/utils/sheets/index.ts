@@ -8,6 +8,5 @@ export { SPREADSHEET_ID, CANDIDATES_RANGE } from './config';
 export { mockCandidates } from './mock-data';
 export { ensureAuthorization } from './auth-helper';
 export { rowToCandidate } from './data-mapper';
-export { fetchCandidates, fetchCandidateById, addCandidate } from './api';
+export { fetchCandidates, fetchCandidateById, addCandidate, recordActivity } from './api';
 export { findRowByValue, updateCells, appendValues } from './operations';
-
