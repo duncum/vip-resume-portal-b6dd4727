@@ -1,6 +1,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { Candidate } from "@/utils/sheets";
+import { toast } from "sonner";
 
 export function useCandidateFilters(candidates: Candidate[] = []) {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -8,74 +9,97 @@ export function useCandidateFilters(candidates: Candidate[] = []) {
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
   
   const applyFilters = useCallback((data: Candidate[], query: string, category: string) => {
-    console.log(`Filtering with query: "${query}", category: "${category}"`);
-    console.log(`Data to filter: ${data.length} candidates`);
+    console.log(`Filtering ${data.length} candidates with query: "${query}", category: "${category}"`);
     
+    // Start with all candidates
     let filtered = [...data];
     
-    if (query) {
-      const lowerQuery = query.toLowerCase();
-      filtered = filtered.filter(
-        (candidate) => {
-          // Check for standard fields first (these are faster to search)
-          const matchesHeadline = candidate.headline?.toLowerCase().includes(lowerQuery);
-          const matchesSectors = candidate.sectors?.some((sector) => sector.toLowerCase().includes(lowerQuery));
-          const matchesTags = candidate.tags?.some((tag) => tag.toLowerCase().includes(lowerQuery));
-          const matchesTitle = (candidate.title || "").toLowerCase().includes(lowerQuery);
-          const matchesSummary = (candidate.summary || "").toLowerCase().includes(lowerQuery);
-          const matchesLocation = (candidate.location || "").toLowerCase().includes(lowerQuery);
-          const matchesEmployers = (candidate.notableEmployers || "").toLowerCase().includes(lowerQuery);
+    // Apply search query filter if it exists
+    if (query && query.trim() !== '') {
+      const lowerQuery = query.toLowerCase().trim();
+      
+      try {
+        filtered = filtered.filter(candidate => {
+          // Check if candidate is valid
+          if (!candidate) return false;
           
-          // If we already found a match in the standard fields, no need to search resume text
+          // Check standard fields (more efficient)
+          const matchesHeadline = candidate.headline?.toLowerCase().includes(lowerQuery) || false;
+          const matchesSectors = Array.isArray(candidate.sectors) && 
+            candidate.sectors.some(sector => sector?.toLowerCase().includes(lowerQuery));
+          const matchesTags = Array.isArray(candidate.tags) && 
+            candidate.tags.some(tag => tag?.toLowerCase().includes(lowerQuery));
+          const matchesTitle = typeof candidate.title === 'string' && 
+            candidate.title.toLowerCase().includes(lowerQuery);
+          const matchesSummary = typeof candidate.summary === 'string' && 
+            candidate.summary.toLowerCase().includes(lowerQuery);
+          const matchesLocation = typeof candidate.location === 'string' && 
+            candidate.location.toLowerCase().includes(lowerQuery);
+          const matchesEmployers = typeof candidate.notableEmployers === 'string' && 
+            candidate.notableEmployers.toLowerCase().includes(lowerQuery);
+          
+          // If we found a match in standard fields, return true
           if (matchesHeadline || matchesSectors || matchesTags || matchesTitle || 
               matchesSummary || matchesLocation || matchesEmployers) {
             return true;
           }
           
-          // Handle resume text search - which might be large and potentially undefined
-          try {
-            // Only search if resumeText exists
-            if (candidate.resumeText) {
+          // Only search resume text if it exists
+          if (typeof candidate.resumeText === 'string' && candidate.resumeText.trim() !== '') {
+            try {
               const matchesResume = candidate.resumeText.toLowerCase().includes(lowerQuery);
-              
-              // Log successful resume text matches
               if (matchesResume) {
                 console.log(`Resume text match found for candidate ${candidate.id} with query "${lowerQuery}"`);
+                return true;
               }
-              
-              return matchesResume;
+            } catch (error) {
+              console.error(`Error searching resume text for candidate ${candidate.id}:`, error);
             }
-          } catch (error) {
-            console.error(`Error searching resume text for candidate ${candidate.id}:`, error);
           }
           
           return false;
-        }
-      );
+        });
+        
+        console.log(`After search query filter: ${filtered.length} candidates remain`);
+      } catch (error) {
+        console.error("Error in search filtering:", error);
+        toast.error("Search error occurred. Please try again.");
+      }
     }
     
+    // Apply category filter if not "All"
     if (category !== "All") {
-      console.log(`Filtering by category: ${category}`);
-      filtered = filtered.filter((candidate) => {
-        if (!candidate.category) return false;
+      try {
+        filtered = filtered.filter(candidate => {
+          if (!candidate || !candidate.category) return false;
+          
+          const candidateCategories = candidate.category.split(',')
+            .map(cat => cat.trim())
+            .filter(cat => cat.length > 0);
+            
+          return candidateCategories.includes(category);
+        });
         
-        const categoryList = candidate.category.split(',').map(cat => cat.trim());
-        const matches = categoryList.includes(category);
-        
-        if (matches) {
-          console.log(`Category match found for candidate ${candidate.id}: ${candidate.category}`);
-        }
-        return matches;
-      });
+        console.log(`After category filter "${category}": ${filtered.length} candidates remain`);
+      } catch (error) {
+        console.error("Error in category filtering:", error);
+        toast.error("Category filtering error occurred. Please try again.");
+      }
     }
     
-    console.log(`Filter results: ${filtered.length} candidates`);
     return filtered;
   }, []);
 
+  // Apply filters whenever dependencies change
   useEffect(() => {
-    const filtered = applyFilters(candidates, searchQuery, activeCategory);
-    setFilteredCandidates(filtered);
+    try {
+      const filtered = applyFilters(candidates, searchQuery, activeCategory);
+      setFilteredCandidates(filtered);
+    } catch (error) {
+      console.error("Error applying filters:", error);
+      setFilteredCandidates(candidates); // Reset to original on error
+      toast.error("Error filtering candidates. Showing all results.");
+    }
   }, [candidates, searchQuery, activeCategory, applyFilters]);
 
   const handleSearch = useCallback((query: string) => {

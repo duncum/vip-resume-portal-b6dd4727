@@ -38,11 +38,15 @@ const CandidateCard = ({
   
   const handleCardClick = () => {
     // Track card view
-    trackIpAddress(cleanId, 'view-profile');
+    try {
+      trackIpAddress(cleanId, 'view-profile');
+    } catch (error) {
+      console.error("Error tracking card view:", error);
+    }
   };
   
   return (
-    <Card className="h-full flex flex-col bg-grey-900/20 hover:bg-grey-900/40 border border-grey-800 transition-colors text-white overflow-hidden backdrop-blur-sm">
+    <Card className="h-full flex flex-col bg-grey-900/20 hover:bg-grey-900/40 border border-grey-800 transition-colors text-white overflow-hidden backdrop-blur-sm shadow-md hover:shadow-lg">
       <CardContent className="flex-grow p-6 space-y-4">
         {category && <CategoryBadge category={category} title={title} />}
         
@@ -67,7 +71,7 @@ const CandidateCard = ({
       <CardFooter className="px-6 py-4 border-t border-grey-800/50 bg-grey-900/30 flex flex-col gap-3">
         <Button 
           variant="default" 
-          className="w-full bg-gold hover:bg-gold/90 text-black"
+          className="w-full bg-gold hover:bg-gold/90 text-black font-medium shadow-sm"
           asChild
           onClick={handleCardClick}
         >

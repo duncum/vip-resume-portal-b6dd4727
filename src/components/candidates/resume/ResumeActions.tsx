@@ -31,21 +31,33 @@ const ResumeActions = ({ resumeUrl, candidateId }: ResumeActionsProps) => {
       const agreementTimestamp = localStorage.getItem('contract-timestamp');
       
       // Track download action with enhanced metadata
-      await trackDownload(candidateId, undefined, {
-        userName,
-        agreementTimestamp,
-        downloadMethod: 'direct'
-      });
+      try {
+        await trackDownload(candidateId, undefined, {
+          userName,
+          agreementTimestamp,
+          downloadMethod: 'direct'
+        });
+      } catch (error) {
+        console.error("Error tracking download:", error);
+      }
       
       // Clean up the URL if needed (sometimes Google Drive URLs need adjustment)
       let downloadUrl = resumeUrl;
       
       // Handle Google Drive URLs - ensure they trigger download
       if (downloadUrl.includes('drive.google.com/file/d/')) {
-        // Convert view URLs to direct download URLs
-        downloadUrl = downloadUrl.replace('/view', '/preview');
-        if (!downloadUrl.includes('/preview')) {
-          downloadUrl += '/preview';
+        const fileIdMatch = downloadUrl.match(/\/d\/([^\/]+)/);
+        const fileId = fileIdMatch ? fileIdMatch[1] : null;
+        
+        if (fileId) {
+          // Use the export format for Google Drive files
+          downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        } else {
+          // Convert view URLs to direct download URLs as fallback
+          downloadUrl = downloadUrl.replace('/view', '/preview');
+          if (!downloadUrl.includes('/preview')) {
+            downloadUrl += '/preview';
+          }
         }
       }
       
@@ -63,17 +75,22 @@ const ResumeActions = ({ resumeUrl, candidateId }: ResumeActionsProps) => {
   };
   
   const handlePrint = async () => {
-    // Get user info from agreement if available
-    const userName = localStorage.getItem('contract-name') || 'Unknown User';
-    
-    // Track print action
-    await trackIpAddress(candidateId, 'print', undefined, {
-      userName,
-      printMethod: 'browser'
-    });
-    
-    // Trigger print functionality
-    window.print();
+    try {
+      // Get user info from agreement if available
+      const userName = localStorage.getItem('contract-name') || 'Unknown User';
+      
+      // Track print action
+      await trackIpAddress(candidateId, 'print', undefined, {
+        userName,
+        printMethod: 'browser'
+      });
+      
+      // Trigger print functionality
+      window.print();
+    } catch (error) {
+      console.error("Error during print action:", error);
+      toast.error("Error initiating print");
+    }
   };
   
   return (

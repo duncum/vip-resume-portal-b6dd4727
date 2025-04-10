@@ -2,6 +2,7 @@
 import { ViewData, TrackActivityParams } from './types';
 import { addViewRecord } from './storage';
 import { recordActivity } from "../sheets/api/trackActivity";
+import { checkTableExists, insertAnalyticsEvent } from "../supabase/functions";
 
 /**
  * Track IP address when a resume is viewed or interacted with
@@ -50,13 +51,17 @@ export const trackIpAddress = async (
     console.log(`Candidate interaction tracked - Candidate ID: ${candidateId}, Action: ${action}, User: ${storedUserId}, Name: ${agreementName}, IP: ${simulatedIp}, Timestamp: ${timestamp}`);
     
     // Record to Google Sheets
-    await recordActivity('view', { 
-      candidateId,
-      action,
-      userId: storedUserId,
-      agreementName,
-      ...metadata
-    });
+    try {
+      await recordActivity('view', { 
+        candidateId,
+        action,
+        userId: storedUserId,
+        agreementName,
+        ...metadata
+      });
+    } catch (error) {
+      console.warn("Could not record to Google Sheets:", error);
+    }
     
     // Only attempt to track to Supabase if analytics table exists
     try {
@@ -77,39 +82,27 @@ export const trackIpAddress = async (
  */
 const trackToSupabase = async (viewData: ViewData) => {
   try {
-    const { supabase, isSupabaseAvailable } = await import('../supabase/config');
-    
-    if (!isSupabaseAvailable()) {
-      return false;
-    }
-    
-    // Cast the RPC parameters to any to avoid TypeScript errors
-    const { data: analyticsExists, error: metadataError } = await supabase
-      .rpc('check_table_exists', { table_name: 'analytics' } as any);
+    // Use imported checkTableExists function
+    const analyticsExists = await checkTableExists('analytics');
       
-    if (metadataError || !analyticsExists) {
+    if (!analyticsExists) {
       console.warn("Analytics table does not exist in Supabase yet");
       return false;
     }
     
-    // Cast to any to avoid TypeScript errors with undefined functions
-    const { error } = await supabase.rpc('insert_analytics_event', {
-      p_candidate_id: viewData.candidateId,
-      p_user_id: viewData.userId,
-      p_action: viewData.action,
-      p_timestamp: viewData.timestamp,
-      p_ip_address: viewData.ipAddress,
-      p_user_agent: viewData.userAgent,
-      p_agreement_name: viewData.agreementName,
-      p_metadata: viewData.metadata || {}
-    } as any);
+    // Use imported insertAnalyticsEvent function
+    const success = await insertAnalyticsEvent(
+      viewData.candidateId,
+      viewData.userId,
+      viewData.action,
+      viewData.timestamp,
+      viewData.ipAddress,
+      viewData.userAgent,
+      viewData.agreementName,
+      viewData.metadata || {}
+    );
     
-    if (error) {
-      console.error("Error saving to Supabase analytics:", error);
-      return false;
-    }
-    
-    return true;
+    return success;
   } catch (error) {
     console.error("Error with Supabase analytics tracking:", error);
     return false;
