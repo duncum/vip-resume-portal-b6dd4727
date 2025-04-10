@@ -51,11 +51,11 @@ const CandidateCard = ({
     <Card className="h-full flex flex-col bg-gradient-to-b from-grey-900/40 to-grey-900/20 
       border border-grey-800 hover:border-gold/30 transition-all duration-300 
       text-white overflow-hidden backdrop-blur-sm shadow-md hover:shadow-lg
-      hover:shadow-gold/5">
+      hover:shadow-gold/5 transform hover:translate-y-[-4px] rounded-xl">
       <CardContent className="flex-grow p-6 space-y-4">
         {category && <CategoryBadge category={category} title={title} />}
         
-        <h2 className="text-xl font-medium line-clamp-2 font-display">{headline}</h2>
+        <h2 className="text-xl font-medium line-clamp-2 font-display bg-clip-text text-transparent bg-gradient-to-r from-white to-grey-300">{headline}</h2>
         
         {summary && <CandidateSummary summary={summary} />}
         
@@ -70,12 +70,13 @@ const CandidateCard = ({
         </div>
       </CardContent>
       
-      <CardFooter className="px-6 py-4 border-t border-grey-800/50 bg-grey-900/30">
+      <CardFooter className="px-6 py-4 border-t border-grey-800/50 bg-gradient-to-r from-grey-900/50 via-grey-850/60 to-grey-900/50">
         <Button 
           asChild
           variant="default" 
           className={`w-full ${hasResume ? 'bg-gradient-to-r from-gold to-gold-light hover:from-gold-light hover:to-gold' : 'bg-gold hover:bg-gold/90'} 
-            text-black font-medium shadow-sm transition-all duration-300 transform hover:scale-[1.02]`}
+            text-black font-medium shadow-sm transition-all duration-300 transform hover:scale-[1.02]
+            hover:shadow-md hover:shadow-gold/20`}
           onClick={handleCardClick}
         >
           <Link to={`/candidate/${cleanId}`} className="flex items-center justify-center">

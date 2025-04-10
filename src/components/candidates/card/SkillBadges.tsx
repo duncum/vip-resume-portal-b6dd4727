@@ -19,8 +19,9 @@ const SkillBadges = ({ tags }: SkillBadgesProps) => {
       {tags.slice(0, displayLimit).map((tag, index) => (
         <Badge 
           key={index} 
-          className="bg-gold/10 hover:bg-gold/20 text-gold border border-gold/30 
-            transition-all duration-300 text-xs whitespace-nowrap rounded-full px-2.5 py-0.5
+          className="bg-gradient-to-r from-gold/20 to-gold/10 hover:from-gold/30 hover:to-gold/20 
+            text-gold border border-gold/30 transition-all duration-300 
+            text-xs whitespace-nowrap rounded-full px-2.5 py-0.5
             hover:shadow-sm hover:shadow-gold/20"
         >
           {tag}
