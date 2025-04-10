@@ -10,11 +10,10 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
   try {
     if (!supabase) return false;
     
-    // Cast the RPC parameters to any to avoid TypeScript errors
-    // since the RPC function might not be defined in the TypeScript definitions
+    // Use explicit type assertion for the function parameters
     const { data, error } = await supabase.rpc('check_table_exists', { 
       table_name: tableName 
-    } as any);
+    } as Record<string, string>);
     
     if (error) {
       console.error("Error checking if table exists:", error);
@@ -45,7 +44,7 @@ export const insertAnalyticsEvent = async (
   try {
     if (!supabase) return false;
     
-    // Cast the RPC parameters to any to avoid TypeScript errors
+    // Use explicit type assertion for the function parameters 
     const { error } = await supabase.rpc('insert_analytics_event', {
       p_candidate_id: candidateId,
       p_user_id: userId,
@@ -55,7 +54,7 @@ export const insertAnalyticsEvent = async (
       p_user_agent: userAgent,
       p_agreement_name: agreementName,
       p_metadata: metadata
-    } as any);
+    } as Record<string, any>);
     
     if (error) {
       console.error("Error inserting analytics event:", error);
