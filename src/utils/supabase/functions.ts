@@ -10,7 +10,7 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
   try {
     if (!supabase) return false;
     
-    // Cast "any" to bypass TypeScript constraints for RPC calls
+    // Use type assertion to bypass TypeScript constraints completely
     const { data, error } = await (supabase.rpc as any)('check_table_exists', { 
       table_name: tableName 
     });
@@ -56,7 +56,7 @@ export const insertAnalyticsEvent = async (
       p_metadata: metadata
     };
     
-    // Cast "any" to bypass TypeScript constraints for RPC calls
+    // Use type assertion to bypass TypeScript constraints completely
     const { error } = await (supabase.rpc as any)('insert_analytics_event', params);
     
     if (error) {
