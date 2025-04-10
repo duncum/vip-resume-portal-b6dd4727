@@ -10,8 +10,8 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
   try {
     if (!supabase) return false;
     
-    // Use a generic parameter for the RPC call to bypass TypeScript's inference
-    const { data, error } = await supabase.rpc<boolean>('check_table_exists', { 
+    // Specify both return type and parameters type for the RPC call
+    const { data, error } = await supabase.rpc<boolean, { table_name: string }>('check_table_exists', { 
       table_name: tableName 
     });
     
@@ -44,8 +44,20 @@ export const insertAnalyticsEvent = async (
   try {
     if (!supabase) return false;
     
-    // Use a generic parameter for the RPC call to bypass TypeScript's inference
-    const { error } = await supabase.rpc<any>('insert_analytics_event', {
+    // Define the parameter interface for better type safety
+    interface AnalyticsEventParams {
+      p_candidate_id: string;
+      p_user_id: string;
+      p_action: string;
+      p_timestamp: string;
+      p_ip_address: string;
+      p_user_agent: string;
+      p_agreement_name: string;
+      p_metadata: Record<string, any>;
+    }
+    
+    // Specify both return type and parameters type for the RPC call
+    const { error } = await supabase.rpc<void, AnalyticsEventParams>('insert_analytics_event', {
       p_candidate_id: candidateId,
       p_user_id: userId,
       p_action: action,
