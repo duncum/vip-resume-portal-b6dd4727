@@ -23,7 +23,7 @@ const relocationBadge = {
 };
 
 const RelocationBadge = ({ relocationPreference }: RelocationBadgeProps) => {
-  if (!relocationPreference) return null;
+  if (!relocationPreference || relocationPreference === "no") return null;
   
   // For remote-only
   if (relocationPreference === "remote-only") {

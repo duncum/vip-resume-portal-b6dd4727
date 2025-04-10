@@ -17,9 +17,9 @@ const CandidateList = ({
 }: CandidateListProps) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-[320px] bg-grey-800/30 rounded-lg border border-grey-700/30" />
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+        {[...Array(6)].map((_, i) => (
+          <Skeleton key={i} className="h-[400px] bg-grey-800/30 rounded-lg border border-grey-700/30" />
         ))}
       </div>
     );
@@ -38,7 +38,7 @@ const CandidateList = ({
       items={candidates}
       itemsPerPage={itemsPerPage}
       renderItems={(currentItems) => (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
           {currentItems.map((candidate) => (
             <CandidateCard
               key={candidate.id}
@@ -52,6 +52,7 @@ const CandidateList = ({
               location={candidate.location}
               relocationPreference={candidate.relocationPreference}
               resumeUrl={candidate.resumeUrl}
+              notableEmployers={candidate.notableEmployers}
             />
           ))}
         </div>
