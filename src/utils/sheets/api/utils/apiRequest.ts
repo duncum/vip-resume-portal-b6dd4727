@@ -4,8 +4,8 @@
  */
 
 import { toast } from "sonner";
-import { Candidate } from '../../../types';
-import { rowToCandidate } from '../../../data-mapper';
+import { Candidate } from '../../types';
+import { mapSheetRowsToCandidate } from '../../mappings';
 import { resetFailures } from './failureTracker';
 import { cacheCandidates } from './cacheManager';
 
@@ -77,7 +77,7 @@ export const fetchSheetsData = async (spreadsheetId: string, range: string): Pro
     }
     
     // Map the raw data to candidates
-    const candidates = response.result.values.map(rowToCandidate).filter(Boolean) as Candidate[];
+    const candidates = response.result.values.map(mapSheetRowsToCandidate).filter(Boolean) as Candidate[];
     console.log(`Processed ${candidates.length} candidates from spreadsheet`);
     
     // Cache the results for future use
