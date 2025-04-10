@@ -83,17 +83,16 @@ const trackToSupabase = async (viewData: ViewData) => {
       return false;
     }
     
-    // Instead of directly accessing the analytics table, check if it exists first
-    // This avoids TypeScript errors since the table isn't defined in the types
+    // Cast the RPC parameters to any to avoid TypeScript errors
     const { data: analyticsExists, error: metadataError } = await supabase
-      .rpc('check_table_exists', { table_name: 'analytics' });
+      .rpc('check_table_exists', { table_name: 'analytics' } as any);
       
     if (metadataError || !analyticsExists) {
       console.warn("Analytics table does not exist in Supabase yet");
       return false;
     }
     
-    // Use executeRaw to avoid TypeScript errors with undefined tables
+    // Cast to any to avoid TypeScript errors with undefined functions
     const { error } = await supabase.rpc('insert_analytics_event', {
       p_candidate_id: viewData.candidateId,
       p_user_id: viewData.userId,
@@ -103,7 +102,7 @@ const trackToSupabase = async (viewData: ViewData) => {
       p_user_agent: viewData.userAgent,
       p_agreement_name: viewData.agreementName,
       p_metadata: viewData.metadata || {}
-    });
+    } as any);
     
     if (error) {
       console.error("Error saving to Supabase analytics:", error);
