@@ -22,7 +22,7 @@ const SkillBadges = ({ tags }: SkillBadgesProps) => {
           className="bg-gradient-to-r from-gold/20 to-gold/10 hover:from-gold/30 hover:to-gold/20 
             text-gold border border-gold/30 transition-all duration-300 
             text-xs whitespace-nowrap rounded-full px-2.5 py-0.5
-            hover:shadow-sm hover:shadow-gold/20"
+            hover:shadow-sm hover:shadow-gold/20 transform hover:-translate-y-0.5"
         >
           {tag}
         </Badge>
@@ -30,7 +30,7 @@ const SkillBadges = ({ tags }: SkillBadgesProps) => {
       {tags.length > displayLimit && (
         <Badge className="bg-grey-800/40 hover:bg-grey-700/50 text-grey-300 hover:text-grey-200
           border border-grey-700/60 hover:border-grey-600 text-xs rounded-full px-2.5 py-0.5 
-          transition-all duration-300">
+          transition-all duration-300 transform hover:-translate-y-0.5">
           +{tags.length - displayLimit} more
         </Badge>
       )}

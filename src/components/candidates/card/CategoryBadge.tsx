@@ -35,7 +35,7 @@ const CategoryBadge = ({ category, title }: CategoryBadgeProps) => {
           return (
             <Badge 
               key={`category-${index}`}
-              className={`${baseColor} text-xs font-medium px-3 py-1 rounded-full shadow-sm transition-all duration-300 backdrop-blur-sm animate-fade-in`}
+              className={`${baseColor} text-xs font-medium px-3 py-1 rounded-full shadow-sm transition-all duration-300 backdrop-blur-sm animate-fade-in transform hover:-translate-y-0.5`}
             >
               {singleCategory}
             </Badge>
