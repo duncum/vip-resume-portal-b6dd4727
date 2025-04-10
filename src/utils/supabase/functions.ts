@@ -10,8 +10,8 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
   try {
     if (!supabase) return false;
     
-    // Specify both return type and parameters type for the RPC call
-    const { data, error } = await supabase.rpc<boolean, { table_name: string }>('check_table_exists', { 
+    // Using any for the generic types to bypass TypeScript constraints
+    const { data, error } = await supabase.rpc('check_table_exists', { 
       table_name: tableName 
     });
     
@@ -44,20 +44,8 @@ export const insertAnalyticsEvent = async (
   try {
     if (!supabase) return false;
     
-    // Define the parameter interface for better type safety
-    interface AnalyticsEventParams {
-      p_candidate_id: string;
-      p_user_id: string;
-      p_action: string;
-      p_timestamp: string;
-      p_ip_address: string;
-      p_user_agent: string;
-      p_agreement_name: string;
-      p_metadata: Record<string, any>;
-    }
-    
-    // Specify both return type and parameters type for the RPC call
-    const { error } = await supabase.rpc<void, AnalyticsEventParams>('insert_analytics_event', {
+    // Define the parameters for better code readability
+    const params = {
       p_candidate_id: candidateId,
       p_user_id: userId,
       p_action: action,
@@ -66,7 +54,10 @@ export const insertAnalyticsEvent = async (
       p_user_agent: userAgent,
       p_agreement_name: agreementName,
       p_metadata: metadata
-    });
+    };
+    
+    // Using non-generic version to avoid TypeScript constraints
+    const { error } = await supabase.rpc('insert_analytics_event', params);
     
     if (error) {
       console.error("Error inserting analytics event:", error);
