@@ -4,6 +4,7 @@ import { Download, Mail, Printer } from "lucide-react";
 import { useState } from "react";
 import SimpleEmailDialog from "../SimpleEmailDialog";
 import { trackDownload, trackIpAddress } from "@/utils/tracking";
+import { toast } from "sonner";
 
 interface ResumeActionsProps {
   resumeUrl: string;
@@ -12,38 +13,64 @@ interface ResumeActionsProps {
 
 const ResumeActions = ({ resumeUrl, candidateId }: ResumeActionsProps) => {
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   
-  const handleDownload = () => {
+  const handleDownload = async () => {
     // Validate the URL before proceeding
     if (!resumeUrl || resumeUrl === "Missing") {
       console.error("Invalid resume URL:", resumeUrl);
+      toast.error("Resume URL not available");
       return;
     }
     
-    // Track download action
-    trackDownload(candidateId);
+    setIsDownloading(true);
     
-    // Clean up the URL if needed (sometimes Google Drive URLs need adjustment)
-    let downloadUrl = resumeUrl;
-    
-    // Handle Google Drive URLs - ensure they trigger download
-    if (downloadUrl.includes('drive.google.com/file/d/')) {
-      // Convert view URLs to direct download URLs
-      downloadUrl = downloadUrl.replace('/view', '/preview');
-      if (!downloadUrl.includes('/preview')) {
-        downloadUrl += '/preview';
+    try {
+      // Get user info from agreement if available
+      const userName = localStorage.getItem('contract-name') || 'Unknown User';
+      const agreementTimestamp = localStorage.getItem('contract-timestamp');
+      
+      // Track download action with enhanced metadata
+      await trackDownload(candidateId, undefined, {
+        userName,
+        agreementTimestamp,
+        downloadMethod: 'direct'
+      });
+      
+      // Clean up the URL if needed (sometimes Google Drive URLs need adjustment)
+      let downloadUrl = resumeUrl;
+      
+      // Handle Google Drive URLs - ensure they trigger download
+      if (downloadUrl.includes('drive.google.com/file/d/')) {
+        // Convert view URLs to direct download URLs
+        downloadUrl = downloadUrl.replace('/view', '/preview');
+        if (!downloadUrl.includes('/preview')) {
+          downloadUrl += '/preview';
+        }
       }
+      
+      console.log("Opening resume URL for download:", downloadUrl);
+      toast.success("Downloading resume...");
+      
+      // Open the URL in a new tab (this will trigger download for PDFs and other downloadable files)
+      window.open(downloadUrl, '_blank');
+    } catch (error) {
+      console.error("Error downloading resume:", error);
+      toast.error("Error downloading resume");
+    } finally {
+      setIsDownloading(false);
     }
-    
-    console.log("Opening resume URL for download:", downloadUrl);
-    
-    // Open the URL in a new tab (this will trigger download for PDFs and other downloadable files)
-    window.open(downloadUrl, '_blank');
   };
   
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    // Get user info from agreement if available
+    const userName = localStorage.getItem('contract-name') || 'Unknown User';
+    
     // Track print action
-    trackIpAddress(candidateId, 'print');
+    await trackIpAddress(candidateId, 'print', undefined, {
+      userName,
+      printMethod: 'browser'
+    });
     
     // Trigger print functionality
     window.print();
@@ -56,9 +83,10 @@ const ResumeActions = ({ resumeUrl, candidateId }: ResumeActionsProps) => {
         size="sm"
         variant="outline"
         className="bg-white text-blue-600 border-blue-600 hover:bg-blue-50"
+        disabled={isDownloading}
       >
         <Download className="mr-2 h-4 w-4" />
-        Download
+        {isDownloading ? "Downloading..." : "Download"}
       </Button>
       
       <Button 

@@ -10,6 +10,8 @@ export interface ViewData {
   action: string;
   userId?: string;
   userAgent?: string;
+  agreementName?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface UserInteractionSummary {
@@ -20,6 +22,7 @@ export interface UserInteractionSummary {
   clicks: number;
   candidates: Set<string>;
   lastActivity: string;
+  agreementName?: string;
 }
 
 export interface CandidateInteractionSummary {
@@ -35,10 +38,22 @@ export interface AnalyticsData {
   recentViews: ViewData[];
   topCandidates: {id: string, views: number}[];
   userInteractions: any[];
+  downloads: DownloadRecord[];
+}
+
+export interface DownloadRecord {
+  id: string;
+  candidateId: string;
+  candidateHeadline?: string;
+  downloadTime: string;
+  userName: string;
+  userId: string;
 }
 
 export interface TrackActivityParams {
   candidateId: string;
   action: string;
   userId?: string;
+  agreementName?: string;
 }
+

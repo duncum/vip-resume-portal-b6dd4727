@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +11,7 @@ import DownloadsTab from "./tabs/DownloadsTab";
 import SourcesTab from "./tabs/SourcesTab";
 import SyncControl from "@/components/admin/sync/SyncControl";
 import { fetchAnalyticsData } from "./utils/analyticsData";
+import { getDownloadAnalytics } from "@/utils/tracking/analytics";
 import type { AnalyticsProps } from "./types";
 
 const Analytics = () => {
@@ -19,7 +21,8 @@ const Analytics = () => {
     uniqueViewers: 0,
     recentViews: [],
     topCandidates: [],
-    userInteractions: []
+    userInteractions: [],
+    downloads: []
   });
   const [isLoading, setIsLoading] = useState(true);
   const [hasData, setHasData] = useState(false);
@@ -29,14 +32,27 @@ const Analytics = () => {
     const loadAnalyticsData = async () => {
       try {
         setIsLoading(true);
-        const data = await fetchAnalyticsData();
         
-        setAnalyticsData(data);
+        // Fetch data from API and local storage
+        const apiData = await fetchAnalyticsData();
+        const downloadData = getDownloadAnalytics();
+        
+        // Combine the data
+        const combinedData = {
+          ...apiData,
+          downloads: downloadData,
+          // Calculate downloads count from stored analytics
+          // rather than just using apiData.userInteractions
+          downloadsCount: downloadData.length
+        };
+        
+        setAnalyticsData(combinedData);
         setHasData(
-          data.totalViews > 0 || 
-          data.uniqueViewers > 0 || 
-          data.recentViews.length > 0 || 
-          data.topCandidates.length > 0
+          combinedData.totalViews > 0 || 
+          combinedData.uniqueViewers > 0 || 
+          combinedData.recentViews.length > 0 || 
+          combinedData.topCandidates.length > 0 ||
+          combinedData.downloads.length > 0
         );
       } catch (error) {
         console.error("Error loading analytics data:", error);
@@ -53,11 +69,8 @@ const Analytics = () => {
     loadAnalyticsData();
   }, [toast]);
 
-  // Calculate number of downloads (mock data for now)
-  const downloadsCount = analyticsData.userInteractions.reduce(
-    (total, user: any) => total + (user.downloads || 0), 
-    0
-  );
+  // Calculate number of downloads (from real data)
+  const downloadsCount = analyticsData.downloads?.length || 0;
 
   return (
     <div className="space-y-6">
@@ -98,7 +111,7 @@ const Analytics = () => {
                 
                 <TabsContent value="downloads" className="m-0">
                   <DownloadsTab 
-                    hasData={hasData}
+                    hasData={hasData || downloadsCount > 0}
                     downloadsCount={downloadsCount}
                   />
                 </TabsContent>

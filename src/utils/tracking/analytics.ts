@@ -1,5 +1,5 @@
 
-import { AnalyticsData, CandidateInteractionSummary, UserInteractionSummary, ViewData } from './types';
+import { AnalyticsData, CandidateInteractionSummary, DownloadRecord, UserInteractionSummary, ViewData } from './types';
 import { getAllViewRecords, getCandidateViewRecords } from './storage';
 
 /**
@@ -38,6 +38,9 @@ export const getAnalyticsData = (): AnalyticsData => {
     .slice(0, 5)
     .map(([id, views]) => ({ id, views }));
     
+  // Get downloads data
+  const downloads = getDownloadsData(viewsHistory);
+  
   // Get user interaction data
   const userInteractions = viewsHistory.reduce((acc, curr) => {
     const userId = curr.userId || 'anonymous';
@@ -49,7 +52,8 @@ export const getAnalyticsData = (): AnalyticsData => {
         downloads: 0,
         clicks: 0,
         candidates: new Set(),
-        lastActivity: curr.timestamp
+        lastActivity: curr.timestamp,
+        agreementName: curr.agreementName || 'Unknown'
       };
     }
     
@@ -84,8 +88,29 @@ export const getAnalyticsData = (): AnalyticsData => {
     uniqueViewers,
     recentViews,
     topCandidates,
-    userInteractions: userInteractionsArray
+    userInteractions: userInteractionsArray,
+    downloads
   };
+};
+
+/**
+ * Extract download records from view history
+ */
+const getDownloadsData = (viewsHistory: ViewData[]): DownloadRecord[] => {
+  return viewsHistory
+    .filter(view => view.action === 'download')
+    .map((download, index) => {
+      const metadata = download.metadata || {};
+      return {
+        id: `dl-${index}-${download.timestamp}`,
+        candidateId: download.candidateId,
+        candidateHeadline: metadata.candidateHeadline || 'Unknown',
+        downloadTime: download.timestamp,
+        userName: download.agreementName || 'Unknown User',
+        userId: download.userId || 'anonymous'
+      };
+    })
+    .sort((a, b) => new Date(b.downloadTime).getTime() - new Date(a.downloadTime).getTime());
 };
 
 /**
@@ -102,7 +127,8 @@ export const getCandidateInteractions = (candidateId: string): CandidateInteract
         userId,
         actions: [],
         firstInteraction: curr.timestamp,
-        lastInteraction: curr.timestamp
+        lastInteraction: curr.timestamp,
+        userName: curr.agreementName || 'Unknown'
       };
     }
     
@@ -129,3 +155,12 @@ export const getCandidateInteractions = (candidateId: string): CandidateInteract
     userInteractions: Object.values(userInteractions)
   };
 };
+
+/**
+ * Get resume download analytics
+ */
+export const getDownloadAnalytics = (): DownloadRecord[] => {
+  const analyticsData = getAnalyticsData();
+  return analyticsData.downloads;
+};
+

@@ -1,6 +1,7 @@
 
 import { supabase } from "@/utils/supabase/config";
 import type { AnalyticsProps } from "../types";
+import { getDownloadAnalytics } from "@/utils/tracking/analytics";
 
 export const fetchAnalyticsData = async (): Promise<AnalyticsProps["analyticsData"]> => {
   try {
@@ -12,8 +13,34 @@ export const fetchAnalyticsData = async (): Promise<AnalyticsProps["analyticsDat
         uniqueViewers: 0,
         recentViews: [],
         topCandidates: [],
-        userInteractions: []
+        userInteractions: [],
+        downloads: getDownloadAnalytics() // Include download data from local storage
       };
+    }
+
+    // Try to fetch analytics data from Supabase
+    try {
+      // Check if the analytics table exists
+      const { count: analyticsCount, error: analyticsCheckError } = await supabase
+        .from('analytics')
+        .select('*', { count: 'exact', head: true })
+        .eq('action', 'download');
+        
+      // Get download records from Supabase if table exists and has data
+      if (!analyticsCheckError && analyticsCount && analyticsCount > 0) {
+        const { data: downloadRecords, error: downloadsError } = await supabase
+          .from('analytics')
+          .select('*')
+          .eq('action', 'download')
+          .order('timestamp', { ascending: false });
+          
+        if (!downloadsError && downloadRecords && downloadRecords.length > 0) {
+          console.log(`Found ${downloadRecords.length} download records in Supabase`);
+          // Process and use these records
+        }
+      }
+    } catch (analyticsError) {
+      console.warn('Analytics table may not exist yet:', analyticsError);
     }
 
     // Get total candidates count
@@ -51,22 +78,27 @@ export const fetchAnalyticsData = async (): Promise<AnalyticsProps["analyticsDat
       viewCount: Math.floor(Math.random() * 20) + 1
     })) || [];
     
+    // Get download data from tracking system
+    const downloadData = getDownloadAnalytics();
+    
     return {
       totalViews: candidateCount ? candidateCount * 3 : 0, // Mock: Each candidate viewed ~3 times
       uniqueViewers,
       recentViews,
       topCandidates,
-      userInteractions: [] // This would require a dedicated tracking table
+      userInteractions: [], // This would require a dedicated tracking table
+      downloads: downloadData
     };
   } catch (error) {
     console.error("Error fetching analytics data:", error);
-    // Return empty data structure on error
+    // Return download data even if other analytics fail
     return {
       totalViews: 0,
       uniqueViewers: 0,
       recentViews: [],
       topCandidates: [],
-      userInteractions: []
+      userInteractions: [],
+      downloads: getDownloadAnalytics()
     };
   }
 };
