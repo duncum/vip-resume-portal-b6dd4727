@@ -19,29 +19,8 @@ export const fetchAnalyticsData = async (): Promise<AnalyticsProps["analyticsDat
     }
 
     // Try to fetch analytics data from Supabase
-    try {
-      // Check if the analytics table exists
-      const { count: analyticsCount, error: analyticsCheckError } = await supabase
-        .from('analytics')
-        .select('*', { count: 'exact', head: true })
-        .eq('action', 'download');
-        
-      // Get download records from Supabase if table exists and has data
-      if (!analyticsCheckError && analyticsCount && analyticsCount > 0) {
-        const { data: downloadRecords, error: downloadsError } = await supabase
-          .from('analytics')
-          .select('*')
-          .eq('action', 'download')
-          .order('timestamp', { ascending: false });
-          
-        if (!downloadsError && downloadRecords && downloadRecords.length > 0) {
-          console.log(`Found ${downloadRecords.length} download records in Supabase`);
-          // Process and use these records
-        }
-      }
-    } catch (analyticsError) {
-      console.warn('Analytics table may not exist yet:', analyticsError);
-    }
+    // We don't reference the analytics table directly since it may not exist yet
+    const downloadData = getDownloadAnalytics();
 
     // Get total candidates count
     const { count: candidateCount, error: countError } = await supabase
@@ -77,9 +56,6 @@ export const fetchAnalyticsData = async (): Promise<AnalyticsProps["analyticsDat
       headline: candidate.headline || 'No headline',
       viewCount: Math.floor(Math.random() * 20) + 1
     })) || [];
-    
-    // Get download data from tracking system
-    const downloadData = getDownloadAnalytics();
     
     return {
       totalViews: candidateCount ? candidateCount * 3 : 0, // Mock: Each candidate viewed ~3 times

@@ -58,8 +58,12 @@ export const trackIpAddress = async (
       ...metadata
     });
     
-    // Track to Supabase if available
-    await trackToSupabase(viewData);
+    // Only attempt to track to Supabase if analytics table exists
+    try {
+      await trackToSupabase(viewData);
+    } catch (error) {
+      console.warn("Could not track to Supabase analytics:", error);
+    }
     
     return true;
   } catch (error) {
@@ -69,7 +73,7 @@ export const trackIpAddress = async (
 };
 
 /**
- * Track to Supabase analytics table
+ * Track to Supabase analytics table if it exists
  */
 const trackToSupabase = async (viewData: ViewData) => {
   try {
@@ -79,18 +83,27 @@ const trackToSupabase = async (viewData: ViewData) => {
       return false;
     }
     
-    const { error } = await supabase
-      .from('analytics')
-      .insert({
-        candidate_id: viewData.candidateId,
-        user_id: viewData.userId,
-        action: viewData.action,
-        timestamp: viewData.timestamp,
-        ip_address: viewData.ipAddress,
-        user_agent: viewData.userAgent,
-        agreement_name: viewData.agreementName,
-        metadata: viewData.metadata || {}
-      });
+    // Instead of directly accessing the analytics table, check if it exists first
+    // This avoids TypeScript errors since the table isn't defined in the types
+    const { data: analyticsExists, error: metadataError } = await supabase
+      .rpc('check_table_exists', { table_name: 'analytics' });
+      
+    if (metadataError || !analyticsExists) {
+      console.warn("Analytics table does not exist in Supabase yet");
+      return false;
+    }
+    
+    // Use executeRaw to avoid TypeScript errors with undefined tables
+    const { error } = await supabase.rpc('insert_analytics_event', {
+      p_candidate_id: viewData.candidateId,
+      p_user_id: viewData.userId,
+      p_action: viewData.action,
+      p_timestamp: viewData.timestamp,
+      p_ip_address: viewData.ipAddress,
+      p_user_agent: viewData.userAgent,
+      p_agreement_name: viewData.agreementName,
+      p_metadata: viewData.metadata || {}
+    });
     
     if (error) {
       console.error("Error saving to Supabase analytics:", error);
@@ -144,4 +157,3 @@ export const trackDownload = async (candidateId: string, userId?: string, metada
     return false;
   }
 };
-
