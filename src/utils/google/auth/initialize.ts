@@ -23,6 +23,17 @@ export {
 // Import the functions from state.ts to use them locally
 import { getIsGapiInitialized, setGapiInitialized } from './state';
 
+// Add a debug flag for testing
+window._debugGoogleAuth = true;
+
+// Fix the API Key Only mode flag
+if (typeof window !== 'undefined' && window.localStorage) {
+  localStorage.setItem('force_api_key_only', 'true');
+  if (localStorage.getItem('google_client_id')) {
+    console.log("Warning: Client ID found but API Key Only mode is enforced");
+  }
+}
+
 // Periodic health check and recovery function
 const performHealthCheck = () => {
   const isInitialized = getIsGapiInitialized();
@@ -92,5 +103,6 @@ if (typeof window !== 'undefined') {
 declare global {
   interface Window {
     _isGoogleInitializing: boolean;
+    _debugGoogleAuth?: boolean;
   }
 }

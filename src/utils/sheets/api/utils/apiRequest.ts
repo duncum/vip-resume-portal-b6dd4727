@@ -1,103 +1,104 @@
 
 /**
- * Utility for handling API requests to Google Sheets
+ * Utility for making API requests to Google Sheets
  */
 
 import { toast } from "sonner";
 import { Candidate } from '../../types';
-import { rowToCandidate } from '../../data-mapper';
-import { getBackoffDelay } from './rateLimiter';
-import { updateCache } from './cacheManager';
-import { incrementFailures, resetFailures } from './failureTracker';
+import { mapSheetRowsToCandidate } from '../../mappings';
+import { resetFailures } from './failureTracker';
+import { cacheCandidates } from './cacheManager';
 
-// Maximum number of retries for API requests
-const MAX_RETRIES = 3;
+// Demo data for fallback
+const DEMO_CANDIDATES = [
+  {
+    id: "DEMOxyz1",
+    headline: "Senior Executive Leader", 
+    sectors: ["Real Estate", "Investments"],
+    tags: ["Leadership", "Strategy", "Finance", "Development"],
+    category: "Executive",
+    title: "CEO, President",
+    summary: "Accomplished executive with over 20 years experience in commercial real estate development and investments. Proven track record of leading organizations through significant growth periods.",
+    location: "New York, NY",
+    relocationPreference: "Open to Relocation",
+    notableEmployers: "Major REIT, Prestigious Development Co.",
+    resumeUrl: ""
+  },
+  {
+    id: "DEMOxyz2",
+    headline: "Development Director", 
+    sectors: ["Development", "Construction"],
+    tags: ["Project Management", "Entitlements", "Construction", "Finance"],
+    category: "Director",
+    title: "Development Director, VP Development",
+    summary: "Experienced real estate development director specializing in large-scale mixed-use projects. Expert in managing complex entitlement processes and development teams.",
+    location: "Los Angeles, CA",
+    relocationPreference: "Not Open to Relocation",
+    notableEmployers: "Developer Inc., Construction Management Firm",
+    resumeUrl: ""
+  },
+  {
+    id: "DEMOxyz3",
+    headline: "Acquisitions Manager", 
+    sectors: ["Acquisitions", "Investments"],
+    tags: ["Underwriting", "Market Analysis", "Due Diligence", "Financial Modeling"],
+    category: "Mid-Senior level",
+    title: "Acquisitions Manager, Associate Director",
+    summary: "Experienced acquisitions professional with strong analytical skills and deep market knowledge. Expert in identifying and evaluating investment opportunities.",
+    location: "Dallas, TX",
+    relocationPreference: "Open to Relocation",
+    notableEmployers: "Investment Firm, Private Equity Fund",
+    resumeUrl: ""
+  }
+];
 
 /**
- * Fetch data from Google Sheets API with retry mechanism
- * @param {string} spreadsheetId The ID of the spreadsheet
- * @param {string} range The range to fetch
- * @returns {Promise<Candidate[]>} The candidates fetched from the API
+ * Fetch data from Google Sheets API
  */
-export const fetchSheetsData = async (
-  spreadsheetId: string, 
-  range: string
-): Promise<Candidate[]> => {
-  console.log("Making API request to Google Sheets with spreadsheet ID:", spreadsheetId);
-  console.log("Range:", range);
-  
-  // Implement retry with exponential backoff
-  let response;
-  let attemptCount = 0;
-  let lastError;
-  
-  while (attemptCount <= MAX_RETRIES) {
-    try {
-      response = await window.gapi.client.sheets.spreadsheets.values.get({
-        spreadsheetId,
-        range
-      });
-      break; // Success! Exit the retry loop
-    } catch (error) {
-      lastError = error;
-      attemptCount++;
-      
-      if (attemptCount <= MAX_RETRIES) {
-        // Wait with exponential backoff before retrying
-        const delay = getBackoffDelay(attemptCount - 1);
-        console.log(`API request failed, retrying (${attemptCount}/${MAX_RETRIES}) after ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      } else {
-        console.error(`API request failed after ${MAX_RETRIES} retries`);
-        throw error; // Rethrow to be caught by the outer catch block
-      }
-    }
-  }
-  
-  if (!response) {
-    throw lastError || new Error("Failed to get response from Google Sheets");
-  }
-  
-  console.log("Response received from Google Sheets");
-  const rows = response.result.values;
-  
-  if (!rows || rows.length === 0) {
-    console.log("No data found in Google Sheet");
-    toast.info("Your Google Sheet appears to be empty", {
-      duration: 5000
+export const fetchSheetsData = async (spreadsheetId: string, range: string): Promise<Candidate[]> => {
+  try {
+    console.log(`Fetching data from spreadsheet ${spreadsheetId}, range ${range}`);
+    
+    // Execute the request to get the values from the spreadsheet
+    const response = await window.gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: spreadsheetId,
+      range: range
     });
-    throw new Error("No data found in Google Sheet");
-  }
-  
-  // Convert rows to candidate objects
-  console.log(`Found ${rows.length} candidates in the sheet`);
-  const candidates = rows.map(row => {
-    try {
-      const candidate = rowToCandidate(row);
-      return candidate;
-    } catch (error) {
-      console.error("Error parsing row:", row, error);
-      // Return a minimal valid candidate to prevent crashes
-      return {
-        id: "error",
-        headline: "Error parsing data",
-        sectors: [],
-        tags: [],
-        category: "Error"
-      } as Candidate;
+    
+    console.log("Fetched data successfully:", response);
+    
+    // If there are no values, return an empty array
+    if (!response.result.values || response.result.values.length === 0) {
+      console.log("No data found in spreadsheet");
+      toast.error("No data found in the spreadsheet", {
+        duration: 5000
+      });
+      return [];
     }
-  });
-  
-  // Filter out error entries
-  const validCandidates = candidates.filter(c => c.id !== "error");
-  
-  // Reset failure counter on success
-  resetFailures();
-  
-  // Update cache
-  updateCache(validCandidates);
-  
-  // Log success
-  console.log(`Successfully converted ${validCandidates.length} candidates from ${rows.length} rows`);
-  return validCandidates;
+    
+    // Map the raw data to candidates
+    const candidates = response.result.values.map(mapSheetRowsToCandidate).filter(Boolean) as Candidate[];
+    console.log(`Processed ${candidates.length} candidates from spreadsheet`);
+    
+    // Cache the results for future use
+    if (candidates.length > 0) {
+      cacheCandidates(candidates);
+      resetFailures();
+    }
+    
+    return candidates;
+  } catch (error) {
+    console.error("Error fetching data from sheets:", error);
+    
+    // If in development or using fallback setting, return demo data
+    if (import.meta.env.DEV || localStorage.getItem('use_demo_data') === 'true') {
+      console.log("Using demo candidate data instead");
+      toast.info("Using demo candidate data", {
+        duration: 3000
+      });
+      return DEMO_CANDIDATES;
+    }
+    
+    throw error;
+  }
 };

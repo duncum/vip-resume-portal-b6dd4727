@@ -1,38 +1,37 @@
 
 /**
- * Utility for tracking API failures
+ * Track API request failures to prevent excessive retries
  */
-
-// Track consecutive failures to prevent constant error messages
-let consecutiveFailures = 0;
-const MAX_FAILURES_BEFORE_RESET = 3;
+let failureCount = 0;
+const MAX_FAILURES = 5;
 
 /**
- * Increments the consecutive failures counter
+ * Increment the failure counter
  */
-export const incrementFailures = (): void => {
-  consecutiveFailures++;
+export const incrementFailures = (): number => {
+  failureCount++;
+  console.log(`API failure count increased to ${failureCount}`);
+  return failureCount;
 };
 
 /**
- * Resets the consecutive failures counter
+ * Reset the failure counter
  */
 export const resetFailures = (): void => {
-  consecutiveFailures = 0;
+  console.log(`Resetting API failure count from ${failureCount} to 0`);
+  failureCount = 0;
 };
 
 /**
- * Checks if too many consecutive failures have occurred
- * @returns {boolean} True if max failures threshold exceeded
+ * Check if too many failures have occurred
  */
 export const hasTooManyFailures = (): boolean => {
-  return consecutiveFailures >= MAX_FAILURES_BEFORE_RESET;
+  return failureCount >= MAX_FAILURES;
 };
 
 /**
- * Gets the current failure count
- * @returns {number} The current number of consecutive failures
+ * Get the current failure count
  */
 export const getFailureCount = (): number => {
-  return consecutiveFailures;
+  return failureCount;
 };

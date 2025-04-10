@@ -1,44 +1,43 @@
 
 /**
- * Utility for loading the Google Sheets API
+ * Utility for ensuring the Sheets API is loaded
  */
 
 /**
- * Ensures the Sheets API is loaded
- * @returns {Promise<boolean>} True if Sheets API is available
+ * Ensure Sheets API is loaded
  */
 export const ensureSheetsApiLoaded = async (): Promise<boolean> => {
-  // Check if the Sheets API is already available
   if (window.gapi?.client?.sheets) {
-    console.log("Google Sheets API already loaded");
+    console.log("Sheets API already loaded");
     return true;
   }
   
-  console.log("Sheets API not available. Trying to load it now.");
-  
-  // Try to load the Sheets API if not already loaded
+  console.log("Sheets API not loaded, attempting to load...");
   try {
-    await new Promise<void>((resolve, reject) => {
-      if (!window.gapi?.client) {
-        console.error("Google API client not initialized");
-        reject(new Error("Google API client not initialized"));
-        return;
-      }
-      
-      window.gapi.client.load('sheets', 'v4')
-        .then(() => {
-          console.log("Sheets API loaded successfully");
-          resolve();
-        })
-        .catch(err => {
-          console.error("Failed to load Sheets API:", err);
-          reject(err);
-        });
-    });
+    // Try loading Sheets API with multiple retries
+    let retryCount = 0;
+    const maxRetries = 3;
     
-    return !!window.gapi?.client?.sheets;
+    while (retryCount < maxRetries) {
+      try {
+        console.log(`Loading Sheets API (attempt ${retryCount + 1})...`);
+        await window.gapi.client.load('sheets', 'v4');
+        console.log("Sheets API loaded successfully");
+        return true;
+      } catch (err) {
+        console.error(`Sheets API load attempt ${retryCount + 1} failed:`, err);
+        retryCount++;
+        // Wait before retrying
+        if (retryCount < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 300 * retryCount));
+        }
+      }
+    }
+    
+    console.error("Failed to load Sheets API after multiple attempts");
+    return false;
   } catch (error) {
-    console.error("Failed to load Sheets API:", error);
+    console.error("Error ensuring Sheets API is loaded:", error);
     return false;
   }
 };

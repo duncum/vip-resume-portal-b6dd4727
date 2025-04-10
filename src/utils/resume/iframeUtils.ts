@@ -1,69 +1,81 @@
 
 /**
- * Utility functions for handling iframe security
+ * Utilities for working with resume iframe content
  */
 
 /**
- * Applies security measures to disable download buttons and other interactive elements
- * in the iframe to prevent unauthorized downloads
+ * Disables download buttons in the iframe
  */
 export const disableDownloadButtons = (iframe: HTMLIFrameElement | null): void => {
-  if (!iframe) return;
+  if (!iframe || !iframe.contentWindow || !iframe.contentDocument) {
+    return;
+  }
   
   try {
-    // Try to access the iframe content
-    const iframeDocument = iframe.contentDocument || 
-                         (iframe.contentWindow?.document);
+    // For Google Drive embeds
+    const downloadButtons = iframe.contentDocument.querySelectorAll('a[aria-label="Download"]');
+    downloadButtons.forEach(button => {
+      if (button instanceof HTMLElement) {
+        button.style.display = 'none';
+      }
+    });
     
-    if (iframeDocument) {
-      // For Google Drive embeds - hide download buttons and toolbars
-      const elementsToHide = [
-        '[role="button"]',          // Generic buttons
-        'button',                   // HTML buttons
-        '.ndfHFb-c4YZDc-Wrql6b',    // Google Drive toolbar
-        '.ndfHFb-c4YZDc-to915-LgbsSe', // Download buttons
-        '.goog-inline-block',       // Google Drive UI elements
-        '[aria-label*="Download"]', // Elements with aria labels for download
-        '[aria-label*="Print"]',    // Elements with aria labels for print
-        '[title*="Download"]',      // Elements with title containing Download
-        '[title*="Print"]'          // Elements with title containing Print
-      ];
-      
-      // Apply the selectors
-      elementsToHide.forEach(selector => {
-        const elements = iframeDocument.querySelectorAll(selector);
-        elements.forEach(element => {
-          if (element instanceof HTMLElement) {
-            element.style.display = 'none';
-            element.style.opacity = '0';
-            element.style.visibility = 'hidden';
-            // Also remove click listeners when possible
-            element.onclick = (e) => e.preventDefault();
-            element.style.pointerEvents = 'none';
-          }
-        });
-      });
-      
-      // Disable all links
-      const links = iframeDocument.querySelectorAll('a');
-      links.forEach(link => {
-        if (link instanceof HTMLElement) {
-          link.style.pointerEvents = 'none';
-          link.onclick = (e) => e.preventDefault();
-        }
-      });
-      
-      // Style scrollbars if needed
-      const scrollElements = iframeDocument.querySelectorAll('.goog-inline-block');
-      scrollElements.forEach((element) => {
-        if (element instanceof HTMLElement) {
-          element.style.scrollbarWidth = 'thin';
-          element.style.scrollbarColor = '#888 #f1f1f1';
-        }
-      });
+    // For PDF.js embeds
+    const pdfToolbar = iframe.contentDocument.querySelector('#toolbarContainer');
+    if (pdfToolbar && pdfToolbar instanceof HTMLElement) {
+      pdfToolbar.style.display = 'none';
     }
-  } catch (e) {
-    // Silent catch - security restrictions prevent modifying cross-origin iframes
-    console.log("Note: Unable to modify iframe content due to security restrictions");
+  } catch (error) {
+    // Silent catch - cross-origin restrictions may prevent access
   }
+};
+
+/**
+ * Observes iframe load events
+ */
+export const observeIframeLoad = (
+  iframe: HTMLIFrameElement, 
+  onLoad: () => void, 
+  onError: () => void
+): void => {
+  if (!iframe) return;
+  
+  // Create an observer to watch for changes to the iframe
+  const observer = new MutationObserver(() => {
+    if (iframe.contentDocument?.body) {
+      // Check if content loaded properly
+      if (iframe.contentDocument.body.textContent?.includes('error') ||
+          iframe.contentDocument.body.textContent?.includes('not found')) {
+        onError();
+      } else {
+        onLoad();
+      }
+      observer.disconnect();
+    }
+  });
+  
+  // Start observing
+  observer.observe(iframe, {
+    attributes: true,
+    childList: true,
+    subtree: true
+  });
+  
+  // Fallback - if iframe loads but observer doesn't trigger
+  iframe.addEventListener('load', () => {
+    setTimeout(() => {
+      if (iframe.contentDocument?.body) {
+        onLoad();
+      } else {
+        onError();
+      }
+      observer.disconnect();
+    }, 500);
+  });
+  
+  // Handle errors
+  iframe.addEventListener('error', () => {
+    onError();
+    observer.disconnect();
+  });
 };

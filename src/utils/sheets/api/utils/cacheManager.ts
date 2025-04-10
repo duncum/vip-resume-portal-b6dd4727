@@ -1,85 +1,81 @@
-
 /**
- * Utility for managing candidate data caching
+ * Utility for managing cached candidate data
  */
 
 import { Candidate } from '../../types';
 
-// Cache configuration
-const CACHE_DURATION = 60000; // 1 minute cache
-
-// Cache state
 let cachedCandidates: Candidate[] | null = null;
-let lastCacheTime = 0;
+const CACHE_EXPIRY = 15 * 60 * 1000; // 15 minutes
+let cacheTimestamp = 0;
 
 /**
- * Check if the cache is valid
- * @returns {boolean} True if the cache is valid and can be used
+ * Cache candidate data in memory
  */
-export const isCacheValid = (): boolean => {
-  const now = Date.now();
-  return !!(cachedCandidates && (now - lastCacheTime < CACHE_DURATION));
-};
-
-/**
- * Get candidates from cache
- * @returns {Candidate[] | null} Cached candidates or null if cache is invalid
- */
-export const getCachedCandidates = (): Candidate[] | null => {
-  if (!isCacheValid()) return null;
-  console.log("Using cached candidates data");
-  return cachedCandidates;
-};
-
-/**
- * Update the candidates cache
- * @param {Candidate[]} candidates The candidates to cache
- */
-export const updateCache = (candidates: Candidate[]): void => {
+export const cacheCandidates = (candidates: Candidate[]): void => {
   cachedCandidates = candidates;
-  lastCacheTime = Date.now();
+  cacheTimestamp = Date.now();
   
-  // Also store in localStorage for offline fallback
   try {
     localStorage.setItem('cached_candidates', JSON.stringify(candidates));
-    localStorage.setItem('cached_candidates_time', lastCacheTime.toString());
-  } catch (cacheError) {
-    console.warn("Failed to cache candidates in localStorage:", cacheError);
+    localStorage.setItem('cached_candidates_timestamp', cacheTimestamp.toString());
+    console.log(`Cached ${candidates.length} candidates at ${new Date(cacheTimestamp).toISOString()}`);
+  } catch (error) {
+    console.error('Error caching candidates to localStorage:', error);
   }
 };
 
 /**
- * Get candidates from localStorage
- * @returns {Candidate[] | null} Candidates from localStorage or null
+ * Get cached candidates from memory
+ */
+export const getCachedCandidates = (): Candidate[] | null => {
+  // Check for in-memory cache first
+  if (cachedCandidates && Date.now() - cacheTimestamp < CACHE_EXPIRY) {
+    console.log('Using in-memory cached candidates');
+    return cachedCandidates;
+  }
+  
+  // Otherwise check localStorage
+  return getCachedFromStorage();
+};
+
+/**
+ * Get cached candidates from localStorage
  */
 export const getCachedFromStorage = (): Candidate[] | null => {
   try {
     const cachedData = localStorage.getItem('cached_candidates');
-    if (cachedData) {
-      const cachedTimeStr = localStorage.getItem('cached_candidates_time');
-      const cachedTime = cachedTimeStr ? parseInt(cachedTimeStr, 10) : 0;
-      const age = Date.now() - cachedTime;
+    const cachedTimestampStr = localStorage.getItem('cached_candidates_timestamp');
+    
+    if (cachedData && cachedTimestampStr) {
+      const cachedTime = parseInt(cachedTimestampStr, 10);
       
-      // Check if cache is too old (over 1 day)
-      if (age > 86400000) { // 24 hours
-        console.log("Cached data is over 24 hours old");
-        // Still return it but inform user
-        if (navigator.onLine) {
-          import('sonner').then(({ toast }) => {
-            toast.info("Using older cached data while attempting to refresh", {
-              duration: 3000
-            });
-          });
-        }
+      // Check if cache is still valid
+      if (Date.now() - cachedTime < CACHE_EXPIRY) {
+        const candidates = JSON.parse(cachedData) as Candidate[];
+        console.log(`Using ${candidates.length} cached candidates from localStorage`);
+        return candidates;
       } else {
-        console.log("Using cached data from localStorage");
+        console.log('Cached candidates expired');
       }
-      
-      return JSON.parse(cachedData);
     }
   } catch (error) {
-    console.error("Error retrieving cached data:", error);
+    console.error('Error retrieving cached candidates from localStorage:', error);
   }
   
   return null;
+};
+
+/**
+ * Clear cached candidates
+ */
+export const clearCachedCandidates = (): void => {
+  cachedCandidates = null;
+  cacheTimestamp = 0;
+  
+  try {
+    localStorage.removeItem('cached_candidates');
+    localStorage.removeItem('cached_candidates_timestamp');
+  } catch (error) {
+    console.error('Error clearing cached candidates:', error);
+  }
 };

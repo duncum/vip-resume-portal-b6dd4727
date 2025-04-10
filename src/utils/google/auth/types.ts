@@ -1,8 +1,6 @@
 
-// Type definitions for auth operations
-
 /**
- * Options for Google API initialization
+ * Google API initialization options
  */
 export interface GoogleApiInitOptions {
   apiKey: string;
@@ -12,17 +10,6 @@ export interface GoogleApiInitOptions {
 }
 
 /**
- * Result from initialization operations
+ * Authentication mode
  */
-export interface InitResult {
-  success: boolean;
-  error?: string;
-}
-
-/**
- * State management for initialization status
- */
-export interface InitState {
-  isInitialized: boolean;
-  setInitialized: (value: boolean) => void;
-}
+export type AuthMode = 'api_key' | 'oauth';

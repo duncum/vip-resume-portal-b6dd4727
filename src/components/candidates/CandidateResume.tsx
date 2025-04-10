@@ -1,83 +1,78 @@
-import ResumeViewer from "@/components/candidates/ResumeViewer";
+
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import ResumeHeader from "./resume/ResumeHeader";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { trackIpAddress } from "@/utils/tracking";
+import ResumeIframe from "./resume/ResumeIframe";
+import ResumeLoading from "./resume/ResumeLoading";
+import ResumeError from "./resume/ResumeError";
 
 interface CandidateResumeProps {
-  resumeUrl: string;
+  resumeUrl?: string;
   candidateId: string;
 }
 
 const CandidateResume = ({ resumeUrl, candidateId }: CandidateResumeProps) => {
-  const [validatedUrl, setValidatedUrl] = useState<string>("");
-  const [isUrlValid, setIsUrlValid] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   
-  useEffect(() => {
-    console.log(`Validating resume for candidate ${candidateId}`, { resumeUrl });
-    
-    setIsUrlValid(true);
-    
-    if (!resumeUrl) {
-      setIsUrlValid(false);
-      return;
-    }
-    
-    try {
-      const isGoogleDriveLink = resumeUrl.includes('drive.google.com');
-      
-      if (isGoogleDriveLink) {
-        if (resumeUrl.includes('/d/') || resumeUrl.includes('id=')) {
-          console.log("Valid Google Drive link detected");
-          setValidatedUrl(resumeUrl);
-          trackIpAddress(candidateId, 'resume-view');
-        } else {
-          console.error("Invalid Google Drive link format:", resumeUrl);
-          setIsUrlValid(false);
-          toast.error("Invalid Google Drive link format", { id: "drive-link-error" });
-        }
-      } else {
-        new URL(resumeUrl);
-        setValidatedUrl(resumeUrl);
-        trackIpAddress(candidateId, 'resume-view');
-      }
-    } catch (error) {
-      console.error("Invalid URL format:", error);
-      setIsUrlValid(false);
-      
-      if (resumeUrl && !resumeUrl.startsWith('http')) {
-        const fixedUrl = `https://${resumeUrl}`;
-        try {
-          new URL(fixedUrl);
-          console.log("Fixed URL by adding https://", fixedUrl);
-          setValidatedUrl(fixedUrl);
-          setIsUrlValid(true);
-          trackIpAddress(candidateId, 'resume-view-fixed');
-        } catch {
-        }
-      }
-    }
-  }, [resumeUrl, candidateId]);
+  // Normalize resumeUrl - handle missing or empty values
+  const normalizedResumeUrl = (resumeUrl && resumeUrl !== "Missing" && resumeUrl !== "") 
+    ? resumeUrl 
+    : "";
   
-  if (!isUrlValid || !validatedUrl) {
-    return (
-      <div className="border-t border-grey-700 pt-4 md:pt-6">
-        <div className="bg-grey-900/30 p-6 rounded-md text-center">
-          <p className="text-grey-400">
-            {!resumeUrl 
-              ? "No resume available for this candidate." 
-              : "The resume link appears to be invalid."}
-          </p>
-        </div>
-      </div>
-    );
+  // Clean up Google Drive URL if present
+  let embedUrl = normalizedResumeUrl;
+  
+  // If we have a Google Drive URL, convert it to an embed URL
+  if (embedUrl && embedUrl.includes("drive.google.com")) {
+    if (embedUrl.includes("file/d/")) {
+      const fileId = embedUrl.split("file/d/")[1].split("/")[0];
+      embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+    } else if (embedUrl.includes("open?id=")) {
+      const fileId = embedUrl.split("open?id=")[1].split("&")[0];
+      embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+    }
   }
   
+  // Handle loading state changes
+  const handleLoad = () => {
+    setIsLoading(false);
+    setLoadError(false);
+  };
+  
+  const handleError = () => {
+    setIsLoading(false);
+    setLoadError(true);
+  };
+  
   return (
-    <div className="border-t border-grey-700 pt-4 md:pt-6">
-      <ResumeHeader resumeUrl={validatedUrl} candidateId={candidateId} />
-      <ResumeViewer fileUrl={validatedUrl} candidateId={candidateId} />
-    </div>
+    <Card className="mt-6 bg-gradient-to-b from-grey-900/50 to-grey-900/30 border border-grey-800/50 overflow-hidden">
+      <CardContent className="p-4 md:p-6">
+        <ResumeHeader resumeUrl={normalizedResumeUrl} candidateId={candidateId} />
+        
+        {!embedUrl ? (
+          <div className="h-[400px] flex items-center justify-center">
+            <div className="text-center px-4">
+              <h3 className="text-lg font-medium text-grey-300">No Resume Available</h3>
+              <p className="mt-2 text-grey-400">This candidate does not have a resume uploaded yet.</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {isLoading && <ResumeLoading />}
+            {loadError ? (
+              <ResumeError />
+            ) : (
+              <ResumeIframe 
+                embedUrl={embedUrl} 
+                onLoad={handleLoad} 
+                onError={handleError} 
+              />
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

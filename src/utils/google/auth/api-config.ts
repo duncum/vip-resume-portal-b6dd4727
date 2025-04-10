@@ -29,13 +29,13 @@ export const getApiConfig = (): {
  * Create API initialization configuration
  */
 export const createApiConfig = (apiKey: string): GoogleApiInitOptions => {
-  // Initialize with minimum required parameters - API key only
+  // To fix the "API keys are not supported by this API" error, we need to make sure
+  // that operations that require OAuth aren't attempted with just an API key
   return {
     apiKey: apiKey,
     discoveryDocs: [
       'https://sheets.googleapis.com/$discovery/rest?version=v4',
-      'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
-      'https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'
+      'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'
     ]
   };
 };
