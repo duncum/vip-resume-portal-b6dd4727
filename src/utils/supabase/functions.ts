@@ -10,8 +10,8 @@ export const checkTableExists = async (tableName: string): Promise<boolean> => {
   try {
     if (!supabase) return false;
     
-    // Using any for the generic types to bypass TypeScript constraints
-    const { data, error } = await supabase.rpc('check_table_exists', { 
+    // Cast "any" to bypass TypeScript constraints for RPC calls
+    const { data, error } = await (supabase.rpc as any)('check_table_exists', { 
       table_name: tableName 
     });
     
@@ -56,8 +56,8 @@ export const insertAnalyticsEvent = async (
       p_metadata: metadata
     };
     
-    // Using non-generic version to avoid TypeScript constraints
-    const { error } = await supabase.rpc('insert_analytics_event', params);
+    // Cast "any" to bypass TypeScript constraints for RPC calls
+    const { error } = await (supabase.rpc as any)('insert_analytics_event', params);
     
     if (error) {
       console.error("Error inserting analytics event:", error);
