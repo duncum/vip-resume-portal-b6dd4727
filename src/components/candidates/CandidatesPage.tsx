@@ -12,15 +12,6 @@ import CandidateCategories from "@/components/candidates/CandidateCategories";
 import { toast } from "sonner";
 
 const CandidatesPage = () => {
-  const positionCategories = [
-    "All",
-    "Executive",
-    "Director",
-    "Mid-Senior level",
-    "Emerging Executives",
-    "One Man Army"
-  ];
-
   const isMobile = useIsMobile();
   
   const { 
@@ -93,7 +84,6 @@ const CandidatesPage = () => {
           <div className="w-full max-w-3xl mx-auto mb-6 md:mb-8 animate-fade-up">
             <CandidateSearch onSearch={handleSearch} />
             <CandidateCategories
-              categories={positionCategories}
               activeCategory={activeCategory}
               onCategoryChange={handleCategoryChange}
             />
