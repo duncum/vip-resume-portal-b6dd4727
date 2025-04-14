@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { Candidate } from "@/utils/sheets";
 import { toast } from "sonner";
+import { searchCandidates } from "@/utils/search/resumeSearch";
 
 export function useCandidateFilters(candidates: Candidate[] = []) {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -11,65 +12,12 @@ export function useCandidateFilters(candidates: Candidate[] = []) {
   const applyFilters = useCallback((data: Candidate[], query: string, category: string) => {
     console.log(`Filtering ${data.length} candidates with query: "${query}", category: "${category}"`);
     
-    // Start with all candidates
-    let filtered = [...data];
-    
-    // Apply search query filter if it exists
-    if (query && query.trim() !== '') {
-      const lowerQuery = query.toLowerCase().trim();
+    try {
+      // First apply search filter
+      let filtered = searchCandidates(data, query);
       
-      try {
-        filtered = filtered.filter(candidate => {
-          // Check if candidate is valid
-          if (!candidate) return false;
-          
-          // Check standard fields (more efficient)
-          const matchesHeadline = candidate.headline?.toLowerCase().includes(lowerQuery) || false;
-          const matchesSectors = Array.isArray(candidate.sectors) && 
-            candidate.sectors.some(sector => sector?.toLowerCase().includes(lowerQuery));
-          const matchesTags = Array.isArray(candidate.tags) && 
-            candidate.tags.some(tag => tag?.toLowerCase().includes(lowerQuery));
-          const matchesTitle = typeof candidate.title === 'string' && 
-            candidate.title.toLowerCase().includes(lowerQuery);
-          const matchesSummary = typeof candidate.summary === 'string' && 
-            candidate.summary.toLowerCase().includes(lowerQuery);
-          const matchesLocation = typeof candidate.location === 'string' && 
-            candidate.location.toLowerCase().includes(lowerQuery);
-          const matchesEmployers = typeof candidate.notableEmployers === 'string' && 
-            candidate.notableEmployers.toLowerCase().includes(lowerQuery);
-          
-          // If we found a match in standard fields, return true
-          if (matchesHeadline || matchesSectors || matchesTags || matchesTitle || 
-              matchesSummary || matchesLocation || matchesEmployers) {
-            return true;
-          }
-          
-          // Only search resume text if it exists
-          if (typeof candidate.resumeText === 'string' && candidate.resumeText.trim() !== '') {
-            try {
-              const matchesResume = candidate.resumeText.toLowerCase().includes(lowerQuery);
-              if (matchesResume) {
-                console.log(`Resume text match found for candidate ${candidate.id} with query "${lowerQuery}"`);
-                return true;
-              }
-            } catch (error) {
-              console.error(`Error searching resume text for candidate ${candidate.id}:`, error);
-            }
-          }
-          
-          return false;
-        });
-        
-        console.log(`After search query filter: ${filtered.length} candidates remain`);
-      } catch (error) {
-        console.error("Error in search filtering:", error);
-        toast.error("Search error occurred. Please try again.");
-      }
-    }
-    
-    // Apply category filter if not "All"
-    if (category !== "All") {
-      try {
+      // Then apply category filter if not "All"
+      if (category !== "All") {
         filtered = filtered.filter(candidate => {
           if (!candidate || !candidate.category) return false;
           
@@ -81,13 +29,14 @@ export function useCandidateFilters(candidates: Candidate[] = []) {
         });
         
         console.log(`After category filter "${category}": ${filtered.length} candidates remain`);
-      } catch (error) {
-        console.error("Error in category filtering:", error);
-        toast.error("Category filtering error occurred. Please try again.");
       }
+      
+      return filtered;
+    } catch (error) {
+      console.error("Error applying filters:", error);
+      toast.error("Error filtering candidates. Showing all results.");
+      return data;
     }
-    
-    return filtered;
   }, []);
 
   // Apply filters whenever dependencies change
@@ -95,10 +44,23 @@ export function useCandidateFilters(candidates: Candidate[] = []) {
     try {
       const filtered = applyFilters(candidates, searchQuery, activeCategory);
       setFilteredCandidates(filtered);
+      
+      // Show toast for resume matches when search is performed
+      if (searchQuery && filtered.length > 0) {
+        const resumeMatches = filtered.filter(c => 
+          c.resumeText && c.resumeText.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        
+        if (resumeMatches.length > 0) {
+          toast.success(`Found ${resumeMatches.length} matches in resume content!`, {
+            id: "resume-search-success",
+            duration: 3000
+          });
+        }
+      }
     } catch (error) {
       console.error("Error applying filters:", error);
-      setFilteredCandidates(candidates); // Reset to original on error
-      toast.error("Error filtering candidates. Showing all results.");
+      setFilteredCandidates(candidates);
     }
   }, [candidates, searchQuery, activeCategory, applyFilters]);
 

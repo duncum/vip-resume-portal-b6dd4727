@@ -3,18 +3,34 @@ import CandidateCard from "@/components/candidates/CandidateCard";
 import PaginatedResults from "@/components/candidates/PaginatedResults";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Candidate } from "@/utils/sheets/types";
+import { countResumeMatches } from "@/utils/search/resumeSearch";
 
 interface CandidateListProps {
   candidates: Candidate[];
   isLoading: boolean;
   itemsPerPage?: number;
+  searchQuery?: string;
 }
 
 const CandidateList = ({ 
   candidates, 
   isLoading, 
-  itemsPerPage = 6 
+  itemsPerPage = 6,
+  searchQuery = ""
 }: CandidateListProps) => {
+  // Add resume match count to candidates when there's a search query
+  const enhancedCandidates = searchQuery 
+    ? candidates.map(candidate => ({
+        ...candidate,
+        resumeMatchCount: countResumeMatches(candidate, searchQuery)
+      }))
+    : candidates;
+  
+  // Sort by resume match count if searching
+  const sortedCandidates = searchQuery
+    ? [...enhancedCandidates].sort((a, b) => (b.resumeMatchCount || 0) - (a.resumeMatchCount || 0))
+    : enhancedCandidates;
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
@@ -35,7 +51,7 @@ const CandidateList = ({
 
   return (
     <PaginatedResults
-      items={candidates}
+      items={sortedCandidates}
       itemsPerPage={itemsPerPage}
       renderItems={(currentItems) => (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
@@ -53,6 +69,8 @@ const CandidateList = ({
               relocationPreference={candidate.relocationPreference}
               resumeUrl={candidate.resumeUrl}
               notableEmployers={candidate.notableEmployers}
+              resumeMatchCount={candidate.resumeMatchCount}
+              searchQuery={searchQuery}
             />
           ))}
         </div>

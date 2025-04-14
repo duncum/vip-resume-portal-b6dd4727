@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ContractAgreement } from "@/components/auth/ContractAgreement";
+import ContractAgreement from "@/components/auth/ContractAgreement";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
