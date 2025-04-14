@@ -1,39 +1,36 @@
 
-import { useMemo } from "react";
-import CategoryFilter from "@/components/candidates/CategoryFilter";
-import { useIsMobile } from "@/hooks/use-mobile";
-
-// Category descriptions
-const categoryDescriptions: Record<string, string> = {
-  "All": "View all candidates across all position levels",
-  "Executive": "C-Suite, VPs, Partners and enterprise-level leaders",
-  "Director": "Strategic leaders managing regions, portfolios or departments",
-  "Mid-Senior level": "Experienced operators managing functions or teams",
-  "Emerging Executives": "Rising talent with high potential for leadership roles",
-  "One Man Army": "Versatile professionals with deep expertise across multiple domains"
-};
+import { Button } from "@/components/ui/button";
+import { POSITION_CATEGORIES } from "@/types/candidate";
 
 interface CandidateCategoriesProps {
   activeCategory: string;
   onCategoryChange: (category: string) => void;
-  categories: string[];
 }
 
-const CandidateCategories = ({ 
-  activeCategory, 
+const CandidateCategories = ({
+  activeCategory,
   onCategoryChange,
-  categories
 }: CandidateCategoriesProps) => {
-  const isMobile = useIsMobile();
-
   return (
-    <CategoryFilter
-      categories={categories}
-      activeCategory={activeCategory}
-      onCategoryChange={onCategoryChange}
-      categoryDescriptions={categoryDescriptions}
-      isMobile={isMobile}
-    />
+    <div className="flex flex-wrap items-center gap-2 mt-4">
+      <span className="text-sm text-gray-400 mr-1">Filter:</span>
+      
+      {POSITION_CATEGORIES.map((category) => (
+        <Button
+          key={category}
+          variant={activeCategory === category ? "default" : "outline"}
+          size="sm"
+          onClick={() => onCategoryChange(category)}
+          className={
+            activeCategory === category
+              ? "bg-amber-500 hover:bg-amber-600 text-black"
+              : "text-gray-300 border-gray-700 hover:bg-gray-800 hover:text-white"
+          }
+        >
+          {category}
+        </Button>
+      ))}
+    </div>
   );
 };
 

@@ -1,76 +1,66 @@
 
-import React, { useState } from "react";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from "react";
+import { Toaster } from "sonner";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Index from "./pages/Index";
-import Landing from "./pages/Landing";
-import CandidateView from "./pages/CandidateView";
-import Admin from "./pages/Admin";
-import NotFound from "./pages/NotFound";
-import Agreement from "./pages/Agreement";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-const App = () => {
-  // Create a client instance inside the component to ensure it's created after React is initialized
-  const [queryClient] = useState(() => new QueryClient());
+// Pages
+import LandingPage from "./pages/Landing";
+import AgreementPage from "./pages/Agreement";
+import CandidatesPage from "./pages/Candidates";
+import CandidateDetailsPage from "./pages/CandidateDetails";
+import NotFoundPage from "./pages/NotFound";
 
-  // Protected route component
-  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    const hasAgreed = localStorage.getItem("contract-agreed") === "true";
-    
-    if (!hasAgreed) {
-      return <Navigate to="/agreement" replace />;
-    }
-    
-    return <>{children}</>;
-  };
+// Create a query client for data fetching
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+    },
+  },
+});
 
+// Protected route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const hasAgreed = localStorage.getItem("agreement-accepted") === "true";
+  
+  if (!hasAgreed) {
+    return <Navigate to="/agreement" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Landing page as the main entry point */}
-            <Route path="/" element={<Landing />} />
-            
-            {/* Agreement route */}
-            <Route path="/agreement" element={<Agreement />} />
-            
-            {/* Protected routes */}
-            <Route 
-              path="/candidates" 
-              element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/candidate/:id" 
-              element={
-                <ProtectedRoute>
-                  <CandidateView />
-                </ProtectedRoute>
-              }
-            />
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute>
-                  <Admin />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <BrowserRouter>
+        <Toaster position="top-right" />
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/agreement" element={<AgreementPage />} />
+          
+          {/* Protected routes */}
+          <Route path="/candidates" element={
+            <ProtectedRoute>
+              <CandidatesPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/candidates/:id" element={
+            <ProtectedRoute>
+              <CandidateDetailsPage />
+            </ProtectedRoute>
+          } />
+          
+          {/* 404 fallback */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </BrowserRouter>
     </QueryClientProvider>
   );
-};
+}
 
 export default App;

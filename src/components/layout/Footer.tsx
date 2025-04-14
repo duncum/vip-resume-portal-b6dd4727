@@ -5,39 +5,61 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="w-full bg-black border-t border-gold/10 py-10 mt-auto">
+    <footer className="bg-black border-t border-gray-800 py-6">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-6 md:mb-0">
-            <Link to="/" className="block">
-              <img 
-                src="/lovable-uploads/2c5dda64-7e25-4ca1-93ab-0de9e1d5fb16.png" 
-                alt="VIP Employers Logo" 
-                className="h-12"
-              />
-            </Link>
-          </div>
-          
-          <div className="mb-6 md:mb-0 md:order-3">
-            <p className="text-grey-400 text-sm">
-              &copy; {currentYear} Executive Network. All rights reserved.
-            </p>
-            <p className="text-grey-500 text-xs mt-1">
-              All candidate information is strictly confidential.
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 className="text-amber-500 font-medium mb-3">TalentVault</h3>
+            <p className="text-gray-400 text-sm">
+              Your exclusive portal for top-tier talent discovery.
             </p>
           </div>
           
-          <div className="flex space-x-8 md:order-2">
-            <Link to="/" className="text-grey-300 hover:text-gold transition-colors text-sm">
-              Privacy
-            </Link>
-            <Link to="/" className="text-grey-300 hover:text-gold transition-colors text-sm">
-              Terms
-            </Link>
-            <Link to="/" className="text-grey-300 hover:text-gold transition-colors text-sm">
-              Contact
-            </Link>
+          <div>
+            <h3 className="text-amber-500 font-medium mb-3">Links</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/" className="text-gray-400 hover:text-white transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/agreement" className="text-gray-400 hover:text-white transition-colors">
+                  Agreement
+                </Link>
+              </li>
+              <li>
+                <Link to="/candidates" className="text-gray-400 hover:text-white transition-colors">
+                  Candidates
+                </Link>
+              </li>
+            </ul>
           </div>
+          
+          <div>
+            <h3 className="text-amber-500 font-medium mb-3">Legal</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                  Confidentiality
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div className="mt-8 pt-6 border-t border-gray-800 text-center text-gray-500 text-sm">
+          <p>© {currentYear} TalentVault. All rights reserved.</p>
         </div>
       </div>
     </footer>
