@@ -1,66 +1,32 @@
 
-import React from "react";
-import { Toaster } from "sonner";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Agreement from './pages/Agreement';
+import Candidates from './pages/Candidates';
 
-// Pages
-import LandingPage from "./pages/Landing";
-import AgreementPage from "./pages/Agreement";
-import CandidatesPage from "./pages/Candidates";
-import CandidateDetailsPage from "./pages/CandidateDetails";
-import NotFoundPage from "./pages/NotFound";
-
-// Create a query client for data fetching
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 1000 * 60 * 5, // 5 minutes
-    },
-  },
-});
-
-// Protected route component
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const hasAgreed = localStorage.getItem("agreement-accepted") === "true";
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const hasAgreed = localStorage.getItem('network-agreement') === 'true';
   
-  if (!hasAgreed) {
-    return <Navigate to="/agreement" replace />;
-  }
-  
-  return <>{children}</>;
+  return hasAgreed ? <>{children}</> : <Navigate to="/agreement" replace />;
 };
 
-function App() {
+const App: React.FC = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Toaster position="top-right" />
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/agreement" element={<AgreementPage />} />
-          
-          {/* Protected routes */}
-          <Route path="/candidates" element={
+    <BrowserRouter>
+      <Routes>
+        <Route path="/agreement" element={<Agreement />} />
+        <Route 
+          path="/candidates" 
+          element={
             <ProtectedRoute>
-              <CandidatesPage />
+              <Candidates />
             </ProtectedRoute>
-          } />
-          <Route path="/candidates/:id" element={
-            <ProtectedRoute>
-              <CandidateDetailsPage />
-            </ProtectedRoute>
-          } />
-          
-          {/* 404 fallback */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </BrowserRouter>
-    </QueryClientProvider>
+          } 
+        />
+        <Route path="/" element={<Navigate to="/agreement" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;
