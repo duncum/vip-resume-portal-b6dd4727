@@ -19,18 +19,20 @@ const Header = () => {
         </Link>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-6">
           <Link to="/candidates" className="text-grey-300 font-medium hover:text-gold transition-colors">
             Candidates
           </Link>
           <Link to="/admin" className="text-grey-300 font-medium hover:text-gold transition-colors">
             Admin
           </Link>
-          <Link to="/candidates" className="flex items-center gap-1 text-grey-300 hover:text-gold transition-colors">
-            <Search size={18} />
-            Search
-          </Link>
-        </nav>
+          <Button variant="ghost" className="flex items-center gap-1 text-grey-300 hover:text-gold" asChild>
+            <Link to="/candidates">
+              <Search size={18} />
+              Search
+            </Link>
+          </Button>
+        </div>
         
         {/* Mobile Menu Button */}
         <Button 
@@ -46,7 +48,7 @@ const Header = () => {
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-black/95 border-b border-gold/10 animate-fade-in">
-          <nav className="container mx-auto px-4 py-4 flex flex-col space-y-3">
+          <div className="container mx-auto px-4 py-4 flex flex-col space-y-3">
             <Link 
               to="/candidates" 
               className="text-grey-300 py-2 hover:text-gold transition-colors"
@@ -69,7 +71,7 @@ const Header = () => {
               <Search size={18} />
               Search
             </Link>
-          </nav>
+          </div>
         </div>
       )}
     </header>
