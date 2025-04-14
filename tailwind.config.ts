@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -69,7 +68,12 @@ export default {
               900: '#171717',
             }
           }
-        }
+        },
+        gold: {
+          DEFAULT: '#ab8755',
+          light: '#c4a575',
+          dark: '#8e6d40',
+        },
       },
       fontFamily: {
         display: ['Playfair Display', 'serif'],
