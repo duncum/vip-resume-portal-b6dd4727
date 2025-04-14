@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { fetchCandidateById, type Candidate } from "@/utils/sheets";
@@ -15,17 +15,27 @@ import CandidateResume from "@/components/candidates/CandidateResume";
 const CandidateView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
     const loadCandidate = async () => {
-      if (!id) return;
+      if (!id) {
+        setIsLoading(false);
+        setCandidate(null);
+        return;
+      }
       
       // Clean ID to ensure we're only using the part before any comma
       const cleanId = id.split(',')[0].trim();
+      
+      // If the ID is "FALSE", redirect to candidates list
+      if (cleanId === "FALSE") {
+        console.log("Invalid ID 'FALSE' detected, redirecting to candidates page");
+        navigate('/candidates', { replace: true });
+        return;
+      }
       
       // If the ID contains more than just the ID part, redirect to a clean URL
       if (id !== cleanId && (id.includes(',') || id.length > 50)) {
@@ -41,6 +51,10 @@ const CandidateView = () => {
         
         if (!data) {
           console.log("No candidate found with ID:", cleanId);
+          toast.error("Candidate not found", {
+            description: "This candidate may have been removed or doesn't exist.",
+            duration: 5000
+          });
           setCandidate(null);
         } else {
           console.log("Candidate loaded successfully:", data.id);
@@ -50,6 +64,7 @@ const CandidateView = () => {
         console.error("Error loading candidate:", error);
         toast.error("Failed to load candidate", {
           description: "Please try again or check your API settings",
+          duration: 5000
         });
         setCandidate(null);
       } finally {

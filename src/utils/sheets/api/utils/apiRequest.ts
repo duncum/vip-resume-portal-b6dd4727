@@ -4,8 +4,8 @@
  */
 
 import { toast } from "sonner";
-import { Candidate } from '../../../types';
-import { rowToCandidate } from '../../../data-mapper';
+import { Candidate } from '../../types';
+import { rowToCandidate } from '../../data-mapper';
 import { resetFailures } from './failureTracker';
 import { cacheCandidates } from './cacheManager';
 
