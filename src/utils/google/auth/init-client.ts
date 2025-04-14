@@ -52,8 +52,8 @@ export const initializeClient = async (): Promise<boolean> => {
           try {
             console.log("Trying alternate API loading approach");
             
-            // Direct method to get spreadsheets API
-            await window.gapi.client.load('https://sheets.googleapis.com/$discovery/rest?version=v4');
+            // Direct method to get spreadsheets API - fixed to include null as second argument
+            await window.gapi.client.load('https://sheets.googleapis.com/$discovery/rest?version=v4', null);
             console.log("Sheets API loaded via alternate method");
             sheetsLoaded = true;
           } catch (loadErr) {
