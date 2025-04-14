@@ -28,6 +28,7 @@ export interface Candidate {
   status?: string;
   source?: string;
   notes?: string;
+  resumeMatchCount?: number;
 }
 
 /**
