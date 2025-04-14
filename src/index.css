@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -48,7 +47,7 @@
   }
 
   * {
-    @apply border-border;
+    @apply border-neutral-800;
   }
 
   body {
@@ -56,27 +55,22 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   
-  /* Improved smooth scrolling */
   html {
     @apply scroll-smooth;
   }
   
-  /* Landing page specific styling */
   .landing-page {
     @apply overflow-x-hidden;
   }
 
-  /* Enable perspective for 3D effects */
   .perspective-1000 {
     perspective: 1000px;
   }
 
-  /* For 3D rotation effects */
   .preserve-3d {
     transform-style: preserve-3d;
   }
 
-  /* Backface visibility for card flips */
   .backface-hidden {
     backface-visibility: hidden;
   }
@@ -103,7 +97,6 @@
     @apply border-gold/20 bg-grey-900/80 backdrop-blur-sm;
   }
 
-  /* Animation classes for fade in and other effects */
   .animate-fade-in {
     animation: fadeIn 0.8s ease-out forwards;
   }
@@ -132,7 +125,6 @@
     animation: pulse 3s ease-in-out infinite;
   }
   
-  /* Enhanced premium animations */
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
@@ -141,7 +133,6 @@
     animation: slideUp 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
   
-  /* New luxury animations */
   .animate-glow-pulse {
     animation: glowPulse 4s ease-in-out infinite;
   }
@@ -156,7 +147,6 @@
     animation: rotateSlow 20s linear infinite;
   }
 
-  /* Background effects */
   .bg-radial-gold {
     background: radial-gradient(circle at center, rgba(171,135,85,0.2) 0%, rgba(0,0,0,0) 70%);
   }
@@ -208,7 +198,6 @@
     100% { transform: translateY(0%); opacity: 1; }
   }
   
-  /* New luxury keyframe animations */
   @keyframes glowPulse {
     0% { box-shadow: 0 0 5px rgba(171,135,85,0.3); }
     50% { box-shadow: 0 0 20px rgba(171,135,85,0.6); }
@@ -225,7 +214,6 @@
     100% { transform: rotate(360deg); }
   }
 
-  /* Watermark patterns - updated for luxury */
   .watermark-grid {
     @apply grid grid-cols-3 gap-24 opacity-20;
   }
@@ -242,28 +230,23 @@
     @apply w-52;
   }
   
-  /* Premium glass effect */
   .glass-effect {
     @apply backdrop-blur-md bg-black/30 border border-white/10;
   }
   
-  /* Luxury card effect */
   .luxury-card {
     @apply border border-gold/30 bg-black/70 backdrop-blur-md shadow-xl;
   }
   
-  /* Gold accent */
   .gold-accent {
     @apply border-b-2 border-gold/50;
   }
 }
 
-/* Executive theme enhancements */
 .font-display {
   font-family: 'Playfair Display', serif;
 }
 
-/* Enhanced text gradient effects */
 .text-gradient-gold {
   background: linear-gradient(to right, #ab8755, #e2cba8, #ab8755);
   -webkit-background-clip: text;
