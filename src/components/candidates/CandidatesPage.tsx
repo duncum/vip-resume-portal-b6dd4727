@@ -1,6 +1,5 @@
 
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useCandidates } from "@/hooks/use-candidates";
@@ -13,7 +12,6 @@ import CandidateCategories from "@/components/candidates/CandidateCategories";
 import { toast } from "sonner";
 
 const CandidatesPage = () => {
-  const navigate = useNavigate();
   const positionCategories = [
     "All",
     "Executive",
@@ -75,10 +73,6 @@ const CandidatesPage = () => {
       }
     }
   }, [searchQuery, candidates, filteredCandidates]);
-
-  const handleCandidateClick = (id: string) => {
-    navigate(`/candidate/${id}`);
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">

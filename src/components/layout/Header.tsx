@@ -14,7 +14,7 @@ const Header = () => {
           <img 
             src="/lovable-uploads/2c5dda64-7e25-4ca1-93ab-0de9e1d5fb16.png" 
             alt="VIP Employers Logo" 
-            className="h-8 md:h-10"
+            className="h-8 md:h-10" // Adjusted logo size here
           />
         </Link>
         
